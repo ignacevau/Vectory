@@ -1,7 +1,11 @@
 var canvas;
 
-window.onload = function() {
+function InitMain() {
     canvas = document.getElementById("canvas");
-    canvas.width = window.innerWidth / 2;
-    canvas.height = window.innerHeight / 2;
+}
+
+window.onload = function() {
+    InitMain();
+    InitSidebars();
+    InitCanvas();
 }

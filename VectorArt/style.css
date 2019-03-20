@@ -7,7 +7,17 @@ body {
 }
 
 #canvas {
-    background-color: white;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: -1;
+}
+
+.canvas-footer {
+    width: 100%;
+    height: 20px;
+    background-color: rgb(77, 77, 77);
+    border-top: 2px solid rgb(39, 39, 39);
 }
 
 .header {
@@ -22,6 +32,10 @@ body {
     display: flex;
 }
 
+.left, #handler-left {
+    order: -1;
+}
+
 .sidebar-topmenu {
     background-color: rgb(77, 77, 77);
     flex: 0 0 auto;
@@ -31,8 +45,10 @@ body {
 }
 
 .main {
-    background-color: rgb(224, 224, 224);
+    background-color: rgba(224, 224, 224, 0);
     flex: 5;
+    display: flex;
+    flex-direction: column-reverse;
 }
 
 .content {
@@ -42,7 +58,7 @@ body {
 
 @media screen and (max-width: 992px) {
     .sidebar, .handler {
-        display: none;
+        display: none !important;
     }
 }
 

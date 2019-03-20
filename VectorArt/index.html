@@ -3,23 +3,27 @@
 <head>
     <script type="text/javascript" src="Libraries/paper.js"></script>
     <script type="text/javascript" src="Scripts/sidebars.js"></script>
+    <script type="text/javascript" src="Scripts/main.js"></script>
 
     <link rel="stylesheet" type="text/css" href="style.css"></link>
 </head>
 
 <body>
-    
+<canvas id="canvas" resize></canvas>
+
 <header class="header"></header>
 
 <div class="content">
+    <article class="main">
+        <footer class="canvas-footer"></footer>
+    </article>
+
     <nav class="sidebar left">
         <aside class="sidebar-topmenu"></aside>
     </nav>
     <div class="handler" id="handler-left">
         <div id="handler-left-handle" style="background-color: white; height: 2vh; width: 2px; flex: 1; margin: 1.5px;"></div>
     </div>
-
-    <article class="main"></article>
 
     <div class="handler" id="handler-right">
         <div id="handler-right-handle" style="background-color: white; height: 2vh; width: 2px; flex: 1; margin: 1.5px;"></div>
@@ -29,5 +33,20 @@
     </nav>
 </div>
 
+<script>
+    paper.install(window);
+
+    function InitCanvas() {
+        var canvas = document.getElementById("canvas");
+        paper.setup('canvas');
+
+        // Testing for the canvas resizing
+        /*var path;
+
+        path = new Path();
+        path.strokeColor = "black";
+        path.add(new Point(0, 0), new Point(500, 500));*/
+    }
+</script>
 </body>
 </html>

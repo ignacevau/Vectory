@@ -1,4 +1,4 @@
-window.onload = function() {
+function InitSidebars() {
     var handlerLeft = document.querySelector('#handler-left');
     var handlerRight = document.querySelector('#handler-right');
     var wrapper = handlerLeft.closest('.content');
