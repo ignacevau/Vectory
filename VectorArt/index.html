@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Vectory</title>
+    <meta charset="UTF-8">
     <script type="text/javascript" src="Libraries/paper.js"></script>
-    <script type="text/javascript" src="Scripts/sidebars.js"></script>
-    <script type="text/javascript" src="Scripts/main.js"></script>
 
     <link rel="stylesheet" type="text/css" href="style.css"></link>
 </head>
@@ -33,20 +33,10 @@
     </nav>
 </div>
 
-<script>
-    paper.install(window);
+<script type="text/javascript" src="Scripts/sidebars.js"></script>
+<script type="text/javascript" src="Scripts/main.js"></script>
 
-    function InitCanvas() {
-        var canvas = document.getElementById("canvas");
-        paper.setup('canvas');
-
-        // Testing for the canvas resizing
-        /*var path;
-
-        path = new Path();
-        path.strokeColor = "black";
-        path.add(new Point(0, 0), new Point(500, 500));*/
-    }
-</script>
+<script type="text/javascript" src="Scripts/Tools/Zoom.js"></script>
+<script type="text/javascript" src="Scripts/Tools/Select.js"></script>
 </body>
 </html>

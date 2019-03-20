@@ -1,11 +1,15 @@
 var canvas;
+paper.install(window);
 
 function InitMain() {
-    canvas = document.getElementById("canvas");
+    paper.setup('canvas');
+    canvas = document.getElementById('canvas');
 }
 
 window.onload = function() {
     InitMain();
     InitSidebars();
-    InitCanvas();
-}
+
+    InitToolZoom();
+    InitToolSelect();
+};
