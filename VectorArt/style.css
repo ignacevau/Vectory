@@ -1,0 +1,58 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
+
+#canvas {
+    background-color: white;
+}
+
+.header {
+    height: 5vh;
+    background-color: rgb(94, 94, 94);
+    border-bottom: 2px solid rgb(77, 77, 77);
+}
+
+.sidebar {
+    background-color: rgb(94, 94, 94);
+    flex: 0 0 auto;
+    display: flex;
+}
+
+.sidebar-topmenu {
+    background-color: rgb(77, 77, 77);
+    flex: 0 0 auto;
+    height: 3vh;
+    width: 100%;
+    padding: 3px;
+}
+
+.main {
+    background-color: rgb(224, 224, 224);
+    flex: 5;
+}
+
+.content {
+    min-height: 95vh;
+    display: flex;
+}
+
+@media screen and (max-width: 992px) {
+    .sidebar, .handler {
+        display: none;
+    }
+}
+
+.handler {
+    width: 4px;
+    padding: 0;
+    cursor: ew-resize;
+    flex: 0 0 auto;
+    background-color: rgb(77, 77, 77);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
