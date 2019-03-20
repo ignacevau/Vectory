@@ -8,10 +8,13 @@ function InitSidebars() {
     var handlerDraggingLeft = false;
     var handlerDraggingRight = false;
 
+    var minWidth = 50;
+    var maxWidth = 90;
+
     sideLeft.style.flexGrow = 0;
     sideRight.style.flexGrow = 0;
-    sideLeft.style.width = 100 + 'px';
-    sideRight.style.width = 100 + 'px';
+    sideLeft.style.width = maxWidth + 'px';
+    sideRight.style.width = maxWidth + 'px';
 
     function Clamp(value, min, max){
         if(value < min){
@@ -42,10 +45,6 @@ function InitSidebars() {
 
         // Get x-coordinate of pointer relative to container
         var pointerRelativeXpos = e.clientX - containerOffsetLeft;
-        
-        // Arbitrary minimum width set on the sidebar, otherwise its inner content will collapse to width of 0
-        var minWidth = 50;
-        var maxWidth = 100;
 
         // * 1px is the left/right spacing between .handler and its inner pseudo-element
         // * Set flex-grow to 0 to prevent it from growing

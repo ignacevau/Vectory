@@ -10,7 +10,7 @@ body {
     width: 100%;
     height: 100%;
     position: absolute;
-    z-index: -1;
+    z-index: 0;
 }
 
 .canvas-footer {
@@ -18,12 +18,19 @@ body {
     height: 20px;
     background-color: rgb(77, 77, 77);
     border-top: 2px solid rgb(39, 39, 39);
+    z-index: 1;
+    pointer-events: all;
 }
 
 .header {
+    padding: 10px;
+    align-content: flex-start;
+    flex: 0 1 auto;
     height: 5vh;
+    width: 100%;
     background-color: rgb(94, 94, 94);
     border-bottom: 2px solid rgb(77, 77, 77);
+    z-index: 1;
 }
 
 .sidebar {
@@ -33,6 +40,49 @@ body {
     flex-wrap: wrap;
     justify-content: center;
     align-content: flex-start;
+    z-index: 1;
+    pointer-events: all;
+}
+
+.tool {
+    background-color: rgb(102, 102, 102);
+    width: 35px;
+    height: 35px;
+    margin: 8px 4px 0px 4px;
+    border-radius: 3px;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.tool:hover {
+    background-color: rgb(77, 77, 77);
+}
+
+.tool:active {
+    background-color: rgb(63, 63, 63);
+}
+
+.tools-active {
+    background-color: rgb(63, 63, 63);
+}
+
+.tools-active:hover {
+    background-color: rgb(63, 63, 63);
+}
+
+.tool-img {
+    margin: 15%;
+    width: 70%;
+    height: 70%;
+    flex: 0 0 auto;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
 }
 
 .left, #handler-left {
@@ -52,11 +102,22 @@ body {
     flex: 5;
     display: flex;
     flex-direction: column-reverse;
+    z-index: 1;
+    pointer-events: none;
 }
 
 .content {
     min-height: 95vh;
     display: flex;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.top-down {
+    min-height: 5vh;
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
 }
 
 @media screen and (max-width: 992px) {
@@ -66,7 +127,7 @@ body {
 }
 
 .handler {
-    width: 4px;
+    width: 6px;
     padding: 0;
     cursor: ew-resize;
     flex: 0 0 auto;
@@ -74,4 +135,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 1;
+    pointer-events: all;
 }

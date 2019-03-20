@@ -1,20 +1,9 @@
-function InitToolZoom () {
-    // Testing for the canvas resizing
-    var path;
-
-    path = new Path.Circle(new Point(300, 300), 40);
-    path.fillColor = 'black';
-
-
+function InitZoom () {
     view = paper.view;
 
     // Firefox
-    document.querySelector('.main').onwheel = function(e) {
+    document.querySelector('#canvas').onwheel = function(e) {
         e.preventDefault();
-        // Don't zoom when the mouse is on the footer
-        if (e.target.localName === 'footer') {
-            return;
-        }
 
         var mousePos = new Point(e.clientX, e.clientY);
         updateZoom(e.deltaY, mousePos);
@@ -25,6 +14,9 @@ function InitToolZoom () {
         [view.zoom, offset] = changeZoomStable(view.zoom, delta, view.center, mouseViewPos);
         view.center = view.center.add(offset);
         view.draw();
+
+        // Pretty much hardcoded, this is to adjust the hitTolerance in respect to the zoom
+        settings.hitTolerance = (7 / (view.zoom)).clamp(0, 17);
     }
 
     function getNewZoom(oldZoom, delta) {

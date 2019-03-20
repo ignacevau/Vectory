@@ -5,38 +5,59 @@
     <meta charset="UTF-8">
     <script type="text/javascript" src="Libraries/paper.js"></script>
 
+    <script type="text/javascript" src="Scripts/sidebars.js"></script>
+    <script type="text/javascript" src="Scripts/main.js"></script>
+
+    <script type="text/javascript" src="Scripts/Zoom.js"></script>
+
+    <script type="text/javascript" src="Scripts/Tools/Select.js"></script>
+    <script type="text/javascript" src="Scripts/Tools/Pointer.js"></script>
+    <script type="text/javascript" src="Scripts/Tools/Pen.js"></script>
+    <script type="text/javascript" src="Scripts/Tools/Shape.js"></script>
+
     <link rel="stylesheet" type="text/css" href="style.css"></link>
 </head>
 
 <body>
 <canvas id="canvas" resize></canvas>
 
-<header class="header"></header>
 
-<div class="content">
-    <article class="main">
-        <footer class="canvas-footer"></footer>
-    </article>
+<div class="top-down">
+    <header class="header"></header>
 
-    <nav class="sidebar left">
-        <aside class="sidebar-topmenu"></aside>
-    </nav>
-    <div class="handler" id="handler-left">
-        <div id="handler-left-handle" style="background-color: white; height: 2vh; width: 2px; flex: 1; margin: 1.5px;"></div>
+    <div class="content">
+        <article class="main">
+            <footer class="canvas-footer"></footer>
+        </article>
+
+        <nav class="sidebar left">
+            <aside class="sidebar-topmenu"></aside>
+            <span class="tool tools-active" id="tool-select">
+                <img src="Assets/tool-select.png" class="tool-img" ondragstart="return false;" />
+            </span>
+            <span class="tool" id="tool-pointer">
+                <img src="Assets/tool-pointer.png" class="tool-img" ondragstart="return false;" />
+            </span>
+            <span class="tool" id="tool-pen">
+                <img src="Assets/tool-pen.png" class="tool-img" ondragstart="return false;" />
+            </span>
+            <span class="tool" id="tool-shape">
+                <img src="Assets/tool-circle.png" class="tool-img" ondragstart="return false;" />
+            </span>
+        </nav>
+        <div class="handler" id="handler-left">
+            <div id="handler-left-handle" style="background-color: white; height: 2vh; width: 1px; flex: 0 0 auto;"></div>
+        </div>
+
+        <div class="handler" id="handler-right">
+            <div id="handler-right-handle" style="background-color: white; height: 2vh; width: 1px; flex: 0 0 auto;"></div>
+        </div>
+        <nav class="sidebar right">
+            <aside class="sidebar-topmenu"></aside>
+        </nav>
     </div>
-
-    <div class="handler" id="handler-right">
-        <div id="handler-right-handle" style="background-color: white; height: 2vh; width: 2px; flex: 1; margin: 1.5px;"></div>
-    </div>
-    <nav class="sidebar right">
-        <aside class="sidebar-topmenu"></aside>
-    </nav>
 </div>
 
-<script type="text/javascript" src="Scripts/sidebars.js"></script>
-<script type="text/javascript" src="Scripts/main.js"></script>
 
-<script type="text/javascript" src="Scripts/Tools/Zoom.js"></script>
-<script type="text/javascript" src="Scripts/Tools/Select.js"></script>
 </body>
 </html>
