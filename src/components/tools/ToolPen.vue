@@ -66,6 +66,7 @@ export default {
         newPath.selected = true;
 
         oldPath = newPath;
+        newPath.selectable = true;
 
         self.ADD_SHAPE(newPath);
     }
