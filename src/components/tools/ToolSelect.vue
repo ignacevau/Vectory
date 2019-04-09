@@ -75,6 +75,7 @@ export default {
     var localSelect = [];
 
     bus.$on('delete_selection', () => {
+      localSelect = [];
       hideTransformBox();
     });
 
@@ -84,7 +85,9 @@ export default {
       transformBoxSize = 7/view.zoom;
       transformBoxWidth = 2/view.zoom;
 
-      updateTransformBox();
+      if(localSelect.length > 0) {
+        updateTransformBox();
+      }
     });
 
     function hideTransformBox() {
@@ -236,6 +239,10 @@ export default {
       selectingPoint = null;
       selectRect.remove();
 
+      if(localSelect.length == 0) {
+        return;
+      }
+
       var _temp = [];
       for(var i=0; i<localSelect.length; i++) {
         _temp.push(localSelect[i].clone());
@@ -246,6 +253,8 @@ export default {
         children: _temp
       });
 
+      // Update transform box with new rectangle
+      hideTransformBox();
       drawTransformBox(_grouped.bounds);
       _grouped.remove();
 
