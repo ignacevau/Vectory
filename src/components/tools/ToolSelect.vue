@@ -224,6 +224,10 @@ export default {
 
     // Return the opposite point on the transform box
     function getOppositePoint(point, x, y, bounds) {
+      if(!point) {
+        alert("warning: 001");
+        return;
+      }
       var _point = point;
       var opposite = bounds.center.add(bounds.center.subtract(point));
 
@@ -257,6 +261,13 @@ export default {
       _grouped.remove();
 
       return rect;
+    }
+
+
+    function RedrawTransformPoints() {
+      Object.keys(transformPoints).forEach((point, index) => {
+        transformPoints[point].position = transformRect.bounds[point];
+      });
     }
 
 
@@ -523,8 +534,6 @@ export default {
 
       // User is moving the selection
       if(transform.dragging) {
-        var bounds = getBounds();
-
         for(var i=0; i<localSelect.length; i++) {
           localSelect[i].translate(mouseDelta);
         }
@@ -540,7 +549,7 @@ export default {
 
       // User is scaling the selection
       if(transform.scaling) {
-        var bounds = getBounds();
+        var bounds = transformRect.bounds;
 
         if(!lockScaleY) {
           var relH = e.point.subtract(point).y;
@@ -571,14 +580,12 @@ export default {
 
             var value = bounds.bottomLeft.y;
             
-            // point = new Point(point.x, bounds[transform.dir].y);
             point = new Point(point.x, bounds.bottomLeft.y);
         }
         else if(relH < 0 && !flippedV) {
             facH = -facH
             flippedV = true
             
-            // point = new Point(point.x, getOppositePoint(bounds[transform.dir], true, true, bounds).y);
             point = new Point(point.x, bounds.topLeft.y);
         }
         
@@ -586,14 +593,12 @@ export default {
             facW = -facW
             flippedH = true
             
-            // point = new Point(getOppositePoint(bounds[transform.dir], true, true, bounds).x, point.y);
             point = new Point(bounds.bottomRight.x, point.y);
         }
         if(relW < 0 && flippedH) {
             facW = -facW
             flippedH = false
             
-            // point = new Point(bounds[transform.dir].x, point.y);
             point = new Point(bounds.bottomLeft.x, point.y);
         }
 
@@ -602,8 +607,12 @@ export default {
           localSelect[i].scale(facW, facH, point)
         }
 
-        hideTransformBox();
-        drawTransformBox(bounds);
+        transformRect.scale(facW, facH, point);
+
+        // Don't show the points while scaling
+        Object.keys(transformPoints).forEach((point, index) => {
+          transformPoints[point].remove();
+        });
       }
     }
   }
