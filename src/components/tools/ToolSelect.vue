@@ -18,7 +18,8 @@ export default {
     ...mapState([
       'ACTIVE',
       'TOOLSELECT',
-      'OBJECTS'
+      'OBJECTS',
+      'SELECTED'
     ])
   },
   components: {
@@ -457,7 +458,7 @@ export default {
       selectingPoint = null;
       selectRect.remove();
 
-      if(localSelect.length == 0) {
+      if(localSelect.length == 0 || transform.hover) {
         return;
       }
 
