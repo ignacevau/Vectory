@@ -465,7 +465,6 @@ export default {
           }
         }
       }
-
       transform.dragging = false;
 
       if(self.SELECTED.length != 0) {
@@ -481,21 +480,32 @@ export default {
     // - Mouse up -
     self.TOOLSELECT.onMouseUp = function(e) {
       mouseDown = false;
-
-      if(transform.scaling) {
-        transform.scaling = false;
-      }
-
+      var _return = false;
+      
       selectingPoint = null;
       selectRectPath.remove();
 
-      if(localSelect.length == 0 || transform.hover) {
+      if(localSelect.length == 0) {
         return;
+      }
+
+      if(transform.scaling) {
+        transform.scaling = false;
+        _return = true;
+      }
+
+      if(transform.dragging) {
+        transform.dragging = false;
+        _return = true;
       }
 
       // Update transform box with new rectangle
       hideTransformBox();
       drawTransformBox(getBounds());
+
+      if(_return) {
+        return;
+      }
 
       for(var i=0; i<localSelect.length; i++) {
         self.ADD_SELECT(localSelect[i]);
