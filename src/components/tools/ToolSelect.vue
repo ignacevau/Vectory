@@ -83,13 +83,13 @@ export default {
     // Object with transform information
     var transform = {
       hover: false,
-      active: false,
+      scaling: false,
       pivot: null,
       dir: '' // topLeft, topMiddle, ...
     };
 
     var selectingPoint = null;
-    var selectRect = new Path();
+    var selectRectPath = new Path();
 
     var localSelect = [];
 
@@ -105,6 +105,8 @@ export default {
     var lockScaleX = false;
     var lockScaleY = false;
     var point;
+
+    var selectRect;
 
     // Remove the selection box with transform points
     function hideTransformBox() {
@@ -264,11 +266,15 @@ export default {
       mouseDown = true;
       _lastMousePos = e.point;
 
+      if(transform.dragging) {
+        return;
+      }
+
       hideTransformBox();
       if(transform.hover) {
         var bounds = getBounds();
 
-        transform.active = true;
+        transform.scaling = true;
         drawTransformBox();
 
         transform.dir = e.item.name;
@@ -370,6 +376,8 @@ export default {
 
 
 
+
+
     // - Mouse move -
     self.TOOLSELECT.onMouseMove = function(e) {
       if(mouseDown) {
@@ -405,16 +413,21 @@ export default {
       }
 
       if(selectingPoint && !transform.hover) {
-        selectRect.remove();
-        selectRect = Path.Rectangle(selectingPoint, e.point);
-        selectRect.selectable = false;
-        selectRect.dashArray = [4/view.zoom, 3/view.zoom];
-        selectRect.strokeColor = 'black';
-        selectRect.strokeWidth = 0.5/view.zoom;
+        selectRectPath.remove();
+
+        selectRect = new Rectangle(selectingPoint, e.point);
+
+        selectRectPath = Path.Rectangle(selectRect);
+        selectRectPath.selectable = false;
+        selectRectPath.dashArray = [4/view.zoom, 3/view.zoom];
+        selectRectPath.strokeColor = 'black';
+        selectRectPath.strokeWidth = 0.5/view.zoom;
+
+        var _selRect = new Rectangle(selectingPoint, e.point);
 
         for(var i=0; i < self.OBJECTS.length; i++) {
           // Selection rect intersects with the shape
-          if(selectRect.intersects(self.OBJECTS[i])) {
+          if(selectRectPath.intersects(self.OBJECTS[i])) {
             if(!self.OBJECTS[i].selected) {
               self.OBJECTS[i].selected = true;
               localSelect.push(self.OBJECTS[i]);
@@ -422,8 +435,6 @@ export default {
           }
           // Selection rect doesn't intersect with shape
           else {
-            var _selRect = new Rectangle(selectingPoint, e.point)
-
             // Shape is inside the selection rect
             if(self.OBJECTS[i].isInside(_selRect)) {
               if(!self.OBJECTS[i].selected) {
@@ -443,6 +454,15 @@ export default {
           }
         }
       }
+
+      transform.dragging = false;
+
+      if(self.SELECTED.length != 0) {
+        if(e.point.isInside(lastTransformRect) && !transform.hover && !transform.scaling) {
+          document.body.style.cursor = "move";
+          transform.dragging = true;
+        }
+      }
     }
 
 
@@ -451,12 +471,12 @@ export default {
     self.TOOLSELECT.onMouseUp = function(e) {
       mouseDown = false;
 
-      if(transform.active) {
-        transform.active = false;
+      if(transform.scaling) {
+        transform.scaling = false;
       }
 
       selectingPoint = null;
-      selectRect.remove();
+      selectRectPath.remove();
 
       if(localSelect.length == 0 || transform.hover) {
         return;
@@ -495,11 +515,31 @@ export default {
 
 
 
-
     // - mouse drag -
     function mouseDrag(e) {
+      mouseDelta = e.point.subtract(_lastMousePos);
+      _lastMousePos = e.point;
+
+
+      // User is moving the selection
+      if(transform.dragging) {
+        var bounds = getBounds();
+
+        for(var i=0; i<localSelect.length; i++) {
+          localSelect[i].translate(mouseDelta);
+        }
+
+        transformRect.translate(mouseDelta);
+        lastTransformRect = transformRect.bounds;
+
+        Object.keys(transformPoints).forEach(function(point, index) {
+          transformPoints[point].translate(mouseDelta);
+      });
+        return;
+      }
+
       // User is scaling the selection
-      if(transform.active) {
+      if(transform.scaling) {
         var bounds = getBounds();
 
         if(!lockScaleY) {
