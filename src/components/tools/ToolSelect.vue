@@ -314,6 +314,21 @@ export default {
     }
 
 
+    // Handle control key presses
+    function handleControlKey() {
+      var delta = initTransfData.center.subtract(transformRect.bounds.center);
+
+      for(var i=0; i<localSelect.length; i++) {
+        localSelect[i].translate(delta);
+      }
+
+      transformRect.position = initTransfData.center;
+      point = new Point(initTransfData.center.x, initTransfData.center.y);
+
+      mouseDrag(mousePos);
+    }
+
+
 
     // - Mouse down -
     self.TOOLSELECT.onMouseDown = function(e) {
@@ -391,6 +406,14 @@ export default {
             lockScaleY = true;
             break;
         }
+
+
+        if (e.modifiers.control) {
+          handleControlKey();
+        }
+
+        mouseDrag(e);
+
         return;
       }
       
@@ -641,8 +664,12 @@ export default {
         }
 
         if(e.modifiers.control) {
-          transform.scale_facH *= 2;
-          transform.scale_facW *= 2;
+          if(!lockScaleX) {
+            transform.scale_facW *= 2;
+          }
+          if(!lockScaleY) {
+            transform.scale_facH *= 2;
+          }
         }
 
         // Scale all the selected items
@@ -729,16 +756,7 @@ export default {
     // - control key pressed -
     bus.$on('control', () => {
       if(transform.scaling) {
-        var delta = initTransfData.center.subtract(transformRect.bounds.center);
-
-        for(var i=0; i<localSelect.length; i++) {
-          localSelect[i].translate(delta);
-        }
-
-        transformRect.position = initTransfData.center;
-        point = new Point(initTransfData.center.x, initTransfData.center.y);
-
-        mouseDrag(mousePos);
+        handleControlKey();
       }
     });
 
@@ -748,9 +766,6 @@ export default {
     bus.$on('control_up', () => {
       if(transform.scaling) {
         point = new Point(initTransfData.pivot.x, initTransfData.pivot.y);
-
-
-
 
         var bounds = transformRect.bounds;
 
@@ -780,14 +795,13 @@ export default {
           flippedH = false;
         }
 
-
-
-
-
-
-        
-
         var delta = initTransfData.pivot.subtract(curDistPt);
+        if(lockScaleX) {
+          delta.x = 0;
+        }
+        else if(lockScaleY) {
+          delta.y = 0;
+        }
 
         transformRect.translate(delta);
         for(var i=0; i<localSelect.length; i++) {
