@@ -95,18 +95,39 @@ export default {
     }
 
 
+    var delKey_p = false;
+    var shiftKey_p = false;
+    var ctrlKey_p = false;
 
-
-
-    // --- Key checks ---
-    document.onkeydown = (e) => {
-      if(e.code == 'Delete') {
+    function keyHandler(e) {
+      if(!delKey_p && e.code == 'Delete') {
+        delKey_p = true;
         self.DELETE_SELECT();
 
         // Let other components know (ToolSelect -> transform box must disappear)
         bus.$emit('delete_selection');
       }
+      else if(!shiftKey_p && e.code == 'ShiftLeft') {
+        shiftKey_p = true;
+        bus.$emit('shift');
+      }
+      else if(!ctrlKey_p && e.code == 'ControlLeft') {
+        ctrlKey_p = true;
+        bus.$emit('control');
+      }
     };
+
+    // --- Key checks ---
+    document.onkeydown = keyHandler;
+
+    document.onkeyup = function(e) {
+      if(e.code == 'ControlLeft') {
+        bus.$emit('control_up');
+      }
+      delKey_p = false;
+      shiftKey_p = false;
+      ctrlKey_p = false;
+    }
   }
 }
 </script>

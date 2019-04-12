@@ -30,7 +30,8 @@ export default {
       'SET_ACTIVE',
       'ADD_SHAPE',
       'ADD_SELECT',
-      'CLEAR_SELECT'
+      'CLEAR_SELECT',
+      'DELETE_SELECT'
     ]),
     setActive: function() {
       this.SET_ACTIVE("select")
@@ -49,6 +50,8 @@ export default {
       fill: true,
       tolerance: 4
     };
+
+    var mousePos;
 
     // Need this to create custom drag function
     var mouseDown = false;
@@ -85,12 +88,20 @@ export default {
       hover: false,
       scaling: false,
       pivot: null,
-      dir: '' // topLeft, topMiddle, ...
+      dir: '', // topLeft, topMiddle, ...
+
+      scale_facH: null,
+      scale_facW: null
     };
+
+    // The relative distances used in scaling
+    var relH;
+    var relW;
 
     var selectingPoint = null;
     var selectRectPath = new Path();
 
+    // Local array containing the selected paths (self.SELECTED is the public array)
     var localSelect = [];
 
 
@@ -107,6 +118,16 @@ export default {
     var point;
 
     var selectRect;
+
+    // Object containing the data before the scaling, useful for undo and shift/control modifiers
+    var initTransfData = {
+      height: null,
+      width: null,
+      pivot: null,
+      center: null
+    }
+
+
 
     // Remove the selection box with transform points
     function hideTransformBox() {
@@ -271,6 +292,28 @@ export default {
     }
 
 
+    // While scaling check whether the selection should be flipped
+    function checkScaleFlip() {
+      if(relH > 0 && flippedV && !lockScaleY) {
+        transform.scale_facH = -transform.scale_facH
+        flippedV = false
+      }
+      else if(relH < 0 && !flippedV && !lockScaleY) {
+        transform.scale_facH = -transform.scale_facH
+        flippedV = true
+      }
+      
+      if(relW > 0 && !flippedH && !lockScaleX) {
+        transform.scale_facW = -transform.scale_facW
+        flippedH = true
+      }
+      if(relW < 0 && flippedH && !lockScaleX) {
+        transform.scale_facW = -transform.scale_facW
+        flippedH = false
+      }
+    }
+
+
 
     // - Mouse down -
     self.TOOLSELECT.onMouseDown = function(e) {
@@ -286,10 +329,17 @@ export default {
         var bounds = getBounds();
 
         transform.scaling = true;
+
         drawTransformBox();
 
         transform.dir = e.item.name;
         point = getOppositePoint(bounds[transform.dir], true, true, bounds);
+
+        // Updating the backup data (for shift-scale and for undo)
+        initTransfData.width = bounds.width;
+        initTransfData.height = bounds.height;
+        initTransfData.pivot = new Point(point.x, point.y);
+        initTransfData.center = new Point(bounds.center.x, bounds.center.y);
 
         switch(transform.dir) {
           case 'bottomLeft':
@@ -387,11 +437,11 @@ export default {
 
 
 
-
-
     // - Mouse move -
     self.TOOLSELECT.onMouseMove = function(e) {
-      if(mouseDown) {
+      mousePos = e;
+
+      if (mouseDown) {
         mouseDrag(e);
       }
 
@@ -481,6 +531,14 @@ export default {
     self.TOOLSELECT.onMouseUp = function(e) {
       mouseDown = false;
       var _return = false;
+
+      // if(scalePathCopy) {
+      //   Object.keys(scalePathCopy).forEach((path, index) => {
+      //     scalePathCopy[path].remove();
+      //   });
+
+      //   scalePathCopy = [];
+      // }
       
       selectingPoint = null;
       selectRectPath.remove();
@@ -507,8 +565,97 @@ export default {
         return;
       }
 
+      self.CLEAR_SELECT();
       for(var i=0; i<localSelect.length; i++) {
         self.ADD_SELECT(localSelect[i]);
+      }
+    }
+
+
+
+    // - Mouse drag -
+    function mouseDrag(e) {
+      mouseDelta = e.point.subtract(_lastMousePos);
+      _lastMousePos = e.point;
+
+      var path = transformRect;
+
+      // User is moving the selection
+      if(transform.dragging) {
+        for(var i=0; i<localSelect.length; i++) {
+          localSelect[i].translate(mouseDelta);
+        }
+
+        transformRect.translate(mouseDelta);
+        lastTransformRect = transformRect.bounds;
+
+        Object.keys(transformPoints).forEach(function(point, index) {
+          transformPoints[point].translate(mouseDelta);
+      });
+        return;
+      }
+
+      // User is scaling the selection
+      if(transform.scaling) {
+        var bounds = transformRect.bounds;
+
+        if(!lockScaleY) {
+          relH = e.point.subtract(point).y;
+          transform.scale_facH = Math.abs(relH)/bounds.height;
+        }
+        else {
+          transform.scale_facH = 1;
+        }
+        if(!lockScaleX) {
+          relW = e.point.subtract(point).x;
+          transform.scale_facW = Math.abs(relW)/bounds.width;
+        }
+        else {
+          transform.scale_facW = 1;
+        }
+        
+        if(Math.abs(transform.scale_facH) < 0.1 && !lockScaleY) {
+            return;
+        }
+
+        if(Math.abs(transform.scale_facW) < 0.1 && !lockScaleX) {
+          return;
+        }
+
+        if(!e.modifiers.shift) {
+          checkScaleFlip();
+        }
+
+        if(e.modifiers.shift) {
+          var min = Math.min(Math.abs(transform.scale_facH), Math.abs(transform.scale_facW));
+
+          if(lockScaleY) {
+            min = Math.abs(transform.scale_facW);
+          }
+          else if(lockScaleX) {
+            min = Math.abs(transform.scale_facH);
+          }
+
+          transform.scale_facH = min;
+          transform.scale_facW = min;
+        }
+
+        if(e.modifiers.control) {
+          transform.scale_facH *= 2;
+          transform.scale_facW *= 2;
+        }
+
+        // Scale all the selected items
+        for(var i=0; i<localSelect.length; i++) {
+          localSelect[i].scale(transform.scale_facW, transform.scale_facH, point)
+        }
+
+        transformRect.scale(transform.scale_facW, transform.scale_facH, point);
+
+        // Don't show the points while scaling
+        Object.keys(transformPoints).forEach((point, index) => {
+          transformPoints[point].remove();
+        });
       }
     }
 
@@ -536,95 +683,120 @@ export default {
 
 
 
-    // - mouse drag -
-    function mouseDrag(e) {
-      mouseDelta = e.point.subtract(_lastMousePos);
-      _lastMousePos = e.point;
+    // - shift key pressed -
+    bus.$on('shift', () => {
+      if(transform.scaling) {
+        var bounds = getBounds();
 
+        var facH_init = initTransfData.height/bounds.height;
+        var facW_init = initTransfData.width/bounds.width;
 
-      // User is moving the selection
-      if(transform.dragging) {
+        // Scale the selection to its initial size
         for(var i=0; i<localSelect.length; i++) {
-          localSelect[i].translate(mouseDelta);
+          localSelect[i].scale(facW_init, facH_init, point);
         }
 
-        transformRect.translate(mouseDelta);
-        lastTransformRect = transformRect.bounds;
+        // Resize the transform rect as well
+        transformRect.scale(facW_init, facH_init, point);
+        var rel;
 
-        Object.keys(transformPoints).forEach(function(point, index) {
-          transformPoints[point].translate(mouseDelta);
-      });
-        return;
+        if(lockScaleX) {
+          rel = Math.abs(relH);
+        }
+        else if(lockScaleY) {
+          rel = Math.abs(relW);
+        }
+        else {
+          rel = Math.min(Math.abs(relH), Math.abs(relW));
+        }
+
+        var fac = rel/Math.min(initTransfData.width, initTransfData.height);
+
+        // Resize the selection to the current size without deformation
+        for(var i=0; i<localSelect.length; i++) {
+          localSelect[i].scale(fac, fac, point);
+        }
+
+        // Resize transform rect as well
+        transformRect.scale(fac, fac, point);
+
+        mouseDrag(mousePos);
       }
+    });
 
-      // User is scaling the selection
+
+
+    // - control key pressed -
+    bus.$on('control', () => {
       if(transform.scaling) {
+        var delta = initTransfData.center.subtract(transformRect.bounds.center);
+
+        for(var i=0; i<localSelect.length; i++) {
+          localSelect[i].translate(delta);
+        }
+
+        transformRect.position = initTransfData.center;
+        point = new Point(initTransfData.center.x, initTransfData.center.y);
+
+        mouseDrag(mousePos);
+      }
+    });
+
+
+
+    // - control key released -
+    bus.$on('control_up', () => {
+      if(transform.scaling) {
+        point = new Point(initTransfData.pivot.x, initTransfData.pivot.y);
+
+
+
+
         var bounds = transformRect.bounds;
 
-        if(!lockScaleY) {
-          var relH = e.point.subtract(point).y;
-          var facH = Math.abs(relH)/bounds.height;
+        relH = mousePos.point.subtract(point).y;
+        relW = mousePos.point.subtract(point).x;
+
+        var curDistPt;
+
+        if (relH >= 0 && relW >= 0) {
+          curDistPt = transformRect.bounds.topLeft;
+          flippedV = false;
+          flippedH = true;
         }
-        else {
-          facH = 1;
+        else if(relH >= 0 && relW < 0) {
+          curDistPt = transformRect.bounds.topRight;
+          flippedV = false;
+          flippedH = false;
         }
-        if(!lockScaleX) {
-          var relW = e.point.subtract(point).x;
-          var facW = Math.abs(relW)/bounds.width;
+        else if(relH < 0 && relW >= 0) {
+          curDistPt = transformRect.bounds.bottomLeft;
+          flippedV = true;
+          flippedH = true;
         }
-        else {
-          facW = 1;
+        else if(relH < 0 && relW < 0) {
+          curDistPt = transformRect.bounds.bottomRight;
+          flippedV = true;
+          flippedH = false;
         }
+
+
+
+
+
+
         
-        if(Math.abs(facH) < 0.1 && !lockScaleY) {
-            return;
-        }
 
-        if(Math.abs(facW) < 0.1 && !lockScaleX) {
-          return;
-        }
+        var delta = initTransfData.pivot.subtract(curDistPt);
 
-        if(relH > 0 && flippedV) {
-            facH = -facH
-            flippedV = false
-
-            var value = bounds.bottomLeft.y;
-            
-            point = new Point(point.x, bounds.bottomLeft.y);
-        }
-        else if(relH < 0 && !flippedV) {
-            facH = -facH
-            flippedV = true
-            
-            point = new Point(point.x, bounds.topLeft.y);
-        }
-        
-        if(relW > 0 && !flippedH) {
-            facW = -facW
-            flippedH = true
-            
-            point = new Point(bounds.bottomRight.x, point.y);
-        }
-        if(relW < 0 && flippedH) {
-            facW = -facW
-            flippedH = false
-            
-            point = new Point(bounds.bottomLeft.x, point.y);
-        }
-
-        // Scale all the selected items
+        transformRect.translate(delta);
         for(var i=0; i<localSelect.length; i++) {
-          localSelect[i].scale(facW, facH, point)
+          localSelect[i].translate(delta);
         }
 
-        transformRect.scale(facW, facH, point);
-
-        // Don't show the points while scaling
-        Object.keys(transformPoints).forEach((point, index) => {
-          transformPoints[point].remove();
-        });
+        mouseDrag(mousePos);
       }
-    }
+    });
   }
 }
 </script>
