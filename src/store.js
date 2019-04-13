@@ -13,7 +13,9 @@ export default new Vuex.Store({
     TOOLCIRCLE: null,
 
     OBJECTS: [],
-    SELECTED: []
+    SELECTED: [],
+
+    ACTIONS: []
   },
   mutations: {
     // --- Tools ---
@@ -60,6 +62,51 @@ export default new Vuex.Store({
         // Remove the shape from the selection array
         state.SELECTED.pop();
 
+      }
+    },
+
+    // Add an action to the undo list
+    ADD_ACTION(state, action) {
+      state.ACTIONS.push(action);
+    },
+    UNDO(state) {
+      if(state.ACTIONS.length <= 0) {
+        return;
+      }
+      var action = state.ACTIONS.pop();
+      
+      switch(action.type) {
+        case 'move':
+          var delta = action.data.startPos.subtract(action.data.endPos);
+
+          for(var i=0; i<action.data.paths.length; i++) {
+            action.data.paths[i].translate(delta);
+          }
+
+          state.SELECTED = action.data.paths;
+          break;
+
+        case 'scale':
+          var pivot = action.data.pivot;
+          var init = action.data.handle_init;
+          var end = action.data.handle_end;
+
+          var relH = 1;
+          var relW = 1;
+
+          if(!action.data.lockY) {
+            relH = init.subtract(pivot).y / end.subtract(pivot).y;
+          }
+          if (!action.data.lockX) {
+            relW = init.subtract(pivot).x / end.subtract(pivot).x;
+          }
+
+          for(var i=0; i<action.data.paths.length; i++) {
+            action.data.paths[i].scale(relW, relH, pivot);
+          }
+
+          state.SELECTED = action.data.paths;
+          break;
       }
     }
   },

@@ -7,8 +7,17 @@ Vue.config.productionTip = false
 
 export const bus = new Vue();
 
+export class Action {
+  constructor(type, data) {
+    this.type = type;
+    this.data = data;
+  }
+}
+
 new Vue({
   router,
   store,
   render: h => h(App)
 }).$mount('#app')
+
+

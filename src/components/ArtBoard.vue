@@ -94,26 +94,35 @@ export default {
         return [newZoom, a];
     }
 
-
-    var delKey_p = false;
-    var shiftKey_p = false;
-    var ctrlKey_p = false;
+    var keys = {
+      del: false,
+      shift: false,
+      control: false,
+      z: false
+    }
 
     function keyHandler(e) {
-      if(!delKey_p && e.code == 'Delete') {
-        delKey_p = true;
+      if(!keys.del && e.code == 'Delete' && !keys.control && !keys.shift) {
+        keys.del = true;
         self.DELETE_SELECT();
 
         // Let other components know (ToolSelect -> transform box must disappear)
         bus.$emit('delete_selection');
       }
-      else if(!shiftKey_p && e.code == 'ShiftLeft') {
-        shiftKey_p = true;
+      else if(!keys.shift && e.code == 'ShiftLeft') {
+        keys.shift = true;
         bus.$emit('shift');
       }
-      else if(!ctrlKey_p && e.code == 'ControlLeft') {
-        ctrlKey_p = true;
+      else if(!keys.control && e.code == 'ControlLeft') {
+        keys.control = true;
         bus.$emit('control');
+      }
+      else if(!keys.z && e.key == 'z') {
+        keys.z = true;
+      }
+
+      if(keys.z && keys.control) {
+        bus.$emit('undo');
       }
     };
 
@@ -124,9 +133,19 @@ export default {
       if(e.code == 'ControlLeft') {
         bus.$emit('control_up');
       }
-      delKey_p = false;
-      shiftKey_p = false;
-      ctrlKey_p = false;
+
+      if(e.key == 'z') {
+        keys.z = false;
+        return;
+      }
+      if(e.code == 'Delete') {
+        keys.del = false;
+      }
+      
+      keys.control = false;
+      keys.shift = false;
+      keys.del = false;
+      keys.z = false;
     }
   }
 }

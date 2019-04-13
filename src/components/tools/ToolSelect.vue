@@ -10,7 +10,7 @@
 import paper from 'paper'
 import Tool from '../Tool.vue'
 import { mapMutations, mapState } from 'vuex'
-import { bus } from '@/main.js'
+import { bus, Action } from '@/main.js'
 
 export default {
   name: 'ToolSelect',
@@ -19,7 +19,8 @@ export default {
       'ACTIVE',
       'TOOLSELECT',
       'OBJECTS',
-      'SELECTED'
+      'SELECTED',
+      'ACTIONS'
     ])
   },
   components: {
@@ -31,7 +32,9 @@ export default {
       'ADD_SHAPE',
       'ADD_SELECT',
       'CLEAR_SELECT',
-      'DELETE_SELECT'
+      'DELETE_SELECT',
+      'ADD_ACTION',
+      'UNDO'
     ]),
     setActive: function() {
       this.SET_ACTIVE("select")
@@ -125,6 +128,22 @@ export default {
       width: null,
       pivot: null,
       center: null
+    }
+
+    var action = {
+      move: new Action('move', {
+        startPos: null,
+        endPos: null,
+        paths: null,
+      }),
+      scale: new Action('scale', {
+        paths: null,
+        pivot: null,
+        handle_init: null,
+        handle_end: null,
+        lockX: false,
+        lockY: false
+      })
     }
 
 
@@ -237,9 +256,15 @@ export default {
 
 
     // Redraw the selection box with transform points
-    function updateTransformBox() {
+    function updateTransformBox(bounds) {
       hideTransformBox();
-      drawTransformBox();
+
+      if(bounds) {
+        drawTransformBox(bounds);
+      }
+      else {
+        drawTransformBox();
+      }
     }
 
 
@@ -314,7 +339,7 @@ export default {
     }
 
 
-    // Handle control key presses
+    // Handle ctrl-key presses
     function handleControlKey() {
       var delta = initTransfData.center.subtract(transformRect.bounds.center);
 
@@ -325,8 +350,12 @@ export default {
       transformRect.position = initTransfData.center;
       point = new Point(initTransfData.center.x, initTransfData.center.y);
 
+      action.scale.data.pivot = point;
+
       mouseDrag(mousePos);
     }
+
+
 
 
 
@@ -336,6 +365,12 @@ export default {
       _lastMousePos = e.point;
 
       if(transform.dragging) {
+        action.move = new Action('move', {
+          paths: localSelect,
+          startPos: e.point,
+          endPos: null
+        });
+
         return;
       }
 
@@ -412,6 +447,15 @@ export default {
           handleControlKey();
         }
 
+        action.scale = new Action('scale', {
+          paths: localSelect,
+          pivot: initTransfData.pivot,
+          lockX: lockScaleX,
+          lockY: lockScaleY,
+          handle_init: bounds[transform.dir],
+          handle_end: null
+        })
+
         mouseDrag(e);
 
         return;
@@ -479,7 +523,7 @@ export default {
       if (e.item) {
         hoverItem = e.item;
 
-        if(hoverItem.selectable) {
+        if(hoverItem.selectable && !hoverItem.selected) {
           hoverSelection = hoverItem.clone();
           hoverSelection.strokeColor = '#33b5ff';
           hoverSelection.strokeWidth = 2 / paper.view.zoom;
@@ -554,14 +598,6 @@ export default {
     self.TOOLSELECT.onMouseUp = function(e) {
       mouseDown = false;
       var _return = false;
-
-      // if(scalePathCopy) {
-      //   Object.keys(scalePathCopy).forEach((path, index) => {
-      //     scalePathCopy[path].remove();
-      //   });
-
-      //   scalePathCopy = [];
-      // }
       
       selectingPoint = null;
       selectRectPath.remove();
@@ -571,11 +607,22 @@ export default {
       }
 
       if(transform.scaling) {
+        lockScaleX = false;
+        lockScaleY = false;
+
+        var bounds = getBounds();
+        
+        action.scale.data.handle_end = getOppositePoint(point, true, true, transformRect.bounds);;
+        self.ADD_ACTION(action.scale);
+
         transform.scaling = false;
         _return = true;
       }
 
       if(transform.dragging) {
+        action.move.data.endPos = e.point;
+        self.ADD_ACTION(action.move);
+
         transform.dragging = false;
         _return = true;
       }
@@ -702,6 +749,22 @@ export default {
 
 
 
+    // - Ctrl + Z -
+    bus.$on('undo', () => {
+      if(self.ACTIONS.length > 0) {
+        self.UNDO();
+
+        localSelect = [...self.SELECTED];
+        for(var i=0; i<localSelect.length; i++) {
+          localSelect[i].selected = true;
+        }
+
+        updateTransformBox(getBounds());
+      }
+    });
+
+
+
     // - delete key pressed -
     bus.$on('delete_selection', () => {
       localSelect = [];
@@ -766,6 +829,7 @@ export default {
     bus.$on('control_up', () => {
       if(transform.scaling) {
         point = new Point(initTransfData.pivot.x, initTransfData.pivot.y);
+        action.scale.data.pivot = point;
 
         var bounds = transformRect.bounds;
 
