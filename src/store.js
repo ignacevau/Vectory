@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import { bus } from '@/main.js'
 
 Vue.use(Vuex)
 
@@ -15,11 +16,16 @@ export default new Vuex.Store({
     OBJECTS: [],
     SELECTED: [],
 
-    ACTIONS: []
+    ACTIONS: [],
+
+    COLORPICKER_ACTIVE: false
   },
   mutations: {
     // --- Tools ---
     SET_ACTIVE: function(state, type) {
+      if(state.ACTIVE == "select" && type != "select") {
+        bus.$emit("deactive-select");
+      }
       state.ACTIVE = type;
     },
 
@@ -108,10 +114,17 @@ export default new Vuex.Store({
           state.SELECTED = action.data.paths;
           break;
       }
+    },
+
+    HIDE_COLORPICKER(state) {
+      state.COLORPICKER_ACTIVE = false
+    },
+    SHOW_COLORPICKER(state) {
+      state.COLORPICKER_ACTIVE = true
     }
   },
   getters: {
-    clamp: (state) => (value, min, max) => {
+    clamp: () => (value, min, max) => {
       if(value < min){
         return min;
       }else if(value > max){

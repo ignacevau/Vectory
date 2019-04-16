@@ -17,7 +17,6 @@ export default {
   height: 5vh;
   width: 100%;
   background-color: rgb(94, 94, 94);
-  border-bottom: 2px solid rgb(77, 77, 77);
   z-index: 1;
 }
 </style>

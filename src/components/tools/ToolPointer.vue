@@ -10,6 +10,7 @@
 import paper from 'paper'
 import Tool from '../Tool.vue'
 import { mapMutations, mapState } from 'vuex'
+import { bus } from '@/main.js'
 
 export default {
   name: 'ToolPointer',
@@ -35,6 +36,8 @@ export default {
   },
   mounted: function() {
     var self = this;
+
+
   }
 }
 </script>

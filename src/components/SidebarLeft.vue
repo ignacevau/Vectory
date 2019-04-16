@@ -12,8 +12,7 @@
       <tool-circle />
     </div>
 
-    <div class="handler" ondragstart="return false;" @mousedown="drag">
-      <div style="background-color: white; height: 2vh; width: 1px; flex: 0 0 auto;"></div>
+    <div class="handler" ondragstart="return false;">
     </div>
   </div>
 </template>
@@ -35,37 +34,15 @@ export default {
   },
   data: function() {
     return {
-      dragging: false,
       collapsed: true,
       minWidth: 50,
       maxWidth: 90
     }
   },
   mounted: function() {
-    window.addEventListener('mousemove', this.resize)
-    window.addEventListener('mouseup', this.undrag)
-
     this.$refs.left.style.width = this.minWidth + 'px';
   },
   methods: {
-    resize: function(e) {
-      if(this.dragging) {
-        this.$refs.left.style.width = this.clamp(e.clientX - 3, this.minWidth, this.maxWidth) + 'px';
-
-        if (this.$refs.left.style.width == this.minWidth + 'px') {
-          this.collapsed = true;
-        }
-        else {
-          this.collapsed = false;
-        }
-      }
-    },
-    drag: function() {
-      this.dragging = true
-    },
-    undrag: function() {
-      this.dragging = false
-    },
     collapse: function() {
       if(this.collapsed) {
         this.$refs.left.style.width = this.maxWidth + 'px';
@@ -76,11 +53,6 @@ export default {
         this.collapsed = true;
       }
     }
-  },
-  computed: {
-    ...mapGetters([
-      'clamp'
-    ])
   }
 }
 </script>
@@ -92,7 +64,7 @@ export default {
   pointer-events: all;
 }
 .resize {
-  background-color: rgb(94, 94, 94);
+  background-color: rgb(90, 90, 90);
   flex: 0 0 auto;
   display: flex;
   flex-wrap: wrap;
@@ -108,24 +80,21 @@ export default {
 }
 .handler {
   width: 6px;
-  background-color: rgb(77, 77, 77);
-  cursor: e-resize;
+  background-color: rgb(63, 63, 63);
+  border-top: 4px solid rgb(106, 162, 247);
   z-index: 1;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
 
   -moz-user-select: none;
   -webkit-user-select: none;
   user-select: none;
 }
 .top-bar {
-  height: 25px;
+  height: 30px;
   width: 100%;
   background-color: rgb(77, 77, 77);
   display: flex;
   align-items: center;
+  border-top: 4px solid rgb(106, 162, 247);
   justify-content: flex-end;
 }
 .collapse-btn {

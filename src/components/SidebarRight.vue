@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar-right">
     <div class="handler" ondragstart="return false;" @mousedown="drag">
-      <div style="background-color: white; height: 2vh; width: 1px; flex: 0 0 auto;" />
+      <div style="background-color: rgb(106, 162, 247); height: 2vh; width: 100%; flex: 0 0 auto;" />
     </div>
 
     <div class="resize" ref="right">
@@ -11,34 +11,53 @@
         </span>
       </div>
 
-      <span style="width: 90px;"></span>
+      <div class="tab-properties">
+        <div class="properties-title">Properties</div>
+
+          <stroke-grid v-bind:showText="textActive" />
+
+          <fill-grid v-bind:showText="textActive" /> 
+
+      </div>
+
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
+import StrokeGrid from '@/components/sidebar-right/StrokeGrid.vue'
+import FillGrid from '@/components/sidebar-right/FillGrid.vue'
 
 export default {
   name: 'SidebarRight',
+  components: {
+    StrokeGrid,
+    FillGrid
+  },
   data: function() {
     return {
       dragging: false,
-      collapsed: true,
-      minWidth: 90,
-      maxWidth: 200
+      collapsed: false,
+      minWidth: 100,
+      maxWidth: 160,
+      size: 160
     }
   },
   mounted: function() {
     window.addEventListener('mousemove', this.resize)
     window.addEventListener('mouseup', this.undrag)
 
-    this.$refs.right.style.width = this.minWidth + 'px';
+    this.$refs.right.style.width = this.maxWidth + 'px';
   },
   methods: {
+    ...mapMutations([
+      'SHOW_COLORPICKER'
+    ]),
     resize: function(e) {
       if(this.dragging) {
-        this.$refs.right.style.width = this.clamp(window.innerWidth - (e.clientX + 3), this.minWidth, this.maxWidth) + 'px'
+        this.size = this.clamp(window.innerWidth - (e.clientX + 3), this.minWidth, this.maxWidth)
+        this.$refs.right.style.width = this.size  + 'px'
 
         if (this.$refs.right.style.width == this.minWidth + 'px') {
           this.collapsed = true;
@@ -56,11 +75,15 @@ export default {
     },
     collapse: function() {
       if(this.collapsed) {
-        this.$refs.right.style.width = this.maxWidth + 'px';
+        this.size = this.maxWidth;
+        this.$refs.right.style.width = this.size + 'px';
+
         this.collapsed = false;
       }
       else {
-        this.$refs.right.style.width = this.minWidth + 'px';
+        this.size = this.minWidth
+        this.$refs.right.style.width = this.size + 'px';
+
         this.collapsed = true;
       }
     }
@@ -68,13 +91,23 @@ export default {
   computed: {
     ...mapGetters([
       'clamp'
-    ])
+    ]),
+    textActive: function() {
+      if(this.size > 150) {
+        return true
+      }
+      return false
+    }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+* {
+  color: rgb(221, 221, 221);
+  font-family: Comfortaa;
+}
 .sidebar-right {
   display: flex;
   pointer-events: all;
@@ -96,7 +129,8 @@ export default {
 }
 .handler {
   width: 6px;
-  background-color: rgb(77, 77, 77);
+  background-color: rgb(63, 63, 63);
+  border-top: 4px solid #6aa2f7;
   cursor: e-resize;
   z-index: 1;
 
@@ -109,9 +143,10 @@ export default {
   user-select: none;
 }
 .top-bar {
-  height: 25px;
+  height: 30px;
   width: 100%;
   background-color: rgb(77, 77, 77);
+  border-top: 4px solid rgb(106, 162, 247);
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -136,5 +171,26 @@ export default {
 .flip {
   -webkit-transform: scaleX(-1);
   transform: scaleX(-1);
+}
+
+.tab-properties {
+  width: 90%;
+  margin-top: 7px;
+  flex: 0 0 auto;
+}
+.properties-title {
+  text-align: center;
+  width: 100%;
+  font-size: 100%;
+  border-bottom: 3px solid rgb(106, 162, 247);
+}
+.stroke {
+  font-size: 100%;
+  width: 100%;
+  height: 30%;
+  background-color: green;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-evenly;
 }
 </style>

@@ -25,7 +25,8 @@ export default {
   methods: {
     ...mapMutations([
       'SET_ACTIVE',
-      'ADD_SHAPE'
+      'ADD_SHAPE',
+      'ADD_SELECT'
     ]),
     setActive: function() {
       this.SET_ACTIVE("pen")
@@ -102,6 +103,7 @@ export default {
       oldPath = newPath;
       newPath.selectable = true;
 
+      self.ADD_SELECT(newPath);
       self.ADD_SHAPE(newPath);
     }
   }

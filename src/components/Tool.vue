@@ -53,11 +53,11 @@ export default {
     user-select: none;
 }
 .tool {
-    background-color: rgb(102, 102, 102);
+    background-color: rgb(161, 161, 161);
     width: 35px;
     height: 35px;
-    border-radius: 3px;
     display: flex;
+    border-radius: 3px;
     flex-shrink: 0;
     flex-grow: 0;
     justify-content: center;
@@ -68,19 +68,19 @@ export default {
 }
 
 .tool:hover {
-    background-color: rgb(77, 77, 77);
+    background-color: rgb(96, 138, 201);
 }
 
 .tool:active {
-    background-color: rgb(63, 63, 63);
+    background-color: rgb(106, 162, 247);
 }
 
 .tools-active {
-    background-color: rgb(63, 63, 63);
+    background-color: rgb(106, 162, 247);
 }
 
 .tools-active:hover {
-    background-color: rgb(63, 63, 63);
+    background-color: rgb(106, 162, 247);
 }
 
 .tool-img {

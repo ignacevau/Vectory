@@ -39,6 +39,7 @@ export default {
     setActive: function() {
       this.SET_ACTIVE("select")
 
+      bus.$emit('activate-select');
       this.TOOLSELECT.activate();
     }
   },
@@ -735,6 +736,8 @@ export default {
 
 
 
+
+
     // - user is zooming -
     bus.$on('zoom', () => {
       // Keep the transform box's width constant over zoom
@@ -875,6 +878,47 @@ export default {
         mouseDrag(mousePos);
       }
     });
+
+
+
+    // - switched to another tool -
+    bus.$on('deactive-select', () => {
+      self.CLEAR_SELECT();
+      for(var i=0; i<localSelect.length; i++) {
+        localSelect[i].selected = false;
+      }
+
+      localSelect = [];
+      hideTransformBox();
+    });
+
+    bus.$on('activate-select', () => {
+      if(self.SELECTED.length > 0) {
+        for(var i=0; i<self.SELECTED.length; i++) {
+          localSelect.push(self.SELECTED[i]);
+        }
+
+        drawTransformBox(getBounds());
+      }
+    });
+
+    bus.$on('set_color_stroke', (color) => {
+      for(var i=0; i<localSelect.length; i++) {
+        localSelect[i].strokeColor = color
+      }
+    });
+
+    bus.$on('set_color_fill', (color) => {
+      for(var i=0; i<localSelect.length; i++) {
+        localSelect[i].fillColor = color
+      }
+    });
+
+    bus.$on('set_width_input', (width) => {
+      for(var i=0; i<localSelect.length; i++) {
+        localSelect[i].strokeWidth = width
+      }
+    })
   }
 }
 </script>
