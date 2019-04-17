@@ -26,7 +26,8 @@ export default {
     ...mapMutations([
       'SET_ACTIVE',
       'ADD_SHAPE',
-      'ADD_SELECT'
+      'ADD_SELECT',
+      'CLEAR_SELECT'
     ]),
     setActive: function() {
       this.SET_ACTIVE("pen")
@@ -42,35 +43,37 @@ export default {
     var delta = 0;
 
     self.TOOLPEN.onMouseDown = function(e) {
-        newPath = new Path();
-        newPath.strokeColor = 'black';
+      self.CLEAR_SELECT();
 
-        delta = 0;
+      newPath = new Path();
+      newPath.strokeColor = 'black';
 
-        project.activeLayer.selected = false;
+      delta = 0;
+
+      project.activeLayer.selected = false;
     }
 
     self.TOOLPEN.onMouseDrag = function(e) {
-        newPath.add(e.point);
-        delta += e.delta.length;
+      newPath.add(e.point);
+      delta += e.delta.length;
     }
 
     self.TOOLPEN.onMouseUp = function(e) {
-        // Don't create an object for a click
-        if (delta < 3) {
-            newPath.remove();
-            return;
-        }
+      // Don't create an object for a click
+      if (delta < 3) {
+        newPath.remove();
+        return;
+      }
 
-        newPath.smooth();
-        newPath.simplify();
-        newPath.selected = true;
+      newPath.smooth();
+      newPath.simplify();
+      newPath.selected = true;
 
-        oldPath = newPath;
-        newPath.selectable = true;
+      oldPath = newPath;
+      newPath.selectable = true;
 
-        self.ADD_SELECT(newPath);
-        self.ADD_SHAPE(newPath);
+      self.ADD_SELECT(newPath);
+      self.ADD_SHAPE(newPath);
     }
   }
 }

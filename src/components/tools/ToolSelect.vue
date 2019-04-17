@@ -89,13 +89,18 @@ export default {
 
     // Object with transform information
     var transform = {
+      // Scaling
       hover: false,
       scaling: false,
       pivot: null,
       dir: '', // topLeft, topMiddle, ...
 
       scale_facH: null,
-      scale_facW: null
+      scale_facW: null,
+
+      // Dragging
+      hoverDrag: false,
+      dragging: false
     };
 
     // The relative distances used in scaling
@@ -365,13 +370,14 @@ export default {
       mouseDown = true;
       _lastMousePos = e.point;
 
-      if(transform.dragging) {
+      if(transform.hoverDrag) {
         action.move = new Action('move', {
           paths: localSelect,
           startPos: e.point,
           endPos: null
         });
 
+        transform.dragging = true;
         return;
       }
 
@@ -469,6 +475,7 @@ export default {
         localSelect = [];
       }
 
+      // Mouse is over a shape
       if(hoverSelection) {
         hoverSelection.remove();
 
@@ -488,6 +495,7 @@ export default {
             localSelect = [];
             self.CLEAR_SELECT();
 
+            console.log("added to selection")
             self.ADD_SELECT(hoverItem);
             localSelect.push(hoverItem);
           }
@@ -497,6 +505,7 @@ export default {
       }
       
       if(!e.item) {
+        console.log("selection was cleared")
         project.activeLayer.selected = false;
         self.CLEAR_SELECT();
         selectingPoint = e.point;
@@ -583,12 +592,12 @@ export default {
           }
         }
       }
-      transform.dragging = false;
+      transform.hoverDrag = false;
 
       if(self.SELECTED.length != 0) {
         if(e.point.isInside(lastTransformRect) && !transform.hover && !transform.scaling) {
           document.body.style.cursor = "move";
-          transform.dragging = true;
+          transform.hoverDrag = true;
         }
       }
     }
@@ -622,9 +631,11 @@ export default {
 
       if(transform.dragging) {
         action.move.data.endPos = e.point;
+        console.log("added move action")
         self.ADD_ACTION(action.move);
 
         transform.dragging = false;
+
         _return = true;
       }
 
@@ -757,6 +768,8 @@ export default {
       if(self.ACTIONS.length > 0) {
         self.UNDO();
 
+        project.activeLayer.selected = false;
+
         localSelect = [...self.SELECTED];
         for(var i=0; i<localSelect.length; i++) {
           localSelect[i].selected = true;
@@ -833,8 +846,6 @@ export default {
       if(transform.scaling) {
         point = new Point(initTransfData.pivot.x, initTransfData.pivot.y);
         action.scale.data.pivot = point;
-
-        var bounds = transformRect.bounds;
 
         relH = mousePos.point.subtract(point).y;
         relW = mousePos.point.subtract(point).x;
@@ -924,6 +935,14 @@ export default {
       for(var i=0; i<localSelect.length; i++) {
         localSelect[i].strokeCap = type
       }
+    });
+
+    document.addEventListener('mousedown', (e) => {
+      var temp = []
+      for(var i=0; i<this.ACTIONS.length; i++) {
+        temp.push(this.ACTIONS[i].data.paths.length);
+      }
+      console.log(temp)
     });
   }
 }

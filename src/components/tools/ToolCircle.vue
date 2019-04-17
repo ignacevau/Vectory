@@ -26,7 +26,8 @@ export default {
     ...mapMutations([
       'SET_ACTIVE',
       'ADD_SHAPE',
-      'ADD_SELECT'
+      'ADD_SELECT',
+      'CLEAR_SELECT'
     ]),
     setActive: function() {
       this.SET_ACTIVE("pen")
@@ -42,6 +43,8 @@ export default {
     var middle;
 
     self.TOOLCIRCLE.onMouseDown = function(e) {
+      self.CLEAR_SELECT();
+
       newPath = new Path();
 
       middle = e.point;
