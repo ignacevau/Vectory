@@ -1,6 +1,7 @@
 <template>
   <div class="color-trigger">
-    <div class="box" v-bind:style="{ 'background-color': color }" @click="showColorpicker()">
+    <div class="box" v-bind:style="{ 'background-color': getColor }" @click="showColorpicker()">
+      <img src="@/assets/color-undefined.png" v-if="color == 'none' ? true : false" />
     </div>
   </div>
 </template>
@@ -43,11 +44,11 @@ export default {
         return
       }
       else {
-        var sw = _new[0][this.colorTypePrefix + "Color"]
+        var sw = _new[0][this.colorTypePrefix + "Color"]._canvasStyle
 
         for(var i=0; i<_new.length; i++) {
-          if(_new[i][this.colorTypePrefix + "Color"] != sw) {
-            this.color = 'rgb(94, 94, 94)'
+          if(_new[i][this.colorTypePrefix + "Color"]._canvasStyle != sw || !_new[i][this.colorTypePrefix + "Color"]._canvasStyle) {
+            this.color = 'none'
             this.oldColor = this.color
             return
           }
@@ -61,7 +62,13 @@ export default {
   computed: {
     ...mapState([
       'SELECTED'
-    ])
+    ]),
+    getColor: function() {
+      if(this.color == 'none') {
+        return 'rgb(94, 94, 94)'
+      }
+      return this.color
+    }
   },
   mounted: function() {
     bus.$on('color_change', (color) => {
@@ -96,6 +103,9 @@ export default {
   border: 1.5px solid rgb(226, 226, 226);
   background-color: red;
   border-radius: 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .box:hover {
   border: 1px solid white;
@@ -103,5 +113,9 @@ export default {
 }
 .box:active {
   border: 2px solid white;
+}
+.box img {
+  max-height: 40%;
+  max-width: 40%;
 }
 </style>

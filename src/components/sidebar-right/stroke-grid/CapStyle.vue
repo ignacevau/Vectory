@@ -1,6 +1,7 @@
 <template>
   <div class="cap-style">
     <div class="cap" @click="showWindow">
+      <img src="@/assets/cap_none.png" v-if="type == 'none' ? true : false" />
       <img src="@/assets/cap_butt.png" v-if="type == 'butt' ? true : false" />
       <img src="@/assets/cap_round.png" v-if="type == 'round' ? true : false" />
       <img src="@/assets/cap_square.png" v-if="type == 'square' ? true : false" />
@@ -14,12 +15,15 @@
 </template>
 
 <script>
+import { bus } from '@/main.js'
+import { mapState } from 'vuex'
+
 export default {
   name: 'CapStyle',
   data: function() {
     return {
       window: false,
-      type: 'butt'
+      type: 'none'
     }
   },
   methods: {
@@ -31,7 +35,38 @@ export default {
     },
     changeType: function(type) {
       this.type = type
+      bus.$emit('set-cap', type)
       this.hideWindow()
+    }
+  },
+  watch: {
+    SELECTED: function(_new, _old) {
+      if(_new.length == 0) {
+        this.type = 'none'
+        return
+      }
+      else {
+        var sw = _new[0]["strokeCap"]
+
+        for(var i=0; i<_new.length; i++) {
+          if(_new[i]["strokeCap"] != sw) {
+            this.type = 'none'
+            return
+          }
+        }
+      }
+
+      this.type = _new[0]["strokeCap"]
+    }
+  },
+  computed: {
+    ...mapState([
+      'SELECTED'
+    ]),
+    active: function() {
+      if(this.window)
+        return ''
+      return 'none'
     }
   },
   mounted: function() {
@@ -42,13 +77,6 @@ export default {
         this.hideWindow();
       }
     });
-  },
-  computed: {
-    active: function() {
-      if(this.window)
-        return ''
-      return 'none'
-    }
   }
 }
 </script>

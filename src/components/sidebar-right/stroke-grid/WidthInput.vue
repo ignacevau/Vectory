@@ -16,17 +16,16 @@ export default {
   name: 'WidthInput',
   data: function() {
     return {
-      input: '',
-      output: 0
+      input: ''
     }
   },
   watch: {
     input: function(_new, _old) {
       if(_new == "0") {
-        bus.$emit('set_width_input', 0)
+        bus.$emit('set_width', 0)
       }
       else if(this.checkNumber(_new)) {
-        bus.$emit('set_width_input', _new)
+        bus.$emit('set_width', _new)
       }
     },
     SELECTED: function(_new, _old) {

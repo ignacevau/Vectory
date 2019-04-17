@@ -914,11 +914,17 @@ export default {
       }
     });
 
-    bus.$on('set_width_input', (width) => {
+    bus.$on('set_width', (width) => {
       for(var i=0; i<localSelect.length; i++) {
         localSelect[i].strokeWidth = width
       }
-    })
+    });
+
+    bus.$on('set-cap', (type) => {
+      for(var i=0; i<localSelect.length; i++) {
+        localSelect[i].strokeCap = type
+      }
+    });
   }
 }
 </script>
