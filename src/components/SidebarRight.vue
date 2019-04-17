@@ -174,15 +174,16 @@ export default {
 }
 
 .tab-properties {
-  width: 90%;
-  margin-top: 7px;
+  width: 100%;
   flex: 0 0 auto;
 }
 .properties-title {
   text-align: center;
   width: 100%;
+  height: 2em;
   font-size: 100%;
-  border-bottom: 3px solid rgb(106, 162, 247);
+  background-color: rgb(114, 114, 114);
+  padding-top: 0.4em;
 }
 .stroke {
   font-size: 100%;
