@@ -107,6 +107,15 @@ export default new Vuex.Store({
             relW = init.subtract(pivot).x / end.subtract(pivot).x;
           }
 
+          if(action.data.shift) {
+            if(action.data.lockY) {
+              relH = relW;
+            }
+            else if(action.data.lockX) {
+              relW = relH;
+            }
+          }
+
           for(var i=0; i<action.data.paths.length; i++) {
             action.data.paths[i].scale(relW, relH, pivot);
           }

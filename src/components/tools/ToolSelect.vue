@@ -148,7 +148,8 @@ export default {
         handle_init: null,
         handle_end: null,
         lockX: false,
-        lockY: false
+        lockY: false,
+        shift: false
       })
     }
 
@@ -460,7 +461,8 @@ export default {
           lockX: lockScaleX,
           lockY: lockScaleY,
           handle_init: bounds[transform.dir],
-          handle_end: null
+          handle_end: null,
+          shift: false
         })
 
         mouseDrag(e);
@@ -622,7 +624,10 @@ export default {
 
         var bounds = getBounds();
         
-        action.scale.data.handle_end = getOppositePoint(point, true, true, transformRect.bounds);;
+        action.scale.data.handle_end = getOppositePoint(point, true, true, bounds);
+        if(e.modifiers.shift) {
+          action.scale.data.shift = true;
+        }
         self.ADD_ACTION(action.scale);
 
         transform.scaling = false;

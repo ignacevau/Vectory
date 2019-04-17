@@ -47,7 +47,7 @@ export default {
         var sw = _new[0][this.colorTypePrefix + "Color"]._canvasStyle
 
         for(var i=0; i<_new.length; i++) {
-          if(_new[i][this.colorTypePrefix + "Color"]._canvasStyle != sw || !_new[i][this.colorTypePrefix + "Color"]._canvasStyle) {
+          if(!_new[i][this.colorTypePrefix + "Color"]._canvasStyle || _new[i][this.colorTypePrefix + "Color"]._canvasStyle != sw) {
             this.color = 'none'
             this.oldColor = this.color
             return
