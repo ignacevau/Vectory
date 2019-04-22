@@ -497,7 +497,6 @@ export default {
             localSelect = [];
             self.CLEAR_SELECT();
 
-            console.log("added to selection")
             self.ADD_SELECT(hoverItem);
             localSelect.push(hoverItem);
           }
@@ -507,7 +506,6 @@ export default {
       }
       
       if(!e.item) {
-        console.log("selection was cleared")
         project.activeLayer.selected = false;
         self.CLEAR_SELECT();
         selectingPoint = e.point;
@@ -636,7 +634,6 @@ export default {
 
       if(transform.dragging) {
         action.move.data.endPos = e.point;
-        console.log("added move action")
         self.ADD_ACTION(action.move);
 
         transform.dragging = false;
@@ -950,7 +947,6 @@ export default {
       for(var i=0; i<this.ACTIONS.length; i++) {
         temp.push(this.ACTIONS[i].data.paths.length);
       }
-      console.log(temp)
     });
   }
 }

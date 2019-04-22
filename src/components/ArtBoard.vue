@@ -31,9 +31,9 @@ export default {
     paper.install(window);
     paper.setup('canvas');
 
-    settings.handleSize = 6;
+    paper.settings.handleSize = 8;
     // Value is not static (updated with zoom)
-    settings.hitTolerance = 7;
+    paper.settings.hitTolerance = 7;
 
     var self = this;
 
