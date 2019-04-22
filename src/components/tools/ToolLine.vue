@@ -16,7 +16,11 @@ export default {
   computed: {
     ...mapState([
       'ACTIVE',
-      'TOOLLINE'
+      'TOOLLINE',
+
+      'LINE_STROKECOLOR',
+      'LINE_OPACITY',
+      'LINE_WIDTH'
     ])
   },
   components: {
@@ -33,6 +37,54 @@ export default {
       this.SET_ACTIVE("line")
 
       this.TOOLLINE.activate();
+    }
+  },
+  mounted: function() {
+    var self = this;
+
+    var newPath;
+    var startPoint = new Point();
+    var endPoint = new Point();
+
+    // Keep track of how long the line is, don't create for click
+    var delta;
+
+    self.TOOLLINE.onMouseDown = (e) => {
+      self.CLEAR_SELECT();
+
+      newPath = new Path();
+
+      delta = 0;
+      startPoint = e.point
+
+      project.activeLayer.selected = false;
+    }
+
+    self.TOOLLINE.onMouseDrag = (e) => {
+      newPath.remove()
+
+      delta += e.delta.length;
+      endPoint = e.point
+
+      newPath = Path.Line(startPoint, endPoint)
+
+      newPath.strokeColor = this.LINE_STROKECOLOR
+      newPath.strokeWidth = this.LINE_WIDTH
+      newPath.opacity = this.LINE_OPACITY
+    }
+
+    self.TOOLLINE.onMouseUp = (e) => {
+      // Don't create an object for a click
+      if (delta < 3) {
+        newPath.remove();
+        return;
+      }
+
+      newPath.selected = true;
+      newPath.selectable = true;
+
+      self.ADD_SELECT(newPath);
+      self.ADD_SHAPE(newPath);
     }
   }
 }

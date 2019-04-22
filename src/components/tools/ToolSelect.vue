@@ -898,10 +898,13 @@ export default {
 
 
     // - switched to another tool -
-    bus.$on('deactive-select', () => {
-      self.CLEAR_SELECT();
+    bus.$on('deactivate-select', () => {
       for(var i=0; i<localSelect.length; i++) {
         localSelect[i].selected = false;
+      }
+
+      if(this.ACTIVE != 'pointer') {
+        self.CLEAR_SELECT();
       }
 
       localSelect = [];

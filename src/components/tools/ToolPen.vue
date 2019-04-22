@@ -43,7 +43,6 @@ export default {
   mounted: function() {
     var self = this;
 
-    var oldPath;
     var newPath;
     var delta = 0;
 
@@ -77,7 +76,6 @@ export default {
       newPath.simplify();
       newPath.selected = true;
 
-      oldPath = newPath;
       newPath.selectable = true;
 
       self.ADD_SELECT(newPath);

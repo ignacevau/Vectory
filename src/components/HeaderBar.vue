@@ -17,6 +17,7 @@
 
     <header-pen v-if="ACTIVE == 'pen'" />
     <header-circle v-if="ACTIVE == 'circle'" />
+    <header-line v-if="ACTIVE == 'line'" />
 
   </header>
 </template>
@@ -25,6 +26,7 @@
 import { mapState } from 'vuex'
 import HeaderPen from '@/components/header-bar/HeaderPen.vue'
 import HeaderCircle from '@/components/header-bar/HeaderCircle.vue'
+import HeaderLine from '@/components/header-bar/HeaderLine.vue'
 
 var images = require.context('../assets/', false, /\.png$/)
 
@@ -32,7 +34,8 @@ export default {
   name: 'HeaderBar',
   components: {
     HeaderPen,
-    HeaderCircle
+    HeaderCircle,
+    HeaderLine
   },
   computed: {
     ...mapState([

@@ -30,15 +30,24 @@ export default new Vuex.Store({
     CIRCLE_WIDTH: 1,
     CIRCLE_OPACITY: 1,
     CIRCLE_STROKECOLOR: 'black',
-    CIRCLE_FILLCOLOR: 'transparent'
+    CIRCLE_FILLCOLOR: 'transparent',
+
+    LINE_WIDTH: 1,
+    LINE_OPACITY: 1,
+    LINE_STROKECOLOR: 'black',
   },
   mutations: {
     // --- Tools ---
     SET_ACTIVE: function(state, type) {
-      if(state.ACTIVE == "select" && type != "select") {
-        bus.$emit("deactive-select");
-      }
+      var old = state.ACTIVE
       state.ACTIVE = type;
+
+      if(old == "select" && type != "select") {
+        bus.$emit("deactivate-select");
+      }
+      if(old == "pointer" && type != "pointer") {
+        bus.$emit("deactivate-pointer")
+      }
     },
 
     SET_TOOLSELECT: (state, tool) => {
@@ -120,6 +129,16 @@ export default new Vuex.Store({
     },
     CIRCLE_SET_FILLCOLOR(state, value) {
       state.CIRCLE_FILLCOLOR = value
+    },
+
+    LINE_SET_WIDTH(state, value) {
+      state.LINE_WIDTH = value
+    },
+    LINE_SET_OPACITY(state, value) {
+      state.LINE_OPACITY = value
+    },
+    LINE_SET_STROKECOLOR(state, value) {
+      state.LINE_STROKECOLOR = value
     },
 
     // Add an action to the undo list
