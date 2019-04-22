@@ -6,19 +6,30 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    ACTIVE: '',
+    ACTIVE: 'select',
 
     TOOLSELECT: null,
     TOOLPOINTER: null,
     TOOLPEN: null,
     TOOLCIRCLE: null,
+    TOOLSHAPEBUILDER: null,
 
     OBJECTS: [],
     SELECTED: [],
 
     ACTIONS: [],
 
-    COLORPICKER_ACTIVE: false
+    COLORPICKER_ACTIVE: false,
+
+    PEN_WIDTH: 1,
+    PEN_OPACITY: 1,
+    PEN_STROKECOLOR: 'black',
+    PEN_FILLCOLOR: 'transparent',
+
+    CIRCLE_WIDTH: 1,
+    CIRCLE_OPACITY: 1,
+    CIRCLE_STROKECOLOR: 'black',
+    CIRCLE_FILLCOLOR: 'transparent'
   },
   mutations: {
     // --- Tools ---
@@ -40,6 +51,9 @@ export default new Vuex.Store({
     },
     SET_TOOLCIRCLE: (state, tool) => {
       state.TOOLCIRCLE = tool;
+    },
+    SET_TOOLSHAPEBUILDER: (state, tool) => {
+      state.TOOLSHAPEBUILDER = tool
     },
 
     // --- Shapes ---
@@ -69,6 +83,39 @@ export default new Vuex.Store({
         state.SELECTED.pop();
 
       }
+    },
+
+    SELECTION_SET_STROKECOLOR(state, value) {
+      bus.$emit('set_color_stroke', value)
+    },
+    SELECTION_SET_FILLCOLOR(state, value) {
+      bus.$emit('set_color_fill', value)
+    },
+
+    PEN_SET_WIDTH(state, value) {
+      state.PEN_WIDTH = value
+    },
+    PEN_SET_OPACITY(state, value) {
+      state.PEN_OPACITY = value
+    },
+    PEN_SET_STROKECOLOR(state, value) {
+      state.PEN_STROKECOLOR = value
+    },
+    PEN_SET_FILLCOLOR(state, value) {
+      state.PEN_FILLCOLOR = value
+    },
+
+    CIRCLE_SET_WIDTH(state, value) {
+      state.CIRCLE_WIDTH = value
+    },
+    CIRCLE_SET_OPACITY(state, value) {
+      state.CIRCLE_OPACITY = value
+    },
+    CIRCLE_SET_STROKECOLOR(state, value) {
+      state.CIRCLE_STROKECOLOR = value
+    },
+    CIRCLE_SET_FILLCOLOR(state, value) {
+      state.CIRCLE_FILLCOLOR = value
     },
 
     // Add an action to the undo list
@@ -136,8 +183,8 @@ export default new Vuex.Store({
     clamp: () => (value, min, max) => {
       if(value < min){
         return min;
-      }else if(value > max){
-          return max;
+      } else if(value > max){
+        return max;
       }
       return value;
     }

@@ -9,13 +9,14 @@
       <div class="pr-left"></div>
       <div v-if="showText" class="pr-middle">color:</div>
       <div class="pr-right">
-        <color-trigger v-bind:colorTypePrefix="'fill'" />
+        <color-trigger v-bind:parentColor="fillColor" @value-change="colorChange" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { mapMutations, mapState } from 'vuex'
 import ColorTrigger from '@/components/sidebar-right/stroke-grid/ColorTrigger.vue'
 
 export default {
@@ -25,7 +26,54 @@ export default {
   },
   props: [
     'showText'
-  ]
+  ],
+  data: function() {
+    return {
+      fillColor: 'transparent'
+    }
+  },
+  computed: {
+    ...mapState([
+      'SELECTED'
+    ])
+  },
+  methods: {
+    ...mapMutations([
+      'SELECTION_SET_FILLCOLOR'
+    ]),
+    colorChange: function(value) {
+      this.fillColor = value
+      this.SELECTION_SET_FILLCOLOR(value)
+    }
+  },
+  watch: {
+    SELECTED: function(_new, _old) {
+      if(_new.length == 0) {
+        this.fillColor = 'rgb(94, 94, 94)'
+        // this.oldColor = this.color
+        return
+      }
+      else if(!_new[0]["fillColor"]) {
+        this.fillColor = 'rgb(94, 94, 94)'
+        // this.oldColor = this.color
+        return
+      }
+      else {
+        var sw = _new[0]["fillColor"]._canvasStyle
+
+        for(var i=0; i<_new.length; i++) {
+          if(!_new[i]["fillColor"] || _new[i]["fillColor"]._canvasStyle != sw) {
+            this.fillColor = 'none'
+            // this.oldColor = this.color
+            return
+          }
+        }
+      }
+
+      this.fillColor = _new[0]["fillColor"]._canvasStyle
+      // this.oldColor = this.color
+    }
+  }
 }
 </script>
 

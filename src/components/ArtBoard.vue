@@ -17,6 +17,7 @@ export default {
       'SET_TOOLPOINTER',
       'SET_TOOLPEN',
       'SET_TOOLCIRCLE',
+      'SET_TOOLSHAPEBUILDER',
       'DELETE_SELECT'
     ])
   },
@@ -39,11 +40,13 @@ export default {
     var toolPointer = new Tool();
     var toolPen = new Tool();
     var toolCircle = new Tool();
+    var toolShapebuilder = new Tool();
 
     self.SET_TOOLSELECT(toolSelect);
     self.SET_TOOLPOINTER(toolPointer);
     self.SET_TOOLPEN(toolPen);
     self.SET_TOOLCIRCLE(toolCircle);
+    self.SET_TOOLSHAPEBUILDER(toolShapebuilder);
 
     var view = paper.view;
     var offset = 0

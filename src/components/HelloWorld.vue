@@ -36,7 +36,7 @@ export default {
     HeaderBar,
     FooterBar,
     ArtBoard,
-    ColorPicker,
+    ColorPicker
   }
 }
 </script>

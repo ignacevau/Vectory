@@ -1,7 +1,7 @@
 <template>
   <div class="color-trigger">
-    <div class="box" v-bind:style="{ 'background-color': getColor }" @click="showColorpicker()">
-      <img src="@/assets/color-undefined.png" v-if="color == 'none' ? true : false" />
+    <div class="box" v-bind:style="{ 'background-color': color }" @click="showColorpicker()">
+      <img src="@/assets/color-undefined.png" v-if="parentColor == 'none' ? true : false" />
     </div>
   </div>
 </template>
@@ -20,7 +20,7 @@ export default {
     }
   },
   props: [
-    'colorTypePrefix'
+    'parentColor'
   ],
   methods: {
     ...mapMutations([
@@ -32,45 +32,18 @@ export default {
     }
   },
   watch: {
-    SELECTED: function(_new, _old) {
-      if(_new.length == 0) {
+    parentColor: function(_new, _old) {
+      if(_new == 'none') {
         this.color = 'rgb(94, 94, 94)'
-        this.oldColor = this.color
-        return
-      }
-      else if(!_new[0][this.colorTypePrefix + "Color"]) {
-        this.color = 'rgb(94, 94, 94)'
-        this.oldColor = this.color
-        return
       }
       else {
-        var sw = _new[0][this.colorTypePrefix + "Color"]._canvasStyle
-
-        for(var i=0; i<_new.length; i++) {
-          if(!_new[i][this.colorTypePrefix + "Color"]._canvasStyle || _new[i][this.colorTypePrefix + "Color"]._canvasStyle != sw) {
-            this.color = 'none'
-            this.oldColor = this.color
-            return
-          }
-        }
+        this.color = _new
       }
-
-      this.color = _new[0][this.colorTypePrefix + "Color"]._canvasStyle
-      this.oldColor = this.color
-    }
-  },
-  computed: {
-    ...mapState([
-      'SELECTED'
-    ]),
-    getColor: function() {
-      if(this.color == 'none') {
-        return 'rgb(94, 94, 94)'
-      }
-      return this.color
     }
   },
   mounted: function() {
+    this.color = this.parentColor
+
     bus.$on('color_change', (color) => {
       if(this.changingColor) {
         this.color = color.hex;
@@ -86,7 +59,7 @@ export default {
 
     bus.$on('set_color', () => {
       if(this.changingColor) {
-        bus.$emit('set_color_' + this.colorTypePrefix, this.color);
+        this.$emit('value-change', this.color);
         this.changingColor = false;
         this.oldColor = this.color
       }

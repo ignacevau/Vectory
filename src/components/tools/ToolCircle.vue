@@ -16,7 +16,12 @@ export default {
   computed: {
     ...mapState([
       'ACTIVE',
-      'TOOLCIRCLE'
+      'TOOLCIRCLE',
+
+      'CIRCLE_STROKECOLOR',
+      'CIRCLE_FILLCOLOR',
+      'CIRCLE_OPACITY',
+      'CIRCLE_WIDTH'
     ])
   },
   components: {
@@ -30,7 +35,7 @@ export default {
       'CLEAR_SELECT'
     ]),
     setActive: function() {
-      this.SET_ACTIVE("pen")
+      this.SET_ACTIVE("circle")
 
       this.TOOLCIRCLE.activate();
     }
@@ -42,7 +47,7 @@ export default {
     var oldPath;
     var middle;
 
-    self.TOOLCIRCLE.onMouseDown = function(e) {
+    self.TOOLCIRCLE.onMouseDown = (e) => {
       self.CLEAR_SELECT();
 
       newPath = new Path();
@@ -52,7 +57,7 @@ export default {
       project.activeLayer.selected = false;        
     }
 
-    self.TOOLCIRCLE.onMouseDrag = function(e) {
+    self.TOOLCIRCLE.onMouseDrag = (e) => {
       newPath.remove();
 
       // Ellipse
@@ -92,7 +97,10 @@ export default {
         newPath = Path.Circle(center, rad);
       }
 
-      newPath.strokeColor = 'black';
+      newPath.strokeColor = this.CIRCLE_STROKECOLOR
+      newPath.fillColor = this.CIRCLE_FILLCOLOR
+      newPath.opacity = this.CIRCLE_OPACITY
+      newPath.strokeWidth = this.CIRCLE_WIDTH
     }
 
     self.TOOLCIRCLE.onMouseUp = function(e) {

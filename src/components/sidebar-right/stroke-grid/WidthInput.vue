@@ -66,16 +66,8 @@ export default {
       }
     })
 
-    function resetFocus () {
-      let scrollTop = document.body.scrollTop;
-      let body = document.body;
-
-      let tmp = document.createElement('input');
-      tmp.style.opacity = 0;
-      body.appendChild(tmp);
-      tmp.focus();
-      body.removeChild(tmp);
-      body.scrollTop = scrollTop;
+    let resetFocus = () => {
+      input.blur()
     }
   }
 }

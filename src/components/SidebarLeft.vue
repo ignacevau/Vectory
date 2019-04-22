@@ -10,6 +10,7 @@
       <tool-pointer />
       <tool-pen />
       <tool-circle />
+      <tool-shapebuilder />
     </div>
 
     <div class="handler" ondragstart="return false;">
@@ -23,6 +24,7 @@ import ToolPen from '@/components/tools/ToolPen.vue'
 import ToolPointer from '@/components/tools/ToolPointer.vue'
 import ToolSelect from '@/components/tools/ToolSelect.vue'
 import ToolCircle from '@/components/tools/ToolCircle.vue'
+import ToolShapebuilder from '@/components/tools/ToolShapebuilder.vue'
 
 export default {
   name: 'SidebarLeft',
@@ -30,7 +32,8 @@ export default {
     ToolPen,
     ToolPointer,
     ToolSelect,
-    ToolCircle
+    ToolCircle,
+    ToolShapebuilder
   },
   data: function() {
     return {

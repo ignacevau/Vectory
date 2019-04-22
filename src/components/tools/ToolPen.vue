@@ -16,7 +16,12 @@ export default {
   computed: {
     ...mapState([
       'ACTIVE',
-      'TOOLPEN'
+      'TOOLPEN',
+
+      'PEN_WIDTH',
+      'PEN_OPACITY',
+      'PEN_STROKECOLOR',
+      'PEN_FILLCOLOR'
     ])
   },
   components: {
@@ -42,23 +47,26 @@ export default {
     var newPath;
     var delta = 0;
 
-    self.TOOLPEN.onMouseDown = function(e) {
+    self.TOOLPEN.onMouseDown = (e) => {
       self.CLEAR_SELECT();
 
       newPath = new Path();
-      newPath.strokeColor = 'black';
+      newPath.strokeColor = this.PEN_STROKECOLOR
+      newPath.fillColor = this.PEN_FILLCOLOR
+      newPath.strokeWidth = this.PEN_WIDTH
+      newPath.opacity = this.PEN_OPACITY
 
       delta = 0;
 
       project.activeLayer.selected = false;
     }
 
-    self.TOOLPEN.onMouseDrag = function(e) {
+    self.TOOLPEN.onMouseDrag = (e) => {
       newPath.add(e.point);
       delta += e.delta.length;
     }
 
-    self.TOOLPEN.onMouseUp = function(e) {
+    self.TOOLPEN.onMouseUp = (e) => {
       // Don't create an object for a click
       if (delta < 3) {
         newPath.remove();
