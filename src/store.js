@@ -13,6 +13,7 @@ export default new Vuex.Store({
     TOOLPEN: null,
     TOOLCIRCLE: null,
     TOOLSHAPEBUILDER: null,
+    TOOLLINE: null,
 
     OBJECTS: [],
     SELECTED: [],
@@ -54,6 +55,9 @@ export default new Vuex.Store({
     },
     SET_TOOLSHAPEBUILDER: (state, tool) => {
       state.TOOLSHAPEBUILDER = tool
+    },
+    SET_TOOLLINE: (state, tool) => {
+      state.TOOLLINE = tool
     },
 
     // --- Shapes ---

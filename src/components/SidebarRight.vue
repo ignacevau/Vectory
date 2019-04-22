@@ -14,6 +14,13 @@
       <div class="tab-properties">
         <div class="properties-title">Properties</div>
 
+          <div class="opacity">
+            <div v-if="textActive">
+              OPACITY
+            </div>
+            <click-slider v-bind:parentOpacity="opacity" @value-change="sliderChange" />
+          </div>
+
           <stroke-grid v-bind:showText="textActive" />
 
           <fill-grid v-bind:showText="textActive" /> 
@@ -28,12 +35,14 @@
 import { mapGetters, mapMutations } from 'vuex'
 import StrokeGrid from '@/components/sidebar-right/StrokeGrid.vue'
 import FillGrid from '@/components/sidebar-right/FillGrid.vue'
+import ClickSlider from '@/components/header-bar/ClickSlider.vue'
 
 export default {
   name: 'SidebarRight',
   components: {
     StrokeGrid,
-    FillGrid
+    FillGrid,
+    ClickSlider
   },
   data: function() {
     return {
@@ -41,7 +50,8 @@ export default {
       collapsed: false,
       minWidth: 100,
       maxWidth: 160,
-      size: 160
+      size: 160,
+      opacity: 100
     }
   },
   mounted: function() {
@@ -86,6 +96,9 @@ export default {
 
         this.collapsed = true;
       }
+    },
+    sliderChange: function(value) {
+      this.opacity = value
     }
   },
   computed: {
@@ -193,5 +206,18 @@ export default {
   display: flex;
   align-items: flex-start;
   justify-content: space-evenly;
+}
+.opacity {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 100%;
+  height: 2em;
+  border-bottom: 1px solid rgb(116, 116, 116);
+  margin-top: 2px;
+}
+.opacity > div {
+  font-size: 0.7em;
+  margin-top: 2px;
 }
 </style>

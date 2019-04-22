@@ -88,8 +88,8 @@ export default {
   justify-content: center;
 }
 .cap {
-  height: 25px;
-  width: 30px;
+  height: 1.3em;
+  width: 1.7em;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -99,8 +99,8 @@ export default {
   background-color: rgb(124, 124, 124);
 }
 .cap img {
-  height: 20px;
-  width: 22px;
+  height: 1.0em;
+  width: 1.1em;
 }
 .select {
   width: 90px;
@@ -116,8 +116,8 @@ export default {
   border: 2px solid rgb(106, 162, 247);
 }
 .select img {
-  width: 22px;
-  height: 20px;
+  width: 20px;
+  height: 18px;
 }
 .select img:hover {
   border: 2px solid rgb(94, 94, 94);

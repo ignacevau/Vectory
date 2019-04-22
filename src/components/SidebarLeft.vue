@@ -9,6 +9,7 @@
       <tool-select />
       <tool-pointer />
       <tool-pen />
+      <tool-line />
       <tool-circle />
       <tool-shapebuilder />
     </div>
@@ -25,6 +26,7 @@ import ToolPointer from '@/components/tools/ToolPointer.vue'
 import ToolSelect from '@/components/tools/ToolSelect.vue'
 import ToolCircle from '@/components/tools/ToolCircle.vue'
 import ToolShapebuilder from '@/components/tools/ToolShapebuilder.vue'
+import ToolLine from '@/components/tools/ToolLine.vue'
 
 export default {
   name: 'SidebarLeft',
@@ -33,7 +35,8 @@ export default {
     ToolPointer,
     ToolSelect,
     ToolCircle,
-    ToolShapebuilder
+    ToolShapebuilder,
+    ToolLine
   },
   data: function() {
     return {

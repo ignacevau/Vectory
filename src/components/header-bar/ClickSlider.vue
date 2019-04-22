@@ -8,7 +8,7 @@
       </div>
 
       <div class="input" ref="slider">
-        <div class="handle"></div>
+        <div class="handle"  ref="handle"></div>
         <div class="track"></div>
       </div>
     </div>
@@ -48,7 +48,7 @@ export default {
     var sliderTrigger = this.$refs['sliderTrigger']
     var slider = this.$refs['slider']
     var height = slider.clientHeight;
-    var offsetTop = slider.getBoundingClientRect().y;
+    var offsetTop = this.$refs['handle'].getBoundingClientRect().y + this.$refs['handle'].clientHeight / 2;
 
     slider.style.display = 'none'
     
@@ -85,13 +85,14 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 $track-w: 10em;
-$track-h: .25em;
+$track-h: 50px;
 $thumb-d: 1.5em;
 
 .click-slider {
   display: flex;
   justify-content: space-evenly;
   align-items: center;
+  z-index: 10;
 }
 
 .click-slider > input {
@@ -135,7 +136,7 @@ $thumb-d: 1.5em;
 }
 
 .input {
-  height: 70px;
+  height: $track-h;
   position: absolute;
   top: 50%;
   display: flex;

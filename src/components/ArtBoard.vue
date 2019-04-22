@@ -18,6 +18,7 @@ export default {
       'SET_TOOLPEN',
       'SET_TOOLCIRCLE',
       'SET_TOOLSHAPEBUILDER',
+      'SET_TOOLLINE',
       'DELETE_SELECT'
     ])
   },
@@ -41,12 +42,14 @@ export default {
     var toolPen = new Tool();
     var toolCircle = new Tool();
     var toolShapebuilder = new Tool();
+    var toolLine = new Tool ();
 
     self.SET_TOOLSELECT(toolSelect);
     self.SET_TOOLPOINTER(toolPointer);
     self.SET_TOOLPEN(toolPen);
     self.SET_TOOLCIRCLE(toolCircle);
     self.SET_TOOLSHAPEBUILDER(toolShapebuilder);
+    self.SET_TOOLLINE(toolLine);
 
     var view = paper.view;
     var offset = 0

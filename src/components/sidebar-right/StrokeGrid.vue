@@ -7,19 +7,27 @@
 
     <div v-bind:class="{ 'large-grid': showText, 'small-grid': !showText, 'grid-container': true }">
       <div class="pr-left"></div>
-      <div v-if="showText" class="pr-middle">color:</div>
+      <div v-if="showText" class="pr-middle">COLOR</div>
       <div class="pr-right">
         <color-trigger v-bind:parentColor="strokeColor" @value-change="colorChange" />
       </div>
 
+      <div class="border"></div>
+      <div class="border" v-if="showText"></div>
+      <div class="border"></div>
+
       <div class="pr-left"></div>
-      <div v-if="showText" class="pr-middle">width:</div>
+      <div v-if="showText" class="pr-middle">WIDTH</div>
       <div class="pr-right">
         <width-input />
       </div>
 
+      <div class="border"></div>
+      <div class="border" v-if="showText"></div>
+      <div class="border"></div>
+
       <div class="pr-left"></div>
-      <div v-if="showText" class="pr-middle">type:</div>
+      <div v-if="showText" class="pr-middle">TYPE</div>
       <div class="pr-right">
         <cap-style />
       </div>
@@ -94,7 +102,7 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang="scss" scoped>
 .title {
   margin-top: 10px;
   margin-left: 5px;
@@ -114,7 +122,7 @@ export default {
   height: 11vh;
   display: grid;
   grid-template-columns: 0.1fr 1fr 1fr;
-  grid-template-rows: 0.5fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 0.1fr 1fr 0.1fr 1fr;
   grid-template-areas: ". . ." ". . ." ". . .";
 }
 .small-grid {
@@ -122,7 +130,7 @@ export default {
   height: 11vh;
   display: grid;
   grid-template-columns: 0.1fr 1fr;
-  grid-template-rows: 0.5fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 0.1fr 1fr 0.1fr 1fr;
   grid-template-areas: ". ." ". ." ". .";
 }
 .img-stroke {
@@ -140,9 +148,15 @@ export default {
 }
 .grid-container .pr-middle {
   justify-content: flex-end;
-  font-size: 0.9em;
+  font-size: 0.7em;
 }
-.grid-container div:first-child {
-  height: 20px;
+.grid-container .pr-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.border {
+  height: 0.05em;
+  background-color: rgb(116, 116, 116);
 }
 </style>
