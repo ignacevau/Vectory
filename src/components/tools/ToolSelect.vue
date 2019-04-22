@@ -942,6 +942,28 @@ export default {
       }
     });
 
+    bus.$on('flip-hor', () => {
+      if(this.SELECTED.length > 0) {
+        var bounds = getBounds()
+        var center = bounds.center
+
+        for(var i=0; i<this.SELECTED.length; i++) {
+          this.SELECTED[i].scale(1, -1, center)
+        }
+      }
+    });
+
+    bus.$on('flip-ver', () => {
+      if(this.SELECTED.length > 0) {
+        var bounds = getBounds()
+        var center = bounds.center
+
+        for(var i=0; i<this.SELECTED.length; i++) {
+          this.SELECTED[i].scale(-1, 1, center)
+        }
+      }
+    });
+
     document.addEventListener('mousedown', (e) => {
       var temp = []
       for(var i=0; i<this.ACTIONS.length; i++) {
