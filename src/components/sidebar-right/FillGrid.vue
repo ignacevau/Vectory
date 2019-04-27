@@ -94,7 +94,7 @@ export default {
 
 .large-grid {
   margin-top: 10px;
-  height: 11vh;
+  height: 4vh;
   display: grid;
   grid-template-columns: 0.1fr 1fr 1fr;
   grid-template-rows: 0.5fr 1fr 1fr 1fr;
@@ -102,7 +102,7 @@ export default {
 }
 .small-grid {
   margin-top: 10px;
-  height: 11vh;
+  height: 4vh;
   display: grid;
   grid-template-columns: 0.1fr 1fr;
   grid-template-rows: 0.5fr 1fr 1fr 1fr;

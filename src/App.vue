@@ -5,4 +5,9 @@
 </template>
 
 <style>
+* {
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+}
 </style>

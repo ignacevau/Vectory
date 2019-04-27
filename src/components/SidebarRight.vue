@@ -11,8 +11,8 @@
         </span>
       </div>
 
-      <div class="tab-properties">
-        <div class="properties-title">Properties</div>
+      <div class="tab">
+        <div class="title">Properties</div>
 
           <div class="opacity">
             <div v-if="textActive">
@@ -27,6 +27,18 @@
 
       </div>
 
+      <div class="tab">
+        <div class="title">Align</div>
+
+        <align-grid />
+      </div>
+
+      <div class="tab">
+        <div class="title">Pathfinder</div>
+
+        <pathfinder-grid v-bind:showText="textActive" />
+      </div>
+
     </div>
   </div>
 </template>
@@ -36,21 +48,25 @@ import { mapGetters, mapMutations } from 'vuex'
 import StrokeGrid from '@/components/sidebar-right/StrokeGrid.vue'
 import FillGrid from '@/components/sidebar-right/FillGrid.vue'
 import ClickSlider from '@/components/header-bar/ClickSlider.vue'
+import AlignGrid from '@/components/sidebar-right/AlignGrid.vue'
+import PathfinderGrid from '@/components/sidebar-right/PathfinderGrid.vue'
 
 export default {
   name: 'SidebarRight',
   components: {
     StrokeGrid,
     FillGrid,
-    ClickSlider
+    ClickSlider,
+    AlignGrid,
+    PathfinderGrid
   },
   data: function() {
     return {
       dragging: false,
       collapsed: false,
-      minWidth: 100,
-      maxWidth: 160,
-      size: 160,
+      minWidth: 120,
+      maxWidth: 180,
+      size: 180,
       opacity: 100
     }
   },
@@ -186,11 +202,12 @@ export default {
   transform: scaleX(-1);
 }
 
-.tab-properties {
+.tab {
   width: 100%;
+  margin-bottom: 2em;
   flex: 0 0 auto;
 }
-.properties-title {
+.title {
   text-align: center;
   width: 100%;
   height: 2em;
