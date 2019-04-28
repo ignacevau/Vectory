@@ -8,6 +8,8 @@ export default new Vuex.Store({
   state: {
     ACTIVE: 'select',
 
+    LAYER_ACTIVE: false,
+
     TOOLSELECT: null,
     TOOLPOINTER: null,
     TOOLPEN: null,
@@ -48,6 +50,10 @@ export default new Vuex.Store({
       if(old == "pointer" && type != "pointer") {
         bus.$emit("deactivate-pointer")
       }
+    },
+
+    SET_LAYER_ACTIVE: function(state, value) {
+      state.LAYER_ACTIVE = value;
     },
 
     SET_TOOLSELECT: (state, tool) => {
