@@ -15,7 +15,6 @@ export default {
   name: 'ToolShapebuilder',
   computed: {
     ...mapState([
-      'ACTIVE',
       'TOOLSHAPEBUILDER'
     ])
   },

@@ -1,22 +1,25 @@
 <template>
   <div class="sidebar-left">
     <div class="resize" ref="left">
+      
       <div class="top-bar">
         <span class="collapse-btn" @click="collapse">
           <img v-bind:class="{ 'flip': !collapsed }" src="@/assets/collapse.png" style="max-height: 70%; max-width: 80%; margin: 0px 0px 1px 1px;" />
         </span>
       </div>
+
       <tool-select />
       <tool-pointer />
       <tool-pen />
       <tool-line />
       <tool-circle />
       <tool-shapebuilder />
-    </div>
 
+    </div>
     <div class="handler" ondragstart="return false;">
     </div>
   </div>
+
 </template>
 
 <script>
@@ -64,13 +67,15 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="scss">
+@import '@/library.scss';
+
 .sidebar-left {
   display: flex;
   pointer-events: all;
 }
 .resize {
-  background-color: rgb(90, 90, 90);
+  background-color: $DefaultGray;
   flex: 0 0 auto;
   display: flex;
   flex-wrap: wrap;
@@ -86,7 +91,7 @@ export default {
 }
 .handler {
   width: 6px;
-  background-color: rgb(63, 63, 63);
+  background-color: rgb(58, 58, 58);
   border-top: 4px solid rgb(106, 162, 247);
   z-index: 1;
 

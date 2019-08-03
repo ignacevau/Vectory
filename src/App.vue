@@ -4,7 +4,8 @@
   </div>
 </template>
 
-<style>
+<!-- THIS IS NOT SCOPED -->
+<style lang="scss">
 * {
   user-select: none;
   -moz-user-select: none;

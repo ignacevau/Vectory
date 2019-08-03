@@ -55,6 +55,8 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+@import '@/library.scss';
+
 .pathfinder {
   width: 100%;
   height: 100%;
@@ -81,7 +83,7 @@ export default {
   margin-bottom: 5px;
 
   .button {
-    background-color: rgb(161, 161, 161);
+    background-color: $LightGray_Btn;
     color: black;
     border-radius: 3px;
     padding-top: 5px;
@@ -151,7 +153,7 @@ export default {
   }
 
   > .icon {
-    background-color: rgb(161, 161, 161);
+    background-color: $LightGray_Btn;
     border-radius: 3px;
 
     img {

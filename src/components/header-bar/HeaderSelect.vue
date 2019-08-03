@@ -1,15 +1,20 @@
 <template>
   <div class="header-select">
     <div class="section">
+
       <div>
         FLIP
       </div>
-      <div class="flip">
-        <img @click="flipHor" src="@/assets/flip-hor.png" />
+
+      <div class="button-holder">
+        <div class="flip left">
+         <img @click="flipHor" src="@/assets/flip-hor.png" />
+        </div>
+        <div class="flip right">
+          <img @click="flipVer" src="@/assets/flip-ver.png" />
+        </div>
       </div>
-      <div class="flip">
-        <img @click="flipVer" src="@/assets/flip-ver.png" />
-      </div>
+
     </div>
   </div>
 </template>
@@ -35,6 +40,8 @@ export default {
 
 
 <style lang="scss" scoped>
+@import '@/library.scss';
+
 * {
   color: rgb(221, 221, 221);
   font-family: Comfortaa;
@@ -53,29 +60,38 @@ export default {
   width: 14%;
   height: 60%;
   border-right: 1px solid rgb(133, 133, 133);
+  font-size: 0.75em;
 
-  & div:first-child {
-    font-size: 0.7em;
-    margin-top: 2px;
+  .button-holder {
+    display: flex;
   }
 
-  & .flip {
-    width: 1.8em;
-    height: 80%;
-    border-radius: 4px;
-    background-color: rgb(112, 112, 112);
+  .flip {
+    width: 2.5em;
+    height: 1.5em;
+    background-color: $LightGray_Btn;
     display: flex;
     justify-content: center;
     align-items: center;
 
-    &:hover {
-      background-color: gray;
+    img {
+      max-height: 100%;
     }
 
-    & img {
-      max-height: 90%;
-      max-width: 90%;
+    &:hover {
+      background-color: $ThemeBlue;
     }
+  }
+
+  .left {
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+  }
+
+  .right {
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-left: 1px solid rgb(126, 126, 126);
   }
 }
 </style>

@@ -16,6 +16,7 @@
     </div>
 
     <color-picker />
+    <file-dropdown />
 
   </div>
 </template>
@@ -28,7 +29,9 @@ import HeaderBar from '@/components/HeaderBar.vue'
 import FooterBar from '@/components/FooterBar.vue'
 import ColorPicker from '@/components/ColorPicker.vue'
 import LayerWindow from '@/components/LayerWindow.vue'
+import FileDropdown from '@/components/FileDropdown.vue'
 import { mapState } from 'vuex'
+import { Layer } from '@/main.js'
 
 export default {
   name: 'HelloWorld',
@@ -39,7 +42,17 @@ export default {
     FooterBar,
     ArtBoard,
     ColorPicker,
-    LayerWindow
+    LayerWindow,
+    FileDropdown
+  },
+  computed: {
+    ...mapState([
+      'LAYERS'
+    ])
+  },
+  mounted: function() {
+    var _newLayer = new Layer(0, "Layer 0");
+    this.LAYERS.push(_newLayer);
   }
 }
 </script>

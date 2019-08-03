@@ -45,7 +45,9 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="scss">
+@import '@/library.scss';
+
 .toolDiv {
     margin: 8px 4px 0px 4px;
     -moz-user-select: none;
@@ -53,7 +55,7 @@ export default {
     user-select: none;
 }
 .tool {
-    background-color: rgb(161, 161, 161);
+    background-color: $LightGray_Btn;
     width: 35px;
     height: 35px;
     display: flex;

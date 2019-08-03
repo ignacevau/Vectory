@@ -4,11 +4,11 @@
 
     <div class="slider">
       <div class="sliderTrigger" ref="sliderTrigger">
-        <div>o</div>
+        <span>⬤</span>
       </div>
 
       <div class="input" ref="slider">
-        <div class="handle"  ref="handle"></div>
+        <div class="handle" ref="handle"></div>
         <div class="track"></div>
       </div>
     </div>
@@ -47,8 +47,8 @@ export default {
     var sliderDown = false;
     var sliderTrigger = this.$refs['sliderTrigger']
     var slider = this.$refs['slider']
-    var height = slider.clientHeight;
-    var offsetTop = this.$refs['handle'].getBoundingClientRect().y + this.$refs['handle'].clientHeight / 2;
+    var height = slider.getBoundingClientRect().height;
+    var offsetTop = slider.getBoundingClientRect().top;
 
     slider.style.display = 'none'
     
@@ -84,6 +84,8 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+@import '@/library.scss';
+
 $track-w: 10em;
 $track-h: 50px;
 $thumb-d: 1.5em;
@@ -96,18 +98,15 @@ $thumb-d: 1.5em;
 }
 
 .click-slider > input {
-  margin-bottom: 3px;
   width: 35px;
   height: 18px;
-  background-color: rgb(94, 94, 94);
-  border: 0px solid black;
-  color: rgb(221, 221, 221);
-  font-family: Comfortaa;
-  background-color: rgb(112, 112, 112);
+  border-width: 0px;
+  color: rgb(255, 255, 255);
+  font-family: Montserrat;
+  background-color: rgb(139, 139, 139);
   text-align: center;
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
-  margin-right: 0;
 }
 
 .slider {
@@ -118,10 +117,9 @@ $thumb-d: 1.5em;
 }
 
 .slider .sliderTrigger {
-  background-color: rgb(82, 82, 82);
+  background-color: $DarkGray;
   width: 17px;
-  height: 17px;
-  margin-bottom: 3px;
+  height: 18px;
   border-bottom-right-radius: 3px;
   border-top-right-radius: 3px;
   display: flex;
@@ -129,9 +127,11 @@ $thumb-d: 1.5em;
   align-items: center;
   user-select: none;
   -moz-user-select: none;
+  font-size: 0.2em;
+  color: white;
 
   &:hover {
-    background-color: rgb(71, 71, 71);
+    background-color: rgb(94, 94, 94);
   }
 }
 
@@ -143,7 +143,7 @@ $thumb-d: 1.5em;
   justify-content: center;
   align-items: flex-start;
 
-  & .handle {
+  .handle {
     margin-top: -6px;
     width: 12px;
     height: 12px;
@@ -153,7 +153,7 @@ $thumb-d: 1.5em;
     position: absolute;
   }
 
-  & .track {
+  .track {
     height: 100%;
     width: 4px;
     background-color: rgb(221, 221, 221);

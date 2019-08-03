@@ -34,6 +34,8 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+@import '@/library.scss';
+
 .grid-container {
   display: flex;
   width: 100%;
@@ -51,7 +53,7 @@ export default {
   grid-template-areas: ". . ." ". . .";
 
   > div {
-    background-color: rgb(161, 161, 161);
+    background-color: $LightGray_Btn;
     display: flex;
     justify-content: center;
     align-items: center;

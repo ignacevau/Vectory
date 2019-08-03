@@ -21,7 +21,6 @@ export default {
   },
   computed: {
     ...mapState([
-      'ACTIVE',
       'TOOLPOINTER',
       'SELECTED'
     ])

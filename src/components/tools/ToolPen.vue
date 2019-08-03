@@ -15,7 +15,6 @@ export default {
   name: 'ToolPen',
   computed: {
     ...mapState([
-      'ACTIVE',
       'TOOLPEN',
 
       'PEN_WIDTH',

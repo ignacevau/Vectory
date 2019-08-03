@@ -15,7 +15,6 @@ export default {
   name: 'ToolLine',
   computed: {
     ...mapState([
-      'ACTIVE',
       'TOOLLINE',
 
       'LINE_STROKECOLOR',

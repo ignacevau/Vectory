@@ -14,6 +14,13 @@ export class Action {
   }
 }
 
+export class Layer {
+  constructor(id, name) {
+    this.id = id;
+    this.name = name;
+  }
+}
+
 new Vue({
   router,
   store,

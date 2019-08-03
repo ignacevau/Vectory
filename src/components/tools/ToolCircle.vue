@@ -15,7 +15,6 @@ export default {
   name: 'ToolCircle',
   computed: {
     ...mapState([
-      'ACTIVE',
       'TOOLCIRCLE',
 
       'CIRCLE_STROKECOLOR',

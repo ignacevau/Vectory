@@ -9,17 +9,26 @@
         <div>LAYERS</div>
       </div>
     </div>
+
+    <div class="layer-body">
+      <layer v-for="(layer, index) in layers" v-bind:key="index" v-bind:id="index" v-bind:name="layer.name" />
+    </div>
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex';
+import Layer from "@/components/Layer.vue"
 
 export default {
   name: 'LayerWindow',
+  components: {
+    Layer
+  },
   computed: {
     ...mapState([
-      'LAYER_ACTIVE'
+      'LAYER_ACTIVE',
+      'LAYERS'
     ]),
     active: {
       get () {
@@ -28,6 +37,11 @@ export default {
       set (value) {
         return this.$store.commit('SET_LAYER_ACTIVE', value)
       }
+    },
+    layers: function() {
+      return this.LAYERS.filter(function(el) {
+        return el !== null;
+      });
     }
   },
   methods: {
@@ -40,20 +54,34 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+@import '@/library.scss';
+
 .container {
   width: 20em;
   height: 15em;
   background-color: rgb(90, 90, 90);
   z-index: 1;
   pointer-events: all;
+  display: flex;
+  flex-flow: column;
+
+  .layer-top {
+    width: 20em;
+    margin-top: -1px;
+    display: flex;
+    flex: 0 0 25px;
+  }
+  
+  .layer-body {
+    width: 100%;
+    flex: 1 1 auto;
+    overflow-y: scroll;
+    display: flex;
+    flex-flow: column;
+    border-right: 1px solid $ThemeBlue;
+  }
 }
 
-.layer-top {
-  width: 20em;
-  margin-top: -1px;
-  height: 25px;
-  display: flex;
-}
 .layer-text {
   width: 80%;
   height: 100%;
@@ -74,7 +102,7 @@ export default {
 .layer-trigger {
   width: 20%;
   height: 100%;
-  background-color: rgb(63, 63, 63);
+  background-color: $SuperDarkGray;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -90,7 +118,7 @@ export default {
   }
 
   &:hover {
-    background-color: rgb(73, 73, 73);
+    background-color: rgb(97, 97, 97);
   }
 }
 </style>

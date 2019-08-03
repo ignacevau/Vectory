@@ -7,7 +7,7 @@
 
     <div v-bind:class="{ 'large-grid': showText, 'small-grid': !showText, 'grid-container': true }">
       <div class="pr-left"></div>
-      <div v-if="showText" class="pr-middle">COLOR</div>
+      <div v-if="showText" class="pr-middle">Color</div>
       <div class="pr-right">
         <color-trigger v-bind:parentColor="fillColor" @value-change="colorChange" />
       </div>
@@ -109,8 +109,7 @@ export default {
   grid-template-areas: ". ." ". ." ". .";
 }
 .img-stroke {
-  width: 25px;
-  height: 18px;
+  max-height: 0.8em;
 }
 .grid-container > div {
   position: relative;
@@ -123,7 +122,8 @@ export default {
 }
 .grid-container .pr-middle {
   justify-content: flex-end;
-  font-size: 0.7em;
+  font-size: 0.9em;
+  font-family: Montserrat;
 }
 .grid-container div:first-child {
   height: 20px;

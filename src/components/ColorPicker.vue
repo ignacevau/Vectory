@@ -169,10 +169,10 @@ export default {
     }
 
     function getMousePos(canvas, evt) {
-      var rect = canvas.getBoundingClientRect();
+      var _rect = canvas.getBoundingClientRect();
       return {
-          x: (evt.clientX - rect.x),
-          y: (evt.clientY - rect.y)
+          x: (evt.clientX - _rect.x),
+          y: (evt.clientY - _rect.y)
       };
     }
 
@@ -246,27 +246,27 @@ export default {
       sliderDown = true
       handleSliderChange(e)
 
-      var rect = slider.getBoundingClientRect();
+      var _rect = slider.getBoundingClientRect();
 
       // Change the handle's position
-      this.sh_top = this.clamp(e.clientY-1.5, rect.y-1.5, rect.y + slider.height-1.5)
+      this.sh_top = this.clamp(e.clientY-1.5, _rect.y-1.5, _rect.y + slider.height-1.5)
     });
 
     window.addEventListener('mousemove', (e) => {
       if(pickerDown) {
-        var rect = picker.getBoundingClientRect();
+        var _rect = picker.getBoundingClientRect();
 
         // Change the picker handle's position
-        this.ph_top = this.clamp(e.clientY-5, rect.y-5, rect.y + picker.height-5)
-        this.ph_left = this.clamp(e.clientX-5, rect.x-5, rect.x + picker.width-5)
+        this.ph_top = this.clamp(e.clientY-5, _rect.y-5, _rect.y + picker.height-5)
+        this.ph_left = this.clamp(e.clientX-5, _rect.x-5, _rect.x + picker.width-5)
 
         handlePickerChange(e);
       }
       if(sliderDown) {
-        var rect = slider.getBoundingClientRect();
+        var _rect = slider.getBoundingClientRect();
 
         // Change the handle's position
-        this.sh_top = this.clamp(e.clientY-1.5, rect.y-1.5, rect.y + slider.height-1.5)
+        this.sh_top = this.clamp(e.clientY-1.5, _rect.y-1.5, _rect.y + slider.height-1.5)
 
         handleSliderChange(e);
       }

@@ -7,7 +7,7 @@
 
     <div v-bind:class="{ 'large-grid': showText, 'small-grid': !showText, 'grid-container': true }">
       <div class="pr-left"></div>
-      <div v-if="showText" class="pr-middle">COLOR</div>
+      <div v-if="showText" class="pr-middle">Color</div>
       <div class="pr-right">
         <color-trigger v-bind:parentColor="strokeColor" @value-change="colorChange" />
       </div>
@@ -17,9 +17,9 @@
       <div class="border"></div>
 
       <div class="pr-left"></div>
-      <div v-if="showText" class="pr-middle">WIDTH</div>
+      <div v-if="showText" class="pr-middle">Width</div>
       <div class="pr-right">
-        <width-input />
+        <width-input2 />
       </div>
 
       <div class="border"></div>
@@ -27,7 +27,7 @@
       <div class="border"></div>
 
       <div class="pr-left"></div>
-      <div v-if="showText" class="pr-middle">TYPE</div>
+      <div v-if="showText" class="pr-middle">Type</div>
       <div class="pr-right">
         <cap-style />
       </div>
@@ -39,6 +39,7 @@
 import { mapMutations, mapState } from 'vuex'
 import ColorTrigger from '@/components/sidebar-right/stroke-grid/ColorTrigger.vue'
 import WidthInput from '@/components/sidebar-right/stroke-grid/WidthInput.vue'
+import WidthInput2 from '@/components/header-bar/WidthInput2.vue'
 import CapStyle from '@/components/sidebar-right/stroke-grid/CapStyle.vue'
 
 export default {
@@ -46,6 +47,7 @@ export default {
   components: {
     ColorTrigger,
     WidthInput,
+    WidthInput2,
     CapStyle
   },
   props: [
@@ -134,8 +136,7 @@ export default {
   grid-template-areas: ". ." ". ." ". .";
 }
 .img-stroke {
-  width: 25px;
-  height: 18px;
+  max-height: 0.8em;
 }
 .grid-container > div {
   position: relative;
@@ -148,7 +149,8 @@ export default {
 }
 .grid-container .pr-middle {
   justify-content: flex-end;
-  font-size: 0.7em;
+  font-size: 0.9em;
+  font-family: Montserrat;
 }
 .grid-container .pr-right {
   display: flex;

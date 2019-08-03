@@ -1,9 +1,9 @@
 <template>
   <div class="width-input">
     <input v-model="input" type="text" class="input-width-text" ref="input" />
-    <div>
-      <span style="line-height: 15px;"><b>⌃</b></span>
-      <span style="line-height: 5px;"><b>⌄</b></span>
+    <div class="value-steps">
+      <div class="top">-</div>
+      <div class="bottom">-</div>
     </div>
   </div>
 </template>
@@ -58,37 +58,60 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-span {
-  width: 10px;
-  height: 10px;
-  text-align: center;
-  font-size: 0.7em;
-  color: rgb(106, 162, 247);
-}
-span:hover {
-  cursor: pointer;
-}
+<style scoped lang="scss">
+@import '@/library.scss';
+
 .width-input {
   display: flex;
-  margin-left: 8px;
-}
-.width-input div {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  font-size: 1.3em;
-  align-items: center;
-}
-input {
-  width: 40px;
+  margin-left: 5px;
+  width: 51.8px;
   height: 18px;
-  background-color: rgb(94, 94, 94);
-  border: 0px solid black;
-  color: rgb(255, 255, 255);
-  font-family: Comfortaa;
-  background-color: rgb(112, 112, 112);
-  text-align: center;
-  border-radius: 3px;
+
+  input {
+    width: 70%;
+    height: 100%;
+    border-width: 0px;
+    color: white;
+    font-family: Montserrat;
+    font-size: 13px;
+    background-color: rgb(139, 139, 139);
+    text-align: center;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+  }
+
+  .value-steps {
+    width: 30%;
+    height: 100%;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+
+    div {
+      font-size: 12px;
+      line-height: 0.8em;
+      height: 50%;
+      width: 100%;
+      color: white;
+      text-align: center;
+      background-color: $DarkGray;
+      cursor: pointer;
+
+      &:hover {
+        background-color: rgb(94, 94, 94);
+      }
+    }
+
+    .top {
+      border-top-right-radius: 3px;
+    }
+    .bottom {
+      border-bottom-right-radius: 3px;
+    }
+  }
 }
+
 </style>

@@ -193,7 +193,7 @@ export default {
   justify-content: space-evenly;
   align-items: center;
   width: 14%;
-  height: 60%;
+  height: 100%;
   border-right: 1px solid rgb(133, 133, 133);
 }
 .width > div {

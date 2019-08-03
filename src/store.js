@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { bus } from '@/main.js'
+import { bus, Layer } from '@/main.js'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    ACTIVE: 'select',
+    ACTIVE_TOOL: 'select',
 
     LAYER_ACTIVE: false,
 
@@ -22,8 +22,12 @@ export default new Vuex.Store({
 
     ACTIONS: [],
 
+    // Window toggles
     COLORPICKER_ACTIVE: false,
+    FILEDROPDOWN_ACTIVE: false,
 
+
+    // Tools settings
     PEN_WIDTH: 1,
     PEN_OPACITY: 1,
     PEN_STROKECOLOR: 'black',
@@ -37,12 +41,17 @@ export default new Vuex.Store({
     LINE_WIDTH: 1,
     LINE_OPACITY: 1,
     LINE_STROKECOLOR: 'black',
+
+    // General
+    LAYERS: [],
+    LAYER_INDEX: 0,
+    SELECTED_LAYER_INDEX: 0
   },
   mutations: {
     // --- Tools ---
     SET_ACTIVE: function(state, type) {
-      var old = state.ACTIVE
-      state.ACTIVE = type;
+      var old = state.ACTIVE_TOOL
+      state.ACTIVE_TOOL = type;
 
       if(old == "select" && type != "select") {
         bus.$emit("deactivate-select");
@@ -201,11 +210,31 @@ export default new Vuex.Store({
       }
     },
 
+
+    // Toggle windows
     HIDE_COLORPICKER(state) {
       state.COLORPICKER_ACTIVE = false
     },
     SHOW_COLORPICKER(state) {
       state.COLORPICKER_ACTIVE = true
+    },
+    TRIGGER_FILEDROPDOWN(state) {
+      state.FILEDROPDOWN_ACTIVE = !state.FILEDROPDOWN_ACTIVE;
+    },
+
+    //General
+    ADD_LAYER(state) {
+      state.LAYER_INDEX++;
+      var _newLayer = new Layer(state.LAYER_INDEX, "Layer " + state.LAYER_INDEX);
+      state.LAYERS.push(_newLayer);
+      state.SELECTED_LAYER_INDEX = state.LAYERS.length-1;
+    },
+    SELECT_LAYER(state, index) {
+      state.SELECTED_LAYER_INDEX = index;
+    },
+    REMOVE_LAYER(state) {
+      state.LAYERS.splice(state.SELECTED_LAYER_INDEX, 1);
+      state.SELECTED_LAYER_INDEX = state.SELECTED_LAYER_INDEX == 0 ? 0 : state.SELECTED_LAYER_INDEX-1;
     }
   },
   getters: {

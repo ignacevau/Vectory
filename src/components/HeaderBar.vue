@@ -1,12 +1,13 @@
 <template>
   <header class="header-bar">
-    <div class="file">
+    <div class="file" @click="triggerFileDropdown">
       <div class="left">
         <img src="@/assets/file.png" />
       </div>
 
       <div class="collapse">
-        <div>⌄</div>
+        <div>{{ fileDropDownSign }}</div>
+        <div>{{ fileActiveSign }}</div>
       </div>
     </div>
 
@@ -15,16 +16,17 @@
       <img v-bind:src="imgUrl()" />
     </div>
 
-    <header-pen v-if="ACTIVE == 'pen'" />
-    <header-circle v-if="ACTIVE == 'circle'" />
-    <header-line v-if="ACTIVE == 'line'" />
-    <header-select v-if="ACTIVE == 'select'" />
+    <header-pen v-if="ACTIVE_TOOL == 'pen'" />
+    <header-circle v-if="ACTIVE_TOOL == 'circle'" />
+    <header-line v-if="ACTIVE_TOOL == 'line'" />
+    <header-select v-if="ACTIVE_TOOL == 'select'" />
 
   </header>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
+import { bus } from '@/main.js'
 import HeaderPen from '@/components/header-bar/HeaderPen.vue'
 import HeaderCircle from '@/components/header-bar/HeaderCircle.vue'
 import HeaderLine from '@/components/header-bar/HeaderLine.vue'
@@ -42,19 +44,34 @@ export default {
   },
   computed: {
     ...mapState([
-      'ACTIVE'
-    ])
+      'ACTIVE_TOOL',
+      'FILEDROPDOWN_ACTIVE'
+    ]),
+    fileDropDownSign: function() {
+      return this.FILEDROPDOWN_ACTIVE ? '' : '⌵';
+    },
+    fileActiveSign: function() {
+      return this.FILEDROPDOWN_ACTIVE ? '⬤' : '';
+    }
   },
   methods: {
+    ...mapMutations([
+      'TRIGGER_FILEDROPDOWN'
+    ]),
     imgUrl: function() {
-      return images('./tool-' + this.ACTIVE + '.png')
+      return images('./tool-' + this.ACTIVE_TOOL + '.png')
+    },
+    triggerFileDropdown: function() {
+      this.TRIGGER_FILEDROPDOWN();
     }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang="scss" scoped>
+@import '@/library.scss';
+
 * {
   color: rgb(221, 221, 221);
   font-family: Comfortaa;
@@ -63,15 +80,20 @@ export default {
   flex: 0 1 auto;
   height: 5vh;
   width: 100%;
-  background-color: rgb(94, 94, 94);
+  background-color: $DefaultGray;
   z-index: 1;
   display: flex;
 }
 .file {
   height: 100%;
-  width: 50px;
-  margin-left: 5px;
+  width: 56px;
+  border-left: 5px solid rgb(48, 48, 48);
   display: flex;
+  background-color: rgb(75, 75, 75);
+
+  &:active {
+    background-color: rgb(66, 66, 66);
+  }
 }
 .file .left {
   height: 95%;
@@ -87,20 +109,27 @@ export default {
 }
 
 .file .collapse {
-  width: 25%;
+  width: 30%;
   height: 100%;
   background-color: rgb(75, 75, 75);
-  font-size: 0.9em;
+  font-size: 0.5em;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-.collapse:hover {
-  background-color: rgb(66, 66, 66);
-}
 
-.collapse div {
-  margin-top: -6px;
+  >div:first-child{
+    margin-top: -5px;
+  }
+
+  &:hover {
+    >div {
+      margin-top: 0px;
+    }
+  }
+
+  &:active {
+    background-color: rgb(66, 66, 66);
+  }
 }
 
 .tool {

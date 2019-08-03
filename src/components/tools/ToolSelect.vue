@@ -16,7 +16,7 @@ export default {
   name: 'ToolSelect',
   computed: {
     ...mapState([
-      'ACTIVE',
+      'ACTIVE_TOOL',
       'TOOLSELECT',
       'OBJECTS',
       'SELECTED',
@@ -900,7 +900,7 @@ export default {
         localSelect[i].selected = false;
       }
 
-      if(this.ACTIVE != 'pointer') {
+      if(this.ACTIVE_TOOL != 'pointer') {
         self.CLEAR_SELECT();
       }
 

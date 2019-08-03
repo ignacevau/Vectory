@@ -12,13 +12,19 @@
       </div>
 
       <div class="tab">
-        <div class="title">Properties</div>
+        <div class="title"><span>PROPERTIES</span></div>
 
-          <div class="opacity">
-            <div v-if="textActive">
-              OPACITY
+          <div class="large-grid">
+            <div class="gr-left"></div>
+
+            <div class="gr-middle">
+              <div v-if="textActive">Opacity</div>
             </div>
-            <click-slider v-bind:parentOpacity="opacity" @value-change="sliderChange" />
+            
+            <div class="gr-right">
+              <click-slider v-bind:parentOpacity="opacity" @value-change="sliderChange" />
+            </div>
+            
           </div>
 
           <stroke-grid v-bind:showText="textActive" />
@@ -28,13 +34,13 @@
       </div>
 
       <div class="tab">
-        <div class="title">Align</div>
+        <div class="title"><span>ALIGN</span></div>
 
         <align-grid />
       </div>
 
       <div class="tab">
-        <div class="title">Pathfinder</div>
+        <div class="title"><span>PATHFINDER</span></div>
 
         <pathfinder-grid v-bind:showText="textActive" />
       </div>
@@ -132,7 +138,9 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="scss">
+@import '@/library.scss';
+
 * {
   color: rgb(221, 221, 221);
   font-family: Comfortaa;
@@ -142,7 +150,7 @@ export default {
   pointer-events: all;
 }
 .resize {
-  background-color: rgb(94, 94, 94);
+  background-color: $DefaultGray;
   flex: 0 0 auto;
   display: flex;
   flex-wrap: wrap;
@@ -158,7 +166,7 @@ export default {
 }
 .handler {
   width: 6px;
-  background-color: rgb(63, 63, 63);
+  background-color: rgb(58, 58, 58);
   border-top: 4px solid #6aa2f7;
   cursor: e-resize;
   z-index: 1;
@@ -175,7 +183,7 @@ export default {
   height: 30px;
   width: 100%;
   background-color: rgb(77, 77, 77);
-  border-top: 4px solid rgb(106, 162, 247);
+  border-top: 4px solid $ThemeBlue;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -208,12 +216,15 @@ export default {
   flex: 0 0 auto;
 }
 .title {
-  text-align: center;
   width: 100%;
-  height: 2em;
-  font-size: 100%;
-  background-color: rgb(114, 114, 114);
-  padding-top: 0.4em;
+  height: 2.5em;
+  font-size: 0.8em;
+  background-color: $DarkGray;
+  color: rgb(221, 221, 221);
+  font-family: Comfortaa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .stroke {
   font-size: 100%;
@@ -230,11 +241,36 @@ export default {
   align-items: center;
   width: 100%;
   height: 2em;
-  border-bottom: 1px solid rgb(116, 116, 116);
-  margin-top: 2px;
+  margin-top: 8px;
+  font-family: Arial, Helvetica, sans-serif;
 }
-.opacity > div {
-  font-size: 0.7em;
-  margin-top: 2px;
+.large-grid {
+  margin-top: 5px;
+  margin-bottom: 15px;
+  height: 4vh;
+  display: grid;
+  grid-template-columns: 0.1fr 1fr 1fr;
+  grid-template-rows: 1fr;
+  grid-template-areas: ". . .";
+  border-bottom: 1px solid rgb(116, 116, 116);
+
+  .gr-left {
+    width: 30px;
+  }
+  .gr-middle {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    >div {
+      font-size: 0.9em;
+      font-family: Montserrat;
+    }
+  }
+  .gr-right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 </style>
