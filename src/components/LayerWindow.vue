@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-if="active">
+  <div class="container" v-bind:style="{ display: active }">
     <div class="layer-top">
       <div class="layer-trigger" @click="collapse">
         <img src="@/assets/collapse-ver.png" class="flip">
@@ -32,7 +32,7 @@ export default {
     ]),
     active: {
       get () {
-        return this.$store.state.LAYER_ACTIVE
+        return this.$store.state.LAYER_ACTIVE ? '' : 'none';
       },
       set (value) {
         return this.$store.commit('SET_LAYER_ACTIVE', value)

@@ -4,14 +4,16 @@
       <input type="radio" name="layers" v-on:click.prevent="" v-bind:checked="isLayerSelected" />
       <div>
         <div class="eye">
-          <img v-bind:src="imgUrl()" v-on:click="triggerEye" />
+          <img v-bind:src="imgUrlEye()" v-on:click="triggerEye" />
         </div>
 
         <div class="name" v-on:mousedown="selectLayer">
           <span>{{ name }}</span>
         </div>
         
-        <div class="color"></div>
+        <div class="selectall">
+          <img v-bind:src="imgUrlSelect()" v-on:click="triggerSelect" />
+        </div>
       </div>
     </label>
   </div>
@@ -31,7 +33,8 @@ export default {
   data: function() {
     return {
       isLayerSelected: true,
-      eyeState: 'visible'
+      eyeState: 'visible',
+      selectState: 'stroke'
     }
   },
   computed: {
@@ -49,14 +52,20 @@ export default {
     ...mapMutations([
       'SELECT_LAYER'
     ]),
-    imgUrl: function() {
+    imgUrlEye: function() {
       return images('./eye-' + this.eyeState + '.png')
+    },
+    imgUrlSelect: function() {
+      return images('./select-' + this.selectState + '.png')
     },
     selectLayer: function() {
       this.SELECT_LAYER(this.id);
     },
     triggerEye: function() {
       this.eyeState = this.eyeState == 'visible' ? 'invisible' : 'visible'
+    },
+    triggerSelect: function() {
+      this.selectState = this.selectState == 'fill' ? 'stroke' : 'fill'
     }
   }
 }
@@ -106,10 +115,18 @@ export default {
         align-items: center;
       }
 
-      .color {
+      .selectall {
         width: 15%;
         height: 100%;
         border-left: 1px solid rgb(126, 125, 125);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        img {
+          max-height: 0.9em;
+          cursor: pointer;
+        }
       }
     }
 

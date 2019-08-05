@@ -39,8 +39,6 @@ export default {
     }
   },
   mounted: function() {
-    var self = this;
-
     var newPath;
     var startPoint = new Point();
     var endPoint = new Point();
@@ -48,8 +46,8 @@ export default {
     // Keep track of how long the line is, don't create for click
     var delta;
 
-    self.TOOLLINE.onMouseDown = (e) => {
-      self.CLEAR_SELECT();
+    this.TOOLLINE.onMouseDown = (e) => {
+      this.CLEAR_SELECT();
 
       newPath = new Path();
 
@@ -59,7 +57,7 @@ export default {
       project.activeLayer.selected = false;
     }
 
-    self.TOOLLINE.onMouseDrag = (e) => {
+    this.TOOLLINE.onMouseDrag = (e) => {
       newPath.remove()
 
       delta += e.delta.length;
@@ -72,7 +70,7 @@ export default {
       newPath.opacity = this.LINE_OPACITY
     }
 
-    self.TOOLLINE.onMouseUp = (e) => {
+    this.TOOLLINE.onMouseUp = (e) => {
       // Don't create an object for a click
       if (delta < 3) {
         newPath.remove();
@@ -81,9 +79,10 @@ export default {
 
       newPath.selected = true;
       newPath.selectable = true;
+      newPath.type = "shape";
 
-      self.ADD_SELECT(newPath);
-      self.ADD_SHAPE(newPath);
+      this.ADD_SELECT(newPath);
+      this.ADD_SHAPE(newPath);
     }
   }
 }

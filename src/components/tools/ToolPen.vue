@@ -40,13 +40,11 @@ export default {
     }
   },
   mounted: function() {
-    var self = this;
-
     var newPath;
     var delta = 0;
 
-    self.TOOLPEN.onMouseDown = (e) => {
-      self.CLEAR_SELECT();
+    this.TOOLPEN.onMouseDown = (e) => {
+      this.CLEAR_SELECT();
 
       newPath = new Path();
       newPath.strokeColor = this.PEN_STROKECOLOR
@@ -59,12 +57,12 @@ export default {
       project.activeLayer.selected = false;
     }
 
-    self.TOOLPEN.onMouseDrag = (e) => {
+    this.TOOLPEN.onMouseDrag = (e) => {
       newPath.add(e.point);
       delta += e.delta.length;
     }
 
-    self.TOOLPEN.onMouseUp = (e) => {
+    this.TOOLPEN.onMouseUp = (e) => {
       // Don't create an object for a click
       if (delta < 3) {
         newPath.remove();
@@ -76,9 +74,10 @@ export default {
       newPath.selected = true;
 
       newPath.selectable = true;
+      newPath.type = "shape";
 
-      self.ADD_SELECT(newPath);
-      self.ADD_SHAPE(newPath);
+      this.ADD_SELECT(newPath);
+      this.ADD_SHAPE(newPath);
     }
   }
 }

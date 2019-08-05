@@ -21,6 +21,14 @@ export class Layer {
   }
 }
 
+export class ShapeGroup {
+  constructor(children) {
+    this.children = children;
+    this.selectable = true;
+    this.type = 'group';
+  }
+}
+
 new Vue({
   router,
   store,

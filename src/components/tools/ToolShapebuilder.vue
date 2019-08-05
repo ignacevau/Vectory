@@ -24,7 +24,6 @@ export default {
   methods: {
     ...mapMutations([
       'SET_ACTIVE',
-      'ADD_SHAPE',
       'ADD_SELECT',
       'CLEAR_SELECT'
     ]),

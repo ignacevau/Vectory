@@ -5,130 +5,165 @@
 </template>
 
 <script>
-import paper from 'paper'
-import { mapMutations } from 'vuex'
-import { bus } from '@/main.js'
+import paper from "paper";
+import { mapState, mapMutations } from "vuex";
+import { bus } from "@/main.js";
+import { get } from "http";
 
 export default {
-  name: 'ArtBoard',
+  name: "ArtBoard",
+  computed: {
+    ...mapState(["SELECTED_LAYER_INDEX"])
+  },
   methods: {
     ...mapMutations([
-      'SET_TOOLSELECT',
-      'SET_TOOLPOINTER',
-      'SET_TOOLPEN',
-      'SET_TOOLCIRCLE',
-      'SET_TOOLSHAPEBUILDER',
-      'SET_TOOLLINE',
-      'DELETE_SELECT'
+      "SET_TOOLSELECT",
+      "SET_TOOLPOINTER",
+      "SET_TOOLPEN",
+      "SET_TOOLCIRCLE",
+      "SET_TOOLSHAPEBUILDER",
+      "SET_TOOLLINE",
+      "DELETE_SHAPES"
     ])
   },
   mounted: function() {
-    // Setting up PaperJS and settings
+    // Clamp prototype
     Number.prototype.clamp = function(min, max) {
       return Math.min(Math.max(this, min), max);
     };
 
+    const canvas = document.querySelector("#canvas");
+
+    //#region PaperJS setup
     paper.install(window);
-    paper.setup('canvas');
+    paper.setup("canvas");
 
     paper.settings.handleSize = 8;
-    // Value is not static (updated with zoom)
-    paper.settings.hitTolerance = 7;
+    paper.settings.hitTolerance = 7; /*value updated with zoom*/
 
-    var self = this;
+    const view = paper.view;
 
-    var toolSelect = new Tool();
-    var toolPointer = new Tool();
-    var toolPen = new Tool();
-    var toolCircle = new Tool();
-    var toolShapebuilder = new Tool();
-    var toolLine = new Tool ();
+    const toolSelect = new Tool();
+    const toolPointer = new Tool();
+    const toolPen = new Tool();
+    const toolCircle = new Tool();
+    const toolShapebuilder = new Tool();
+    const toolLine = new Tool();
 
-    self.SET_TOOLSELECT(toolSelect);
-    self.SET_TOOLPOINTER(toolPointer);
-    self.SET_TOOLPEN(toolPen);
-    self.SET_TOOLCIRCLE(toolCircle);
-    self.SET_TOOLSHAPEBUILDER(toolShapebuilder);
-    self.SET_TOOLLINE(toolLine);
-
-    var view = paper.view;
-    var offset = 0
-    var canvas = document.querySelector('#canvas');
+    // Set global store references
+    this.SET_TOOLSELECT(toolSelect);
+    this.SET_TOOLPOINTER(toolPointer);
+    this.SET_TOOLPEN(toolPen);
+    this.SET_TOOLCIRCLE(toolCircle);
+    this.SET_TOOLSHAPEBUILDER(toolShapebuilder);
+    this.SET_TOOLLINE(toolLine);
+    //
 
 
+    //#region Layers
+    let AddLayer = () => {
+      let _newLayer = project.addLayer(new Layer());
+      _newLayer.activate();
+    };
 
+    let RemoveLayer = () => {
+      for(let i=0; i<project.activeLayer.children.length; i++) {
+        project.activeLayer.children[i].selectable=false;
+      }
+      project.activeLayer.remove();
+    };
 
+    let UpdateActiveLayer = () => {
+      project.layers[this.SELECTED_LAYER_INDEX].activate();
+    };
 
-    // --- Zoom ---
+    bus.$on("add-layer", () => {
+      AddLayer();
+    });
+    bus.$on("remove-layer", () => {
+      RemoveLayer();
+    });
+    bus.$on("update-active-layer", () => {
+      UpdateActiveLayer();
+    });
+    //
 
-    // Firefox
+    // Add first layer
+    AddLayer();
+
+    //#region Zoom
+    let zoomOffset = 0;
+
     canvas.onwheel = function(e) {
-      bus.$emit('zoom');
+      bus.$emit("zoom");
       e.preventDefault();
 
-      var mousePos = new Point(e.clientX, e.clientY);
+      const mousePos = new Point(e.clientX, e.clientY);
       updateZoom(e.deltaY, mousePos);
-    }
+    };
 
     function updateZoom(delta, mousePos) {
-        var mouseViewPos = view.viewToProject(mousePos);
-        [view.zoom, offset] = changeZoomStable(view.zoom, delta, view.center, mouseViewPos);
-        view.center = view.center.add(offset);
-        view.draw();
+      const mouseViewPos = view.viewToProject(mousePos);
+      [view.zoom, zoomOffset] = changeZoomStable(
+        view.zoom,
+        delta,
+        view.center,
+        mouseViewPos
+      );
+      view.center = view.center.add(zoomOffset);
+      view.draw();
 
-        // Pretty much hardcoded, this is to adjust the hitTolerance in respect to the zoom
-        settings.hitTolerance = (7 / (view.zoom)).clamp(0, 17);
+      // Pretty much hardcoded, this is to adjust the hitTolerance in respect to the zoom
+      settings.hitTolerance = (7 / view.zoom).clamp(0, 17);
     }
 
     function getNewZoom(oldZoom, delta) {
-        var factor = 1.05;
+      const factor = 1.05;
 
-        if (delta > 0) {
-            return oldZoom / factor;
-        }
-        else if (delta < 0) {
-            return oldZoom * factor;
-        }
+      if (delta > 0) {
+        return oldZoom / factor;
+      } else if (delta < 0) {
+        return oldZoom * factor;
+      }
     }
 
     function changeZoomStable(oldZoom, delta, c, p) {
-        var newZoom = getNewZoom(oldZoom, delta).clamp(0.2, 10);
-        var beta = oldZoom / newZoom;
-        var pc = p.subtract(c);
-        var a = p.subtract(pc.multiply(beta)).subtract(c);
+      var newZoom = getNewZoom(oldZoom, delta).clamp(0.2, 10);
+      var beta = oldZoom / newZoom;
+      var pc = p.subtract(c);
+      var a = p.subtract(pc.multiply(beta)).subtract(c);
 
-        return [newZoom, a];
+      return [newZoom, a];
     }
+    //
 
+    //#region Key-Handling
     var keys = {
       del: false,
       shift: false,
       control: false,
       z: false
-    }
+    };
 
-    function keyHandler(e) {
-      if(!keys.del && e.code == 'Delete' && !keys.control && !keys.shift) {
+    let keyHandler = e => {
+      if (!keys.del && e.code == "Delete" && !keys.control && !keys.shift) {
         keys.del = true;
-        self.DELETE_SELECT();
+        this.DELETE_SHAPES();
 
         // Let other components know (ToolSelect -> transform box must disappear)
-        bus.$emit('delete_selection');
-      }
-      else if(!keys.shift && e.code == 'ShiftLeft') {
+        bus.$emit("delete_selection");
+      } else if (!keys.shift && e.code == "ShiftLeft") {
         keys.shift = true;
-        bus.$emit('shift');
-      }
-      else if(!keys.control && e.code == 'ControlLeft') {
+        bus.$emit("shift");
+      } else if (!keys.control && e.code == "ControlLeft") {
         keys.control = true;
-        bus.$emit('control');
-      }
-      else if(!keys.z && e.key == 'z') {
+        bus.$emit("control");
+      } else if (!keys.z && e.key == "z") {
         keys.z = true;
       }
 
-      if(keys.z && keys.control) {
-        bus.$emit('undo');
+      if (keys.z && keys.control) {
+        bus.$emit("undo");
       }
     };
 
@@ -136,25 +171,26 @@ export default {
     document.onkeydown = keyHandler;
 
     document.onkeyup = function(e) {
-      if(e.code == 'ControlLeft') {
-        bus.$emit('control_up');
+      if (e.code == "ControlLeft") {
+        bus.$emit("control_up");
       }
 
-      if(e.key == 'z') {
+      if (e.key == "z") {
         keys.z = false;
         return;
       }
-      if(e.code == 'Delete') {
+      if (e.code == "Delete") {
         keys.del = false;
       }
-      
+
       keys.control = false;
       keys.shift = false;
       keys.del = false;
       keys.z = false;
-    }
+    };
+    //
   }
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

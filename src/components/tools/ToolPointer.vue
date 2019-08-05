@@ -31,7 +31,6 @@ export default {
   methods: {
     ...mapMutations([
       'SET_ACTIVE',
-      'ADD_SHAPE',
       'CLEAR_SELECT'
     ]),
     setActive: function() {

@@ -1,7 +1,7 @@
 <template>
   <div class="pathfinder">
     <div v-bind:class="{ grouping:true, row: showText, column:!showText }">
-      <div class="button">
+      <div class="button" @click="createGroup">
         GROUP
       </div>
       <div class="button">
@@ -45,11 +45,30 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from 'vuex';
+import { ShapeGroup } from '@/main.js'
+
 export default {
   name: 'PathfinderGrid',
   props: [
     'showText'
-  ]
+  ],
+  computed: {
+    ...mapState([
+      'SELECTED'
+    ])
+  },
+  methods: {
+    ...mapMutations([
+      'ADD_SHAPE',
+      'DISCARD_SHAPES'
+    ]),
+    createGroup: function() {
+      let _newGroup = new ShapeGroup(this.SELECTED);
+      this.DISCARD_SHAPES();
+      this.ADD_SHAPE(_newGroup);
+    }
+  }
 }
 </script>
 

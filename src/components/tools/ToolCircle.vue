@@ -40,14 +40,12 @@ export default {
     }
   },
   mounted: function() {
-    var self = this;
-
     var newPath;
     var oldPath;
     var middle;
 
-    self.TOOLCIRCLE.onMouseDown = (e) => {
-      self.CLEAR_SELECT();
+    this.TOOLCIRCLE.onMouseDown = (e) => {
+      this.CLEAR_SELECT();
 
       newPath = new Path();
 
@@ -56,7 +54,7 @@ export default {
       project.activeLayer.selected = false;        
     }
 
-    self.TOOLCIRCLE.onMouseDrag = (e) => {
+    this.TOOLCIRCLE.onMouseDrag = (e) => {
       newPath.remove();
 
       // Ellipse
@@ -102,7 +100,7 @@ export default {
       newPath.strokeWidth = this.CIRCLE_WIDTH
     }
 
-    self.TOOLCIRCLE.onMouseUp = function(e) {
+    this.TOOLCIRCLE.onMouseUp = (e) => {
       // Don't create an object for a click
       if (e.delta.length < 3) {
           newPath.remove();
@@ -112,9 +110,10 @@ export default {
       newPath.selected = true;
       oldPath = newPath;
       newPath.selectable = true;
+      newPath.type = "shape";
 
-      self.ADD_SELECT(newPath);
-      self.ADD_SHAPE(newPath);
+      this.ADD_SELECT(newPath);
+      this.ADD_SHAPE(newPath);
     }
   }
 }

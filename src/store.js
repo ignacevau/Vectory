@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { bus, Layer } from '@/main.js'
+import { bus, Layer, ShapeGroup } from '@/main.js'
+import { project } from 'paper';
 
 Vue.use(Vuex)
 
@@ -96,20 +97,31 @@ export default new Vuex.Store({
     CLEAR_SELECT: (state) => {
       state.SELECTED = [];
     },
-    DELETE_SELECT: (state) => {
+    DELETE_SHAPES: (state, shapes=state.SELECTED) => {
       // Count from end to begin to allow pop()
-      for(var i=state.SELECTED.length-1; i>=0; i--) {
+      for(var i=shapes.length-1; i>=0; i--) {
         // Destroy the shape (it's still in the objects and the selection array)
-        state.SELECTED[i].remove();
+        shapes[i].remove();
 
         // Find the shape in the objects array
-        var index = state.OBJECTS.findIndex(x => x === state.SELECTED[i]);
+        var index = state.OBJECTS.findIndex(x => x === shapes[i]);
         // Remove it
         state.OBJECTS.splice(index, 1);
 
         // Remove the shape from the selection array
-        state.SELECTED.pop();
+        shapes.pop();
+      }
+    },
+    DISCARD_SHAPES(state, shapes=[...state.SELECTED]) {
+      // Count from end to begin to allow pop()
+      for(var i=shapes.length-1; i>=0; i--) {
+        // Find the shape in the objects array
+        var index = state.OBJECTS.findIndex(x => x === shapes[i]);
+        // Remove it
+        state.OBJECTS.splice(index, 1);
 
+        // Remove the shape from the selection array
+        shapes.pop();
       }
     },
 
@@ -222,19 +234,27 @@ export default new Vuex.Store({
       state.FILEDROPDOWN_ACTIVE = !state.FILEDROPDOWN_ACTIVE;
     },
 
-    //General
+    //Layers
     ADD_LAYER(state) {
       state.LAYER_INDEX++;
       var _newLayer = new Layer(state.LAYER_INDEX, "Layer " + state.LAYER_INDEX);
       state.LAYERS.push(_newLayer);
       state.SELECTED_LAYER_INDEX = state.LAYERS.length-1;
+
+      bus.$emit('add-layer');
     },
     SELECT_LAYER(state, index) {
       state.SELECTED_LAYER_INDEX = index;
+
+      bus.$emit('update-active-layer', index);
     },
     REMOVE_LAYER(state) {
       state.LAYERS.splice(state.SELECTED_LAYER_INDEX, 1);
       state.SELECTED_LAYER_INDEX = state.SELECTED_LAYER_INDEX == 0 ? 0 : state.SELECTED_LAYER_INDEX-1;
+      state.SELECTED = [];
+
+      bus.$emit('hide-transformbox');
+      bus.$emit('remove-layer');
     }
   },
   getters: {
