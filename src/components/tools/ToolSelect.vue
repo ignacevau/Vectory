@@ -14,7 +14,13 @@ import { bus, Action } from "@/main.js";
 export default {
   name: "ToolSelect",
   computed: {
-    ...mapState(["ACTIVE_TOOL", "TOOLSELECT", "OBJECTS", "SELECTED", "ACTIONS"])
+    ...mapState([
+      "ACTIVE_TOOL", 
+      "TOOLSELECT", 
+      "OBJECTS", 
+      "SELECTED", 
+      "ACTIONS"
+      ])
   },
   components: {
     Tool
@@ -51,7 +57,7 @@ export default {
     var mouseDown = false;
 
     // Path over which the mouse currently hovers
-    var hoverItem;
+    let hoverItem;
     var hoverSelection = new Path();
     hoverSelection.selectable = false;
 
@@ -85,9 +91,6 @@ export default {
 
       scale_facH: null,
       scale_facW: null,
-
-      // Dragging
-      hoverDrag: false,
     };
 
     const state = {
@@ -105,9 +108,6 @@ export default {
 
     // Selection rectangle
     let selectRectPath = new Path();
-
-    // Local array containing the selected paths (this.SELECTED is the public array)
-    var localSelect = [];
 
     var _lastMousePos;
     var mouseDelta;
@@ -145,6 +145,38 @@ export default {
 //
 
 //#region Functions
+    let getSelection = () => {
+      return this.SELECTED;
+    }
+
+    let getUngrouped = (items) => {
+      if(items.length == 0) {
+        return [];
+      }
+
+      let result = [];
+
+      for(let i=0; i<items.length; i++) {
+        let item = items[i];
+
+        if(item.type == "shape")
+          result.push(item)
+        else if(item.type == "group") {
+          for(let j=0; j<item.children.length; j++) {
+            result.push(...getUngrouped([item.children[j]]));
+          }
+        }
+
+        // Error catching - prevent infinite loop
+        else {
+          console.error("Unknown item type! Item was: " + item);
+          return null;
+        }
+      }
+
+      return result;
+    }
+
     function ResetHover() {
       state.isHovering = false;
 
@@ -163,26 +195,15 @@ export default {
       });
     }
 
-    function HandleMouseHover(item) {
-      hoverItem = item;
-
-      if (hoverItem.selectable) {
-        // Hovering over a path
-        if (hoverItem.type == "shape") {
-          if (!hoverItem.selected) {
-            DrawHoverSelection(hoverItem);
-          }
-        }
+    function HandleMouseHoverPath(item) {
+      if (!item.selected) {
+        DrawHoverSelection(item);
       }
+    }
 
-      if(!hoverItem.selectable) {
-        // Hovering over a transform-handle
-        if (hoverItem.type == "transformPoint") {
-          document.body.style.cursor = hoverItem.cursorType;
-          state.isHovering = true;
-          transform.pivot = hoverItem.opposite;
-        }
-      }
+    function HandleMouseHoverTransform(item) {
+      document.body.style.cursor = item.cursorType;
+      transform.pivot = item.opposite;
     }
 
     // Remove the selection box with transform points
@@ -321,38 +342,39 @@ export default {
       }
     }
 
-    function CreateSelectionRectanglePath(rect) {
+    function CreateSelectionRectanglePath({rect, strokeWidth, strokeColor, dashArray}) {
       let path = Path.Rectangle(rect);
       Object.assign(path, {
-        dashArray: [4 / view.zoom, 3 / view.zoom],
-        strokeWidth: 0.5 / view.zoom,
-        strokeColor: "black",
+        strokeWidth: strokeWidth,
+        strokeColor: strokeColor,
+        dashArray: dashArray,
         selectable: false
       });
       return path;
     }
 
   //#region Group
-    function SelectGroup(group) {
-      for (let i = 0; i < group.children.length; i++) {
-        let child = group.children[i];
-        SelectShape(child);
+    let SelectGroup = (group) => {
+      if(!group.selected) {
+        let ungrouped = getUngrouped([group]);
+        for(let i=0; i<ungrouped.length; i++) {
+          ungrouped[i].selected = true;
+        }
+        group.selected = true;
+        this.ADD_SELECT(group);
       }
     }
 
     function DeselectGroup(group) {
-      for (let i = 0; i < group.children.length; i++) {
-        let child = group.children[i]
-
-        DeselectShape(child);
-      }
+      DeselectShape(group);
     }
 
     function CheckGroupIntersection(group, rect) {
       // Check for every child in the group
-      for (let j = 0; j < group.children.length; j++) {
+      let children = getUngrouped(group.children);
+      for (let j = 0; j < children.length; j++) {
         // Check for intersection with selection rect
-        if (rect.intersects(group.children[j])) {
+        if (rect.intersects(children[j])) {
           return { success: true };
         }
       }
@@ -361,8 +383,9 @@ export default {
     }
 
     function CheckGroupInsideRect(group, rect) {
-      for(let i=0; i<group.children.length; i++) {
-        if (group.children[i].isInside(rect) && group.children[i].selectable) {
+      let children = getUngrouped(group.children);
+      for(let i=0; i<children.length; i++) {
+        if (children[i].isInside(rect) && children[i].selectable) {
           return { success: true };
         }
       }
@@ -372,18 +395,18 @@ export default {
   //
 
   //#region Shape
-    function SelectShape(shape) {
+    let SelectShape = (shape) => {
       if (!shape.selected) {
         shape.selected = true;
-        localSelect.push(shape);
+        this.ADD_SELECT(shape);
       }
     }
 
-    function DeselectShape(shape) {
+    let DeselectShape = (shape) => {
       shape.selected = false;
-      let index = localSelect.findIndex(x => x === shape);
+      let index = getSelection().findIndex(x => x === shape);
       if (index != -1) {
-        localSelect.splice(index, 1);
+        getSelection().splice(index, 1);
       }
     }
 
@@ -426,12 +449,24 @@ export default {
     }
 
     // Get the selection rectangle
-    function getBounds() {
-      if (localSelect.length == 0) return;
+    let getBounds = (shapes) => {
+      if (shapes.length == 0) {
+        return null;
+      }
 
       var _temp = [];
-      for (var i = 0; i < localSelect.length; i++) {
-        _temp.push(localSelect[i].clone());
+      for (var i = 0; i < shapes.length; i++) {
+        let item = shapes[i];
+
+        if(item.type == "group") {
+          let ungrouped = getUngrouped(item.children);
+          for(let j=0; j<ungrouped.length; j++) {
+            _temp.push(ungrouped[j].clone());
+          }
+        }
+        else if(item.type == "shape") {
+          _temp.push(item.clone());
+        }
       }
 
       // Make a compoundpath to get the bounds for the transform box
@@ -475,8 +510,9 @@ export default {
     function handleControlKey() {
       var delta = initTransfData.center.subtract(transformRect.bounds.center);
 
-      for (var i = 0; i < localSelect.length; i++) {
-        localSelect[i].translate(delta);
+      let selection = getUngrouped(getSelection());
+      for (var i = 0; i < selection.length; i++) {
+        selection[i].translate(delta);
       }
 
       transformRect.position = initTransfData.center;
@@ -494,20 +530,19 @@ export default {
       mouseDown = true;
       _lastMousePos = e.point;
 
-      if (transform.hoverDrag) {
+      if (state.isDragging) {
         action.move = new Action("move", {
-          paths: localSelect,
+          paths: getUngrouped(getSelection()),
           startPos: e.point,
           endPos: null
         });
 
-        state.isDragging = true;
         return;
       }
 
       hideTransformBox();
-      if (state.isHovering) {
-        var bounds = getBounds();
+      if (state.isHovering && hoverItem.type == "transformPoint") {
+        let bounds = getBounds(getSelection());
 
         state.isScaling = true;
 
@@ -578,7 +613,7 @@ export default {
         }
 
         action.scale = new Action("scale", {
-          paths: localSelect,
+          paths: getUngrouped(getSelection()),
           pivot: initTransfData.pivot,
           lockX: lockScaleX,
           lockY: lockScaleY,
@@ -595,8 +630,8 @@ export default {
       transformRect = new Path();
 
       // Mouse is not over a shape
-      if (!hoverItem) {
-        localSelect = [];
+      if (!state.isHovering) {
+        this.CLEAR_SELECT();
       }
 
       // Mouse is over a shape
@@ -609,21 +644,17 @@ export default {
             hoverItem.selected = true;
 
             this.ADD_SELECT(hoverItem);
-            localSelect.push(hoverItem);
           }
           // Shift key is not pressed
           else {
             project.deselectAll();
-            hoverItem.selected = true;
 
-            localSelect = [];
             this.CLEAR_SELECT();
 
-            this.ADD_SELECT(hoverItem);
-            localSelect.push(hoverItem);
+            SelectShape(hoverItem);
           }
 
-          drawTransformBox(getBounds());
+          drawTransformBox(getBounds(getSelection()));
         }
       }
 
@@ -649,15 +680,33 @@ export default {
       ResetHover();
 
       // Mouse is hovering over an item
-      if (e.item) {
-        HandleMouseHover(e.item);
+      if (e.item && !state.isSelecting) {
+
+        if (e.item.selectable) {
+          hoverItem = e.item;
+          state.isHovering = true;
+          HandleMouseHoverPath(hoverItem);
+        }
+        
+        // Mouse is hovering over transform-handle (not selectable)
+        else if(e.item.type == "transformPoint") {
+          hoverItem = e.item;
+          state.isHovering = true;
+          HandleMouseHoverTransform(hoverItem);
+        }
       }
 
       if (state.isSelecting && !state.isHovering) {
         selectRectPath.remove();
 
         let selectRect = new Rectangle(selectRectAnchor, e.point);
-        selectRectPath = CreateSelectionRectanglePath(selectRect);
+
+        selectRectPath = CreateSelectionRectanglePath({
+          rect: selectRect,
+          strokeWidth: 0.5 / view.zoom,
+          strokeColor: "black",
+          dashArray: [4 / view.zoom, 3 / view.zoom]
+        });
 
         let objects = this.OBJECTS;
         for (let i = 0; i < objects.length; i++) {
@@ -702,16 +751,12 @@ export default {
 
         }
       }
-      transform.hoverDrag = false;
+      state.isDragging = false;
 
       if (this.SELECTED.length != 0) {
-        if (
-          e.point.isInside(lastTransformRect) &&
-          !state.isHovering &&
-          !state.isScaling
-        ) {
+        if (e.point.isInside(transformRect.bounds) && !state.isHovering && !state.isScaling) {
           document.body.style.cursor = "move";
-          transform.hoverDrag = true;
+          state.isDragging = true;
         }
       }
     };
@@ -726,7 +771,7 @@ export default {
       state.isSelecting = false;
       selectRectPath.remove();
 
-      if (localSelect.length == 0) {
+      if (getSelection().length == 0) {
         return;
       }
 
@@ -734,7 +779,7 @@ export default {
         lockScaleX = false;
         lockScaleY = false;
 
-        var bounds = getBounds();
+        let bounds = getBounds(getSelection());
 
         action.scale.data.handle_end = getOppositePoint(
           point,
@@ -762,21 +807,16 @@ export default {
 
       // Update transform box with new rectangle
       hideTransformBox();
-      drawTransformBox(getBounds());
+      drawTransformBox(getBounds(getSelection()));
 
       if (_return) {
         return;
-      }
-
-      this.CLEAR_SELECT();
-      for (var i = 0; i < localSelect.length; i++) {
-        this.ADD_SELECT(localSelect[i]);
       }
     };
 //
 
 //#region Mouse drag
-    function mouseDrag(e) {
+    let mouseDrag = (e) => {
       mouseDelta = e.point.subtract(_lastMousePos);
       _lastMousePos = e.point;
 
@@ -784,8 +824,9 @@ export default {
 
       // User is moving the selection
       if (state.isDragging) {
-        for (var i = 0; i < localSelect.length; i++) {
-          localSelect[i].translate(mouseDelta);
+        let selection = getUngrouped(getSelection());
+        for (var i = 0; i < selection.length; i++) {
+          selection[i].translate(mouseDelta);
         }
 
         transformRect.translate(mouseDelta);
@@ -799,7 +840,7 @@ export default {
 
       // User is scaling the selection
       if (state.isScaling) {
-        var bounds = transformRect.bounds;
+        let bounds = transformRect.bounds;
 
         if (!lockScaleY) {
           relH = e.point.subtract(point).y;
@@ -852,8 +893,9 @@ export default {
         }
 
         // Scale all the selected items
-        for (var i = 0; i < localSelect.length; i++) {
-          localSelect[i].scale(
+        let selection = getUngrouped(getSelection());
+        for (var i = 0; i < selection.length; i++) {
+          selection[i].scale(
             transform.scale_facW,
             transform.scale_facH,
             point
@@ -878,7 +920,7 @@ export default {
       transformBoxSize = 7 / view.zoom;
       transformBoxWidth = 2 / view.zoom;
 
-      if (localSelect.length > 0) {
+      if (getSelection().length > 0) {
         updateTransformBox();
       }
     });
@@ -890,32 +932,33 @@ export default {
 
         project.deselectAll();
 
-        localSelect = [...this.SELECTED];
-        for (var i = 0; i < localSelect.length; i++) {
-          localSelect[i].selected = true;
+        let selection = getUngrouped(getSelection());
+        for (var i = 0; i < selection.length; i++) {
+          SelectShape(selection[i]);
         }
 
-        updateTransformBox(getBounds());
+        updateTransformBox(getBounds(getSelection()));
       }
     });
 
     // - delete key pressed -
     bus.$on("delete_selection", () => {
-      localSelect = [];
+      this.CLEAR_SELECT();
       hideTransformBox();
     });
 
     // - shift key pressed -
     bus.$on("shift", () => {
       if (state.isScaling) {
-        var bounds = getBounds();
+        var bounds = getBounds(getSelection());
 
         var facH_init = initTransfData.height / bounds.height;
         var facW_init = initTransfData.width / bounds.width;
 
         // Scale the selection to its initial size
-        for (var i = 0; i < localSelect.length; i++) {
-          localSelect[i].scale(facW_init, facH_init, point);
+        let selection = getUngrouped(getSelection());
+        for (var i = 0; i < selection.length; i++) {
+          selection[i].scale(facW_init, facH_init, point);
         }
 
         // Resize the transform rect as well
@@ -933,8 +976,8 @@ export default {
         var fac = rel / Math.min(initTransfData.width, initTransfData.height);
 
         // Resize the selection to the current size without deformation
-        for (var i = 0; i < localSelect.length; i++) {
-          localSelect[i].scale(fac, fac, point);
+        for (var i = 0; i < selection.length; i++) {
+          selection[i].scale(fac, fac, point);
         }
 
         // Resize transform rect as well
@@ -988,8 +1031,9 @@ export default {
         }
 
         transformRect.translate(delta);
-        for (var i = 0; i < localSelect.length; i++) {
-          localSelect[i].translate(delta);
+        let selection = getUngrouped(getSelection());
+        for (var i = 0; i < selection.length; i++) {
+          selection[i].translate(delta);
         }
 
         mouseDrag(mouseEvent);
@@ -1002,66 +1046,70 @@ export default {
 
     // - switched to another tool -
     bus.$on("deactivate-select", () => {
-      for (var i = 0; i < localSelect.length; i++) {
-        localSelect[i].selected = false;
+      for (var i = 0; i < getSelection().length; i++) {
+        DeselectShape(getSelection());
       }
 
       if (this.ACTIVE_TOOL != "pointer") {
         this.CLEAR_SELECT();
       }
 
-      localSelect = [];
       hideTransformBox();
     });
 
     bus.$on("activate-select", () => {
       if (this.SELECTED.length > 0) {
-        for (var i = 0; i < this.SELECTED.length; i++) {
-          localSelect.push(this.SELECTED[i]);
+        for (var i = 0; i < getSelection().length; i++) {
+          SelectShape(getSelection()[i]);
         }
 
-        drawTransformBox(getBounds());
+        drawTransformBox(getBounds(getSelection()));
       }
     });
 
     bus.$on("set_color_stroke", color => {
-      for (var i = 0; i < localSelect.length; i++) {
-        localSelect[i].strokeColor = color;
+      let selection = getUngrouped(getSelection());
+      for (var i = 0; i < selection.length; i++) {
+        selection[i].strokeColor = color;
       }
     });
 
     bus.$on("set_color_fill", color => {
-      for (var i = 0; i < localSelect.length; i++) {
-        localSelect[i].fillColor = color;
+      let selection = getUngrouped(getSelection());
+      for (var i = 0; i < selection.length; i++) {
+        selection[i].fillColor = color;
       }
     });
 
     bus.$on("set_width", width => {
-      for (var i = 0; i < localSelect.length; i++) {
-        localSelect[i].strokeWidth = width;
+      let selection = getUngrouped(getSelection());
+      for (var i = 0; i < selection.length; i++) {
+        selection[i].strokeWidth = width;
       }
     });
 
     bus.$on("set-cap", type => {
-      for (var i = 0; i < localSelect.length; i++) {
-        localSelect[i].strokeCap = type;
+      let selection = getUngrouped(getSelection());
+      for (var i = 0; i < selection.length; i++) {
+        selection[i].strokeCap = type;
       }
     });
 
     bus.$on("flip-hor", () => {
       if (this.SELECTED.length > 0) {
-        var bounds = getBounds();
+        let bounds = getBounds(getSelection());
         var center = bounds.center;
 
-        for (var i = 0; i < this.SELECTED.length; i++) {
-          this.SELECTED[i].scale(1, -1, center);
+        let selection = getUngrouped(getSelection());
+        for (var i = 0; i < selection.length; i++) {
+          selection[i].scale(1, -1, center);
         }
       }
     });
 
     bus.$on("flip-ver", () => {
       if (this.SELECTED.length > 0) {
-        var bounds = getBounds();
+        let bounds = getBounds(getSelection());
         var center = bounds.center;
 
         for (var i = 0; i < this.SELECTED.length; i++) {

@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from 'vuex'
+import { mapMutations, mapState, mapGetters } from 'vuex'
 import ColorTrigger from '@/components/sidebar-right/stroke-grid/ColorTrigger.vue'
 import WidthInput from '@/components/sidebar-right/stroke-grid/WidthInput.vue'
 import WidthInput2 from '@/components/header-bar/WidthInput2.vue'
@@ -70,17 +70,46 @@ export default {
     colorChange: function(value) {
       this.strokeColor = value
       this.SELECTION_SET_STROKECOLOR(value)
+    },
+    ungroup: function(items) {
+      if(items.length == 0) {
+        return [];
+      }
+
+      let result = [];
+
+      for(let i=0; i<items.length; i++) {
+        let item = items[i];
+
+        if(item.type == "shape")
+          result.push(item)
+        else if(item.type == "group") {
+          for(let j=0; j<item.children.length; j++) {
+            result.push(...this.ungroup([item.children[j]]));
+          }
+        }
+
+        // Error catching - prevent infinite loop
+        else {
+          console.error("Unknown item type!");
+          return null;
+        }
+      }
+
+      return result;
     }
   },
   watch: {
-    SELECTED: function(_new, _old) {
+    SELECTED: function(_newSelection) {
+      let _new = this.ungroup(_newSelection);
+
       if(_new.length == 0) {
-        this.strokeColor = 'rgb(94, 94, 94)'
+        this.strokeColor = 'transparent';
         // this.oldColor = this.color
         return
       }
       else if(!_new[0]["strokeColor"]) {
-        this.strokeColor = 'rgb(94, 94, 94)'
+        this.strokeColor = 'transparent'
         // this.oldColor = this.color
         return
       }

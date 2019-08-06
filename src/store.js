@@ -95,7 +95,7 @@ export default new Vuex.Store({
       state.SELECTED.push(shape);
     },
     CLEAR_SELECT: (state) => {
-      state.SELECTED = [];
+        state.SELECTED = [];
     },
     DELETE_SHAPES: (state, shapes=state.SELECTED) => {
       // Count from end to begin to allow pop()

@@ -4,7 +4,7 @@
       <div class="button" @click="createGroup">
         GROUP
       </div>
-      <div class="button">
+      <div class="button" @click="removeGroup">
         UNGROUP
       </div>
     </div>
@@ -55,18 +55,34 @@ export default {
   ],
   computed: {
     ...mapState([
-      'SELECTED'
+      'SELECTED',
+      'OBJECTS'
     ])
   },
   methods: {
     ...mapMutations([
       'ADD_SHAPE',
-      'DISCARD_SHAPES'
+      'DISCARD_SHAPES',
+      'CLEAR_SELECT'
     ]),
     createGroup: function() {
       let _newGroup = new ShapeGroup(this.SELECTED);
+      _newGroup.selected = false;
       this.DISCARD_SHAPES();
       this.ADD_SHAPE(_newGroup);
+      console.log(_newGroup.children.length)
+    },
+    removeGroup: function() {
+      for(let i=0; i<this.SELECTED.length; i++) {
+        let item = this.SELECTED[i];
+        if(item.type == "group") {
+          this.CLEAR_SELECT();
+          this.DISCARD_SHAPES([item]);
+          for(let j=0; j<item.children.length; j++) {
+            this.ADD_SHAPE(item.children[j]);
+          }
+        }
+      }
     }
   }
 }
