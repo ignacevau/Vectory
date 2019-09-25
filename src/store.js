@@ -15,6 +15,7 @@ export default new Vuex.Store({
     TOOLPOINTER: null,
     TOOLPEN: null,
     TOOLCIRCLE: null,
+    TOOLRECTANGLE: null,
     TOOLSHAPEBUILDER: null,
     TOOLLINE: null,
 
@@ -38,6 +39,11 @@ export default new Vuex.Store({
     CIRCLE_OPACITY: 1,
     CIRCLE_STROKECOLOR: 'black',
     CIRCLE_FILLCOLOR: 'transparent',
+
+    RECTANGLE_WIDTH: 1,
+    RECTANGLE_OPACITY: 1,
+    RECTANGLE_STROKECOLOR: 'black',
+    RECTANGLE_FILLCOLOR: 'transparent',
 
     LINE_WIDTH: 1,
     LINE_OPACITY: 1,
@@ -77,6 +83,9 @@ export default new Vuex.Store({
     },
     SET_TOOLCIRCLE: (state, tool) => {
       state.TOOLCIRCLE = tool;
+    },
+    SET_TOOLRECTANGLE: (state, tool) => {
+      state.TOOLRECTANGLE = tool;
     },
     SET_TOOLSHAPEBUILDER: (state, tool) => {
       state.TOOLSHAPEBUILDER = tool
@@ -126,10 +135,16 @@ export default new Vuex.Store({
     },
 
     SELECTION_SET_STROKECOLOR(state, value) {
-      bus.$emit('set_color_stroke', value)
+      bus.$emit('set_color_stroke', value);
+    },
+    SELECTION_SET_STROKEWIDTH(state, value) {
+      bus.$emit('set_width_stroke', value);
+    },
+    SELECTION_SET_STROKECAP(state, value) {
+      bus.$emit('set_cap_stroke', value);
     },
     SELECTION_SET_FILLCOLOR(state, value) {
-      bus.$emit('set_color_fill', value)
+      bus.$emit('set_color_fill', value);
     },
 
     PEN_SET_WIDTH(state, value) {
@@ -156,6 +171,19 @@ export default new Vuex.Store({
     },
     CIRCLE_SET_FILLCOLOR(state, value) {
       state.CIRCLE_FILLCOLOR = value
+    },
+
+    RECTANGLE_SET_WIDTH(state, value) {
+      state.RECTANGLE_WIDTH = value
+    },
+    RECTANGLE_SET_OPACITY(state, value) {
+      state.RECTANGLE_OPACITY = value
+    },
+    RECTANGLE_SET_STROKECOLOR(state, value) {
+      state.RECTANGLE_STROKECOLOR = value
+    },
+    RECTANGLE_SET_FILLCOLOR(state, value) {
+      state.RECTANGLE_FILLCOLOR = value
     },
 
     LINE_SET_WIDTH(state, value) {

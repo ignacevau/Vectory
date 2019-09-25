@@ -42,36 +42,62 @@ export default {
       'SELECTION_SET_FILLCOLOR'
     ]),
     colorChange: function(value) {
-      this.fillColor = value
-      this.SELECTION_SET_FILLCOLOR(value)
-    }
-  },
-  watch: {
-    SELECTED: function(_new, _old) {
-      if(_new.length == 0) {
-        this.fillColor = 'rgb(94, 94, 94)'
-        // this.oldColor = this.color
-        return
-      }
-      else if(!_new[0]["fillColor"]) {
-        this.fillColor = 'rgb(94, 94, 94)'
-        // this.oldColor = this.color
-        return
+      this.fillColor = value;
+      this.SELECTION_SET_FILLCOLOR(value);
+    },
+    getFillColorUpdated: function(_new) {
+      if(!_new[0]["fillColor"]._canvasStyle) {
+        return 'transparent';
       }
       else {
-        var sw = _new[0]["fillColor"]._canvasStyle
+        var sw = _new[0]["fillColor"]._canvasStyle;
 
         for(var i=0; i<_new.length; i++) {
-          if(!_new[i]["fillColor"] || _new[i]["fillColor"]._canvasStyle != sw) {
-            this.fillColor = 'none'
-            // this.oldColor = this.color
-            return
-          }
+          if(!_new[i]["fillColor"]._canvasStyle || _new[i]["fillColor"]._canvasStyle != sw)
+            return 'none';
         }
       }
 
-      this.fillColor = _new[0]["fillColor"]._canvasStyle
-      // this.oldColor = this.color
+      return _new[0]["fillColor"]._canvasStyle;
+    },
+    ungroup: function(items) {
+      if(items.length == 0) {
+        return [];
+      }
+
+      let result = [];
+
+      for(let i=0; i<items.length; i++) {
+        let item = items[i];
+
+        if(item.type == "shape")
+          result.push(item)
+        else if(item.type == "group") {
+          for(let j=0; j<item.children.length; j++) {
+            result.push(...this.ungroup([item.children[j]]));
+          }
+        }
+
+        // Error catching - prevent infinite loop
+        else {
+          console.error("Unknown item type!");
+          return null;
+        }
+      }
+
+      return result;
+    }
+  },
+  watch: {
+    SELECTED: function(_newSelection) {
+      let _new = this.ungroup(_newSelection);
+
+      if(_new.length == 0) {
+        this.fillColor = 'transparent';
+      }
+      else {
+        this.fillColor = this.getFillColorUpdated(_new);
+      }
     }
   }
 }

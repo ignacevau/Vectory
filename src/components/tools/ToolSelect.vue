@@ -1081,14 +1081,14 @@ export default {
       }
     });
 
-    bus.$on("set_width", width => {
+    bus.$on("set_width_stroke", width => {
       let selection = getUngrouped(getSelection());
       for (var i = 0; i < selection.length; i++) {
         selection[i].strokeWidth = width;
       }
     });
 
-    bus.$on("set-cap", type => {
+    bus.$on("set_cap_stroke", type => {
       let selection = getUngrouped(getSelection());
       for (var i = 0; i < selection.length; i++) {
         selection[i].strokeCap = type;

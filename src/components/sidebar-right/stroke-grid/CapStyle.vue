@@ -15,11 +15,11 @@
 </template>
 
 <script>
-import { bus } from '@/main.js'
-import { mapState } from 'vuex'
-
 export default {
   name: 'CapStyle',
+  props: [
+    'parentCap'
+  ],
   data: function() {
     return {
       window: false,
@@ -35,34 +35,21 @@ export default {
     },
     changeType: function(type) {
       this.type = type
-      bus.$emit('set-cap', type)
+      this.$emit('value-change', type)
       this.hideWindow()
     }
   },
   watch: {
-    SELECTED: function(_new, _old) {
-      if(_new.length == 0) {
-        this.type = 'none'
-        return
+    parentCap: function(_new, _old) {
+      if(_new == 'empty') {
+        this.type = 'none';
       }
       else {
-        var sw = _new[0]["strokeCap"]
-
-        for(var i=0; i<_new.length; i++) {
-          if(_new[i]["strokeCap"] != sw) {
-            this.type = 'none'
-            return
-          }
-        }
+        this.type = _new;
       }
-
-      this.type = _new[0]["strokeCap"]
     }
   },
   computed: {
-    ...mapState([
-      'SELECTED'
-    ]),
     active: function() {
       if(this.window)
         return ''

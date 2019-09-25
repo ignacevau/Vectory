@@ -2,8 +2,8 @@
   <div class="width-input">
     <input v-model="input" type="text" class="input-width-text" ref="input" />
     <div class="value-steps">
-      <div class="top">-</div>
-      <div class="bottom">-</div>
+      <div class="top" @click="increment">-</div>
+      <div class="bottom" @click="decrement">-</div>
     </div>
   </div>
 </template>
@@ -16,24 +16,39 @@ export default {
   ],
   data: function() {
     return {
-      input: 1,
-      old: 1
-    }
+      input: ''    }
   },
   watch: {
     input: function(_new, _old) {
       if(this.checkNumber(_new)) {
-        this.$emit('value-change', _new)
-        this.old = _old
+        this.$emit('value-change', _new);
       }
     },
     parentWidth: function(_new, _old) {
-      this.input = _new
+      if(_new == 'none') {
+        this.input = '?';
+      }
+      else if(_new == 'empty') {
+        this.input = '';
+      }
+      else {
+        this.input = _new;
+      }
     }
   },
   methods: {
     checkNumber: function(n) {
       return Number(n)
+    },
+    increment: function() {
+      if(this.checkNumber(this.input)) {
+        this.input++;
+      }
+    },
+    decrement: function() {
+      if(this.checkNumber(this.input)) {
+        this.input--;
+      }
     }
   },
   mounted: function() {
@@ -42,11 +57,6 @@ export default {
     document.addEventListener('click', (e) => {
       if(!input.contains(e.target)) {
         resetFocus();
-
-      if(!this.checkNumber(this.input)) {
-        this.input = this.old
-        this.$emit('value-change', this.input)
-      }
       }
     })
 

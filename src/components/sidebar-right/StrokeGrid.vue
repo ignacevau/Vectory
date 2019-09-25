@@ -19,7 +19,7 @@
       <div class="pr-left"></div>
       <div v-if="showText" class="pr-middle">Width</div>
       <div class="pr-right">
-        <width-input2 />
+        <width-input2 v-bind:parentWidth="strokeWidth"  @value-change="widthChange" />
       </div>
 
       <div class="border"></div>
@@ -29,7 +29,7 @@
       <div class="pr-left"></div>
       <div v-if="showText" class="pr-middle">Type</div>
       <div class="pr-right">
-        <cap-style />
+        <cap-style v-bind:parentCap="capStyle" @value-change="capChange" />
       </div>
     </div>
   </div>
@@ -55,7 +55,9 @@ export default {
   ],
   data: function() {
     return {
-      strokeColor: 'transparent'
+      strokeColor: 'transparent',
+      strokeWidth: '',
+      capStyle: 'none'
     }
   },
   computed: {
@@ -65,11 +67,66 @@ export default {
   },
   methods: {
     ...mapMutations([
-      'SELECTION_SET_STROKECOLOR'
+      'SELECTION_SET_STROKECOLOR',
+      'SELECTION_SET_STROKEWIDTH',
+      'SELECTION_SET_STROKECAP'
     ]),
     colorChange: function(value) {
-      this.strokeColor = value
-      this.SELECTION_SET_STROKECOLOR(value)
+      this.strokeColor = value;
+      this.SELECTION_SET_STROKECOLOR(value);
+    },
+    widthChange: function(value) {
+      this.strokeWidth = value;
+      this.SELECTION_SET_STROKEWIDTH(value);
+    },
+    capChange: function(value) {
+      this.capStyle = value;
+      this.SELECTION_SET_STROKECAP(value);
+    },
+    getStrokeWidthUpdated: function(_new) {
+      if(!_new[0]["strokeWidth"]) {
+        return 'empty';
+      }
+      else {
+        let sw = _new[0]["strokeWidth"];
+
+        for(let i=0; i<_new.length; i++) {
+          if(!_new[i]["strokeWidth"] || _new[i]["strokeWidth"] != sw)
+            return 'none';
+        }
+      }
+
+      return _new[0]["strokeWidth"];
+    },
+    getStrokeColorUpdated: function(_new) {
+      if(!_new[0]["strokeColor"]) {
+        return 'transparent';
+      }
+      else {
+        var sw = _new[0]["strokeColor"]._canvasStyle;
+
+        for(var i=0; i<_new.length; i++) {
+          if(!_new[i]["strokeColor"]._canvasStyle || _new[i]["strokeColor"]._canvasStyle != sw)
+            return 'none';
+        }
+      }
+
+      return _new[0]["strokeColor"]._canvasStyle;
+    },
+    getCapStyleUpdated: function(_new) {
+      if(!_new[0]["strokeCap"]) {
+        return 'empty';
+      }
+      else {
+        let sw = _new[0]["strokeCap"];
+
+        for(let i=0; i<_new.length; i++) {
+          if(!_new[i]["strokeCap"] || _new[i]["strokeCap"] != sw)
+            return 'empty';
+        }
+      }
+
+      return _new[0]["strokeCap"];
     },
     ungroup: function(items) {
       if(items.length == 0) {
@@ -105,28 +162,14 @@ export default {
 
       if(_new.length == 0) {
         this.strokeColor = 'transparent';
-        // this.oldColor = this.color
-        return
-      }
-      else if(!_new[0]["strokeColor"]) {
-        this.strokeColor = 'transparent'
-        // this.oldColor = this.color
-        return
+        this.strokeWidth = 'empty';
+        this.capStyle = 'empty';
       }
       else {
-        var sw = _new[0]["strokeColor"]._canvasStyle
-
-        for(var i=0; i<_new.length; i++) {
-          if(!_new[i]["strokeColor"]._canvasStyle || _new[i]["strokeColor"]._canvasStyle != sw) {
-            this.strokeColor = 'none'
-            // this.oldColor = this.color
-            return
-          }
-        }
+        this.strokeColor = this.getStrokeColorUpdated(_new);
+        this.strokeWidth = this.getStrokeWidthUpdated(_new);
+        this.capStyle = this.getCapStyleUpdated(_new);
       }
-
-      this.strokeColor = _new[0]["strokeColor"]._canvasStyle
-      // this.oldColor = this.color
     }
   }
 }

@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from 'vuex'
+import { mapMutations } from 'vuex'
 import { bus } from '@/main.js'
 
 export default {

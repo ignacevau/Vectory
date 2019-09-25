@@ -21,6 +21,7 @@ export default {
       "SET_TOOLPOINTER",
       "SET_TOOLPEN",
       "SET_TOOLCIRCLE",
+      "SET_TOOLRECTANGLE",
       "SET_TOOLSHAPEBUILDER",
       "SET_TOOLLINE",
       "DELETE_SHAPES"
@@ -47,6 +48,7 @@ export default {
     const toolPointer = new Tool();
     const toolPen = new Tool();
     const toolCircle = new Tool();
+    const toolRectangle = new Tool();
     const toolShapebuilder = new Tool();
     const toolLine = new Tool();
 
@@ -55,6 +57,7 @@ export default {
     this.SET_TOOLPOINTER(toolPointer);
     this.SET_TOOLPEN(toolPen);
     this.SET_TOOLCIRCLE(toolCircle);
+    this.SET_TOOLRECTANGLE(toolRectangle);
     this.SET_TOOLSHAPEBUILDER(toolShapebuilder);
     this.SET_TOOLLINE(toolLine);
     //

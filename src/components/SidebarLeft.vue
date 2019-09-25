@@ -13,6 +13,7 @@
       <tool-pen />
       <tool-line />
       <tool-circle />
+      <tool-rectangle />
       <tool-shapebuilder />
 
     </div>
@@ -28,6 +29,7 @@ import ToolPen from '@/components/tools/ToolPen.vue'
 import ToolPointer from '@/components/tools/ToolPointer.vue'
 import ToolSelect from '@/components/tools/ToolSelect.vue'
 import ToolCircle from '@/components/tools/ToolCircle.vue'
+import ToolRectangle from '@/components/tools/ToolRectangle.vue'
 import ToolShapebuilder from '@/components/tools/ToolShapebuilder.vue'
 import ToolLine from '@/components/tools/ToolLine.vue'
 
@@ -38,6 +40,7 @@ export default {
     ToolPointer,
     ToolSelect,
     ToolCircle,
+    ToolRectangle,
     ToolShapebuilder,
     ToolLine
   },

@@ -40,16 +40,14 @@ export default {
     }
   },
   mounted: function() {
-    var newPath;
-    var oldPath;
-    var middle;
+    let newPath, oldPath, startPoint;
 
     this.TOOLCIRCLE.onMouseDown = (e) => {
       this.CLEAR_SELECT();
 
       newPath = new Path();
 
-      middle = e.point;
+      startPoint = e.point;
 
       project.activeLayer.selected = false;        
     }
@@ -57,18 +55,21 @@ export default {
     this.TOOLCIRCLE.onMouseDrag = (e) => {
       newPath.remove();
 
-      // Ellipse
+      let endPoint = e.point;
+
+      // No shift modifier --> ellipse
       if(!e.modifiers.shift) {
-        var rect;
+        // No control modifier --> scale from corner
         if(!e.modifiers.control) {
-          var from = middle;
-          var to = e.point;
-          rect = new Rectangle(from, to);
+          let rect = new Rectangle(startPoint, endPoint);
+
           newPath = Path.Ellipse(rect);
         }
-        else {
-          var center = middle;
-          var rad = [e.point.x - middle.x, e.point.y - middle.y];
+        // Control modifier --> scale from center
+        else if (e.modifiers.control) {
+          let center = startPoint;
+          let rad = [endPoint.x - startPoint.x, endPoint.y - startPoint.y];
+
           newPath = Path.Ellipse({
             center: center,
             radius: rad
@@ -76,19 +77,19 @@ export default {
         }
 
       }
-      // Circle
-      else {
+      // Shift modifier --> circle
+      else if (e.modifiers.shift) {
+        let center, rad;
 
-        var center;
-        var rad;
-
+        // No control modifier --> scale from corner
         if(!e.modifiers.control) {
-          rad = Math.max(Math.abs(middle.x-e.point.x), Math.abs(middle.y-e.point.y))/2;
-          center = new Point(middle.x + (rad/2)*Math.sign(e.point.x-middle.x), middle.y + (rad/2)*Math.sign(e.point.y-middle.y));
+          rad = Math.max(Math.abs(startPoint.x-endPoint.x), Math.abs(startPoint.y-endPoint.y)) / 2;
+          center = new Point(startPoint.x + (rad/2)*Math.sign(endPoint.x-startPoint.x), startPoint.y + (rad/2)*Math.sign(endPoint.y-startPoint.y));
         }
-        else {
-          rad = middle.getDistance(e.point);
-          center = middle;
+        // Control modifier --> scale from center
+        else if(e.modifiers.control) {
+          rad = startPoint.getDistance(endPoint);
+          center = startPoint;
         }
         
         newPath = Path.Circle(center, rad);
@@ -101,7 +102,7 @@ export default {
     }
 
     this.TOOLCIRCLE.onMouseUp = (e) => {
-      // Don't create an object for a click
+      // Don't create object for a click
       if (e.delta.length < 3) {
           newPath.remove();
           return;
