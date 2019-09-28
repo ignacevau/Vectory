@@ -21,7 +21,7 @@ import { mapGetters } from 'vuex'
 export default {
   name: 'ClickSlider',
   props: [
-    'parentOpacity'
+    'parentValue'
   ],
   data: function() {
     return {
@@ -39,8 +39,9 @@ export default {
     }
   },
   watch: {
-    parentOpacity: function(_new, _old) {
-      this.value = _new
+    parentValue: function(_new, _old) {
+      this.value = _new;
+      this.$emit('value-change', _new);
     }
   },
   mounted: function() {

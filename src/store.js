@@ -9,7 +9,7 @@ export default new Vuex.Store({
   state: {
     ACTIVE_TOOL: 'select',
 
-    LAYER_ACTIVE: false,
+    LAYER_WINDOW_ACTIVE: false,
 
     TOOLSELECT: null,
     TOOLPOINTER: null,
@@ -51,8 +51,7 @@ export default new Vuex.Store({
 
     // General
     LAYERS: [],
-    LAYER_INDEX: 0,
-    SELECTED_LAYER_INDEX: 0
+    SELECTED_LAYER_INDEX: 1
   },
   mutations: {
     // --- Tools ---
@@ -68,8 +67,8 @@ export default new Vuex.Store({
       }
     },
 
-    SET_LAYER_ACTIVE: function(state, value) {
-      state.LAYER_ACTIVE = value;
+    SET_LAYER_WINDOW_ACTIVE: function(state, value) {
+      state.LAYER_WINDOW_ACTIVE = value;
     },
 
     SET_TOOLSELECT: (state, tool) => {
@@ -145,6 +144,9 @@ export default new Vuex.Store({
     },
     SELECTION_SET_FILLCOLOR(state, value) {
       bus.$emit('set_color_fill', value);
+    },
+    SELECTION_SET_OPACITY(state, value) {
+      bus.$emit('set_opacity', value);
     },
 
     PEN_SET_WIDTH(state, value) {
@@ -264,25 +266,23 @@ export default new Vuex.Store({
 
     //Layers
     ADD_LAYER(state) {
-      state.LAYER_INDEX++;
-      var _newLayer = new Layer(state.LAYER_INDEX, "Layer " + state.LAYER_INDEX);
-      state.LAYERS.push(_newLayer);
-      state.SELECTED_LAYER_INDEX = state.LAYERS.length-1;
-
       bus.$emit('add-layer');
     },
-    SELECT_LAYER(state, index) {
-      state.SELECTED_LAYER_INDEX = index;
-
-      bus.$emit('update-active-layer', index);
+    INSERT_LAYER(state, layer) {
+      state.LAYERS.push(layer);
+      state.SELECTED_LAYER_INDEX = layer.number;
+    },
+    SELECT_LAYER(state, number) {
+      bus.$emit('update-active-layer', number);
     },
     REMOVE_LAYER(state) {
-      state.LAYERS.splice(state.SELECTED_LAYER_INDEX, 1);
-      state.SELECTED_LAYER_INDEX = state.SELECTED_LAYER_INDEX == 0 ? 0 : state.SELECTED_LAYER_INDEX-1;
-      state.SELECTED = [];
-
-      bus.$emit('hide-transformbox');
-      bus.$emit('remove-layer');
+      if(state.SELECTED_LAYER_INDEX != 0) {
+        bus.$emit('hide-transformbox');
+        bus.$emit('remove-layer');
+      }
+    },
+    SET_SELECTED_LAYER_INDEX(state, value) {
+      state.SELECTED_LAYER_INDEX = value;
     }
   },
   getters: {

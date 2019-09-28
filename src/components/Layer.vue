@@ -27,12 +27,11 @@ var images = require.context('../assets/', false, /\.png$/)
 export default {
   name: 'Layer',
   props: {
-    id: Number,
+    number: Number,
     name: String
   },
   data: function() {
     return {
-      isLayerSelected: true,
       eyeState: 'visible',
       selectState: 'stroke'
     }
@@ -41,11 +40,9 @@ export default {
     ...mapState([
       'SELECTED_LAYER_INDEX',
       'LAYERS'
-    ])
-  },
-  watch: {
-    SELECTED_LAYER_INDEX: function() {
-      this.isLayerSelected = this.SELECTED_LAYER_INDEX == this.id;
+    ]),
+    isLayerSelected: function() {
+      return this.SELECTED_LAYER_INDEX == this.number;
     }
   },
   methods: {
@@ -59,7 +56,7 @@ export default {
       return images('./select-' + this.selectState + '.png')
     },
     selectLayer: function() {
-      this.SELECT_LAYER(this.id);
+      this.SELECT_LAYER(this.number);
     },
     triggerEye: function() {
       this.eyeState = this.eyeState == 'visible' ? 'invisible' : 'visible'

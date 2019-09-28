@@ -11,7 +11,7 @@
     </div>
 
     <div class="layer-body">
-      <layer v-for="(layer, index) in layers" v-bind:key="index" v-bind:id="index" v-bind:name="layer.name" />
+      <layer v-for="(layer, index) in layers" v-bind:key="index" v-bind:number="layer.number" v-bind:name="layer.name" />
     </div>
   </div>
 </template>
@@ -25,22 +25,30 @@ export default {
   components: {
     Layer
   },
+  data: function() {
+    return {
+      layers: []
+    }
+  },
   computed: {
     ...mapState([
-      'LAYER_ACTIVE',
-      'LAYERS'
+      'LAYER_WINDOW_ACTIVE',
+      'LAYERS',
+      'SELECTED_LAYER_INDEX'
     ]),
     active: {
       get () {
-        return this.$store.state.LAYER_ACTIVE ? '' : 'none';
+        return this.$store.state.LAYER_WINDOW_ACTIVE ? '' : 'none';
       },
       set (value) {
-        return this.$store.commit('SET_LAYER_ACTIVE', value)
+        return this.$store.commit('SET_LAYER_WINDOW_ACTIVE', value)
       }
-    },
-    layers: function() {
-      return this.LAYERS.filter(function(el) {
-        return el !== null;
+    }
+  },
+  watch: {
+    SELECTED_LAYER_INDEX: function() {
+      this.layers = this.LAYERS.filter(function(el) {
+        return !el.data.deleted;
       });
     }
   },

@@ -1095,6 +1095,13 @@ export default {
       }
     });
 
+    bus.$on("set_opacity", opacity => {
+      let selection = getUngrouped(getSelection());
+      for (var i = 0; i < selection.length; i++) {
+        selection[i].opacity = opacity/100;
+      }
+    });
+
     bus.$on("flip-hor", () => {
       if (this.SELECTED.length > 0) {
         let bounds = getBounds(getSelection());

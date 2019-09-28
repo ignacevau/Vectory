@@ -13,7 +13,9 @@ import { get } from "http";
 export default {
   name: "ArtBoard",
   computed: {
-    ...mapState(["SELECTED_LAYER_INDEX"])
+    ...mapState([
+      "SELECTED_LAYER_INDEX",
+      ])
   },
   methods: {
     ...mapMutations([
@@ -24,7 +26,9 @@ export default {
       "SET_TOOLRECTANGLE",
       "SET_TOOLSHAPEBUILDER",
       "SET_TOOLLINE",
-      "DELETE_SHAPES"
+      "DELETE_SHAPES",
+      "INSERT_LAYER",
+      "SET_SELECTED_LAYER_INDEX"
     ])
   },
   mounted: function() {
@@ -44,6 +48,15 @@ export default {
 
     const view = paper.view;
 
+    const SCREEN_BORDER = Path.Rectangle({
+      point: [20, 20],
+      size: [300, 200],
+      strokeColor: 'black'
+    });
+    const UI_LAYER = project.addLayer(new Layer({
+      children: [UI_LAYER]
+    }));
+
     const toolSelect = new Tool();
     const toolPointer = new Tool();
     const toolPen = new Tool();
@@ -62,37 +75,56 @@ export default {
     this.SET_TOOLLINE(toolLine);
     //
 
+    let defaultLayer = project.addLayer(new Layer());
+    defaultLayer.number = 0;
+    defaultLayer.name = "Default";
+    defaultLayer.activate();
 
-    //#region Layers
+    this.INSERT_LAYER(defaultLayer);
+
+  //#region Layers
+    let layerLayout = {
+      0: defaultLayer
+    };
+
+    let layerCount = 1;
+
     let AddLayer = () => {
       let _newLayer = project.addLayer(new Layer());
+      _newLayer.number = layerCount;
+      _newLayer.name = "Layer " + layerCount;
+      layerLayout[layerCount] = _newLayer;
       _newLayer.activate();
+      this.INSERT_LAYER(_newLayer);
+      layerCount++;
     };
 
-    let RemoveLayer = () => {
-      for(let i=0; i<project.activeLayer.children.length; i++) {
-        project.activeLayer.children[i].selectable=false;
+    let RemoveLayer = (number) => {
+      for(let i=0; i<layerLayout[number].children.length; i++) {
+        layerLayout[number].children[i].selectable=false;
       }
-      project.activeLayer.remove();
+
+      layerLayout[number].data.deleted = true;
+      layerLayout[number].remove();
+
+      this.SET_SELECTED_LAYER_INDEX(0);
     };
 
-    let UpdateActiveLayer = () => {
-      project.layers[this.SELECTED_LAYER_INDEX].activate();
+    let UpdateActiveLayer = (number) => {
+      layerLayout[number].activate();
+      this.SET_SELECTED_LAYER_INDEX(number);
     };
 
     bus.$on("add-layer", () => {
       AddLayer();
     });
     bus.$on("remove-layer", () => {
-      RemoveLayer();
+      RemoveLayer(this.SELECTED_LAYER_INDEX);
     });
-    bus.$on("update-active-layer", () => {
-      UpdateActiveLayer();
+    bus.$on("update-active-layer", (number) => {
+      UpdateActiveLayer(number);
     });
     //
-
-    // Add first layer
-    AddLayer();
 
     //#region Zoom
     let zoomOffset = 0;

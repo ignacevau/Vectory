@@ -44,15 +44,6 @@ export default {
     ColorPicker,
     LayerWindow,
     FileDropdown
-  },
-  computed: {
-    ...mapState([
-      'LAYERS'
-    ])
-  },
-  mounted: function() {
-    var _newLayer = new Layer(0, "Layer 0");
-    this.LAYERS.push(_newLayer);
   }
 }
 </script>

@@ -22,7 +22,7 @@
             </div>
             
             <div class="gr-right">
-              <click-slider v-bind:parentOpacity="opacity" @value-change="sliderChange" />
+              <click-slider v-bind:parentValue="opacity" @value-change="sliderChange" />
             </div>
             
           </div>
@@ -51,6 +51,7 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
+
 import StrokeGrid from '@/components/sidebar-right/StrokeGrid.vue'
 import FillGrid from '@/components/sidebar-right/FillGrid.vue'
 import ClickSlider from '@/components/header-bar/ClickSlider.vue'
@@ -84,7 +85,8 @@ export default {
   },
   methods: {
     ...mapMutations([
-      'SHOW_COLORPICKER'
+      'SHOW_COLORPICKER',
+      'SELECTION_SET_OPACITY'
     ]),
     resize: function(e) {
       if(this.dragging) {
@@ -100,10 +102,10 @@ export default {
       }
     },
     drag: function() {
-      this.dragging = true
+      this.dragging = true;
     },
     undrag: function() {
-      this.dragging = false
+      this.dragging = false;
     },
     collapse: function() {
       if(this.collapsed) {
@@ -113,14 +115,15 @@ export default {
         this.collapsed = false;
       }
       else {
-        this.size = this.minWidth
+        this.size = this.minWidth;
         this.$refs.right.style.width = this.size + 'px';
 
         this.collapsed = true;
       }
     },
     sliderChange: function(value) {
-      this.opacity = value
+      this.opacity = value;
+      this.SELECTION_SET_OPACITY(value);
     }
   },
   computed: {
@@ -129,9 +132,9 @@ export default {
     ]),
     textActive: function() {
       if(this.size > 150) {
-        return true
+        return true;
       }
-      return false
+      return false;
     }
   }
 }

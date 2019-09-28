@@ -2,17 +2,17 @@
   <div class="footer-bar">
     <div class="layer-top">
       <!-- Collapsed -->
-      <div class="layer-trigger" @click="expand" v-if="!active">
+      <div class="layer-trigger" @click="expand" v-if="!windowActive">
         <img src="@/assets/collapse-ver.png" />
       </div>
 
-      <div class="layer-text" v-if="!active">
+      <div class="layer-text" v-if="!windowActive">
         <div>LAYERS</div>
       </div>
       <!-- /Collapsed -->
 
       <!-- Expanded -->
-      <div class="layer-set" v-if="active">
+      <div class="layer-set" v-if="windowActive">
         <div @click="addLayer">
           <img src="@/assets/new.png" ondragstart="return false;" />
         </div>
@@ -27,7 +27,7 @@
         </div>
       </div>
 
-      <div class="options" v-if="active">
+      <div class="options" v-if="windowActive">
         <div>
           <img src="@/assets/settings.png" ondragstart="return false;" />
         </div>
@@ -43,12 +43,12 @@ import { mapMutations } from "vuex";
 export default {
   name: "FooterBar",
   computed: {
-    active: {
+    windowActive: {
       get() {
-        return this.$store.state.LAYER_ACTIVE;
+        return this.$store.state.LAYER_WINDOW_ACTIVE;
       },
       set(value) {
-        return this.$store.commit("SET_LAYER_ACTIVE", value);
+        return this.$store.commit("SET_LAYER_WINDOW_ACTIVE", value);
       }
     }
   },
@@ -58,7 +58,7 @@ export default {
       'REMOVE_LAYER'
     ]),
     expand: function() {
-      this.active = true;
+      this.windowActive = true;
     },
     addLayer: function() {
       this.ADD_LAYER();

@@ -70,7 +70,6 @@ export default {
       _newGroup.selected = false;
       this.DISCARD_SHAPES();
       this.ADD_SHAPE(_newGroup);
-      console.log(_newGroup.children.length)
     },
     removeGroup: function() {
       for(let i=0; i<this.SELECTED.length; i++) {
