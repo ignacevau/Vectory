@@ -10,6 +10,7 @@ import paper from "paper";
 import Tool from "../Tool.vue";
 import { mapMutations, mapState } from "vuex";
 import { bus, Action } from "@/main.js";
+import Data from '@/Data.js';
 
 export default {
   name: "ToolSelect",
@@ -1131,6 +1132,34 @@ export default {
         temp.push(this.ACTIONS[i].data.paths.length);
       }
     });
+//
+
+//#region Aligning
+  bus.$on('align-hor-center', () => {
+    let selection = getSelection();
+    let bounds = getBounds(selection);
+    let dist_x = Data.CENTER_HOR - bounds.center.x;
+
+    let ungrouped = getUngrouped(selection);
+    for(let i=0; i<ungrouped.length; i++) {
+      ungrouped[i].translate([dist_x, 0]);
+    }
+
+    updateTransformBox(getBounds(getSelection()));
+  });
+
+  bus.$on('align-ver-center', () => {
+    let selection = getSelection();
+    let bounds = getBounds(selection);
+    let dist_y = Data.CENTER_VER - bounds.center.y;
+
+    let ungrouped = getUngrouped(selection);
+    for(let i=0; i<ungrouped.length; i++) {
+      ungrouped[i].translate([0, dist_y]);
+    }
+
+    updateTransformBox(getBounds(getSelection()));
+  });
 //
   }
 };

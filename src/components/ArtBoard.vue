@@ -9,12 +9,14 @@ import paper from "paper";
 import { mapState, mapMutations } from "vuex";
 import { bus } from "@/main.js";
 import { get } from "http";
+import Data from '@/Data.js'
 
 export default {
   name: "ArtBoard",
   computed: {
     ...mapState([
       "SELECTED_LAYER_INDEX",
+      "LAYERS"
       ])
   },
   methods: {
@@ -28,7 +30,9 @@ export default {
       "SET_TOOLLINE",
       "DELETE_SHAPES",
       "INSERT_LAYER",
-      "SET_SELECTED_LAYER_INDEX"
+      "SET_SELECTED_LAYER_INDEX",
+      "SWAP_LAYERS",
+      "REFRESH_LAYER_ARRAY"
     ])
   },
   mounted: function() {
@@ -48,13 +52,18 @@ export default {
 
     const view = paper.view;
 
+    let border_w = screen.width/1.5;
+    let border_h = screen.height/1.5;
     const SCREEN_BORDER = Path.Rectangle({
-      point: [20, 20],
-      size: [300, 200],
-      strokeColor: 'black'
+      point: [
+        Data.CENTER_HOR - border_w/2, 
+        Data.CENTER_VER - border_h/2
+      ],
+      size: [border_w, border_h],
+      strokeColor: '#969696'
     });
     const UI_LAYER = project.addLayer(new Layer({
-      children: [UI_LAYER]
+      children: [SCREEN_BORDER]
     }));
 
     const toolSelect = new Tool();
@@ -75,6 +84,9 @@ export default {
     this.SET_TOOLLINE(toolLine);
     //
 
+  //#region Layers
+
+    // Create default layer
     let defaultLayer = project.addLayer(new Layer());
     defaultLayer.number = 0;
     defaultLayer.name = "Default";
@@ -82,8 +94,7 @@ export default {
 
     this.INSERT_LAYER(defaultLayer);
 
-  //#region Layers
-    let layerLayout = {
+    const layerLayout = {
       0: defaultLayer
     };
 
@@ -108,6 +119,13 @@ export default {
       layerLayout[number].remove();
 
       this.SET_SELECTED_LAYER_INDEX(0);
+
+      this.REFRESH_LAYER_ARRAY();
+    };
+
+    let MergeLayers = (layers, bottom_index) => {
+      layers[bottom_index-1].addChildren(layers[bottom_index].children);
+      RemoveLayer(layers[bottom_index].number);
     };
 
     let UpdateActiveLayer = (number) => {
@@ -115,14 +133,75 @@ export default {
       this.SET_SELECTED_LAYER_INDEX(number);
     };
 
+    let getLayersFiltered = () => {
+      return this.LAYERS.filter(function(el) {
+        return !el.data.deleted;
+      });
+    }
+
     bus.$on("add-layer", () => {
       AddLayer();
     });
     bus.$on("remove-layer", () => {
       RemoveLayer(this.SELECTED_LAYER_INDEX);
     });
+    bus.$on("merge-layers", () => {
+      let number = this.SELECTED_LAYER_INDEX;
+      let layersFiltered = getLayersFiltered();
+
+      for(let i=1; i<layersFiltered.length; i++) {
+        if(layersFiltered[i] == layerLayout[number]) {
+          MergeLayers(layersFiltered, i);
+        }
+      }
+    });
     bus.$on("update-active-layer", (number) => {
       UpdateActiveLayer(number);
+    });
+    bus.$on('move-layer-up', (number) => {
+      let first_index = -1;
+      let second_index = -1;
+      for(let i=this.LAYERS.length-1; i >= 0; i--) {
+        if(first_index == -1) {
+          if(this.LAYERS[i] == layerLayout[number]) {
+            first_index = i;
+          }
+        }
+        else if(second_index == -1) {
+          // Valid layer and don't allow to move above default layer
+          if(!this.LAYERS[i].data.deleted && this.LAYERS[i].number != 0) {
+            second_index = i;
+          }
+        }
+      }
+
+      if(first_index != -1 && second_index != -1) {
+        this.SWAP_LAYERS({first_index, second_index});
+      }
+    });
+    bus.$on('move-layer-down', (number) => {
+      // Don't allow to move the default layer
+      if(number == 0)
+        return;
+      
+      let first_index = -1;
+      let second_index = -1;
+      for(let i=0; i < this.LAYERS.length; i++) {
+        if(first_index == -1) {
+          if(this.LAYERS[i] == layerLayout[number]) {
+            first_index = i;
+          }
+        }
+        else if(second_index == -1) {
+          if(!this.LAYERS[i].data.deleted) {
+            second_index = i;
+          }
+        }
+      }
+
+      if(first_index != -1 && second_index != -1) {
+        this.SWAP_LAYERS({first_index, second_index});
+      }
     });
     //
 

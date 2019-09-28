@@ -281,6 +281,26 @@ export default new Vuex.Store({
         bus.$emit('remove-layer');
       }
     },
+    MERGE_LAYERS(state) {
+      bus.$emit('merge-layers');
+    },
+    MOVE_LAYER_UP(state) {
+      bus.$emit('move-layer-up', state.SELECTED_LAYER_INDEX);
+    },
+    MOVE_LAYER_DOWN(state, number) {
+      bus.$emit('move-layer-down', state.SELECTED_LAYER_INDEX);
+    },
+    REFRESH_LAYER_ARRAY(state) {
+      state.LAYERS = [...state.LAYERS];
+    },
+    SWAP_LAYERS(state, indexes) {
+      let temp = state.LAYERS[indexes.first_index];
+      state.LAYERS[indexes.first_index] = state.LAYERS[indexes.second_index];
+      state.LAYERS[indexes.second_index] = temp;
+
+      // Changing key for change detection
+      state.LAYERS = [...state.LAYERS];
+    },
     SET_SELECTED_LAYER_INDEX(state, value) {
       state.SELECTED_LAYER_INDEX = value;
     }

@@ -32,6 +32,7 @@ import ToolCircle from '@/components/tools/ToolCircle.vue'
 import ToolRectangle from '@/components/tools/ToolRectangle.vue'
 import ToolShapebuilder from '@/components/tools/ToolShapebuilder.vue'
 import ToolLine from '@/components/tools/ToolLine.vue'
+import Data from '@/Data.js'
 
 export default {
   name: 'SidebarLeft',
@@ -47,8 +48,8 @@ export default {
   data: function() {
     return {
       collapsed: true,
-      minWidth: 50,
-      maxWidth: 90
+      minWidth: Data.SIDEBAR_LEFT_MIN_WIDTH,
+      maxWidth: Data.SIDEBAR_LEFT_MAX_WIDTH
     }
   },
   mounted: function() {

@@ -5,7 +5,7 @@
       <div class="pr-left">
         <img src="@/assets/align-hor-left.png" alt="">
       </div>
-      <div class="pr-middle">
+      <div class="pr-middle" @click="align('align-hor-center')">
         <img src="@/assets/align-hor-middle.png" alt="">
       </div>
       <div class="pr-right">
@@ -15,7 +15,7 @@
       <div class="pr-left">
         <img src="@/assets/align-ver-bottom.png" alt="">
       </div>
-      <div class="pr-middle">
+      <div class="pr-middle" @click="align('align-ver-center')">
         <img src="@/assets/align-ver-middle.png" alt="">
       </div>
       <div class="pr-right">
@@ -27,8 +27,15 @@
 </template>
 
 <script>
+import { bus } from '@/main.js';
+
 export default {
-  name: 'AlignGrid'
+  name: 'AlignGrid',
+  methods: {
+    align: function(event_name) {
+      bus.$emit(event_name);
+    }
+  }
 }
 </script>
 

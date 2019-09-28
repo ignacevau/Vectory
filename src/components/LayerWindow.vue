@@ -46,7 +46,7 @@ export default {
     }
   },
   watch: {
-    SELECTED_LAYER_INDEX: function() {
+    LAYERS: function() {
       this.layers = this.LAYERS.filter(function(el) {
         return !el.data.deleted;
       });

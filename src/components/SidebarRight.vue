@@ -57,6 +57,7 @@ import FillGrid from '@/components/sidebar-right/FillGrid.vue'
 import ClickSlider from '@/components/header-bar/ClickSlider.vue'
 import AlignGrid from '@/components/sidebar-right/AlignGrid.vue'
 import PathfinderGrid from '@/components/sidebar-right/PathfinderGrid.vue'
+import Data from '@/Data.js'
 
 export default {
   name: 'SidebarRight',
@@ -71,9 +72,9 @@ export default {
     return {
       dragging: false,
       collapsed: false,
-      minWidth: 120,
-      maxWidth: 180,
-      size: 180,
+      minWidth: Data.SIDEBAR_RIGHT_MIN_WIDTH,
+      maxWidth: Data.SIDEBAR_RIGHT_MAX_WIDTH,
+      size: Data.SIDEBAR_RIGHT_MAX_WIDTH,
       opacity: 100
     }
   },

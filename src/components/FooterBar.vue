@@ -22,8 +22,14 @@
         <div>
           <img src="@/assets/duplicate.png" ondragstart="return false;" />
         </div>
-        <div>
+        <div @click="mergeLayers">
           <img src="@/assets/merge.png" ondragstart="return false;" />
+        </div>
+        <div @click="moveLayerUp">
+          <img src="@/assets/move-up.png" ondragstart="return false" />
+        </div>
+        <div @click="moveLayerDown">
+          <img src="@/assets/move-down.png" ondragstart="return false" />
         </div>
       </div>
 
@@ -55,7 +61,10 @@ export default {
   methods: {
     ...mapMutations([
       'ADD_LAYER',
-      'REMOVE_LAYER'
+      'REMOVE_LAYER',
+      'MERGE_LAYERS',
+      'MOVE_LAYER_UP',
+      'MOVE_LAYER_DOWN'
     ]),
     expand: function() {
       this.windowActive = true;
@@ -65,6 +74,15 @@ export default {
     },
     removeLayer: function() {
       this.REMOVE_LAYER();
+    },
+    mergeLayers: function() {
+      this.MERGE_LAYERS();
+    },
+    moveLayerUp: function() {
+      this.MOVE_LAYER_UP();
+    },
+    moveLayerDown: function () {
+      this.MOVE_LAYER_DOWN();
     }
   }
 };
