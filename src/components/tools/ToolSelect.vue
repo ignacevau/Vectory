@@ -1135,6 +1135,8 @@ export default {
 //
 
 //#region Aligning
+
+  // Horizontal
   bus.$on('align-hor-center', () => {
     let selection = getSelection();
     let bounds = getBounds(selection);
@@ -1148,10 +1150,68 @@ export default {
     updateTransformBox(getBounds(getSelection()));
   });
 
+  bus.$on('align-hor-left', () => {
+    let selection = getSelection();
+    let bounds = getBounds(selection);
+    let docLeft = Data.CENTER_HOR - Data.DOCUMENT_WIDTH/2;
+    let dist_x = docLeft - bounds.x;
+
+    let ungrouped = getUngrouped(selection);
+    for(let i=0; i<ungrouped.length; i++) {
+      ungrouped[i].translate([dist_x, 0]);
+    }
+
+    updateTransformBox(getBounds(getSelection()));
+  });
+
+  bus.$on('align-hor-right', () => {
+    let selection = getSelection();
+    let bounds = getBounds(selection);
+    let docRight = Data.CENTER_HOR + Data.DOCUMENT_WIDTH/2;
+    let dist_x = docRight - (bounds.x + bounds.width);
+
+    let ungrouped = getUngrouped(selection);
+    for(let i=0; i<ungrouped.length; i++) {
+      ungrouped[i].translate([dist_x, 0]);
+    }
+
+    updateTransformBox(getBounds(getSelection()));
+  });
+
+
+  // Vertical
   bus.$on('align-ver-center', () => {
     let selection = getSelection();
     let bounds = getBounds(selection);
     let dist_y = Data.CENTER_VER - bounds.center.y;
+
+    let ungrouped = getUngrouped(selection);
+    for(let i=0; i<ungrouped.length; i++) {
+      ungrouped[i].translate([0, dist_y]);
+    }
+
+    updateTransformBox(getBounds(getSelection()));
+  });
+
+  bus.$on('align-ver-top', () => {
+    let selection = getSelection();
+    let bounds = getBounds(selection);
+    let docTop = Data.CENTER_VER - Data.DOCUMENT_HEIGHT/2;
+    let dist_y = docTop - bounds.y;
+
+    let ungrouped = getUngrouped(selection);
+    for(let i=0; i<ungrouped.length; i++) {
+      ungrouped[i].translate([0, dist_y]);
+    }
+
+    updateTransformBox(getBounds(getSelection()));
+  });
+
+  bus.$on('align-ver-bottom', () => {
+    let selection = getSelection();
+    let bounds = getBounds(selection);
+    let docTop = Data.CENTER_VER + Data.DOCUMENT_HEIGHT/2;
+    let dist_y = docTop - (bounds.y + bounds.height);
 
     let ungrouped = getUngrouped(selection);
     for(let i=0; i<ungrouped.length; i++) {

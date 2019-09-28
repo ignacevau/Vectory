@@ -2,23 +2,23 @@
   <div class="grid-container">
     <div class="grid">
 
-      <div class="pr-left">
+      <div class="pr-left" @click="align('align-hor-left')">
         <img src="@/assets/align-hor-left.png" alt="">
       </div>
       <div class="pr-middle" @click="align('align-hor-center')">
         <img src="@/assets/align-hor-middle.png" alt="">
       </div>
-      <div class="pr-right">
+      <div class="pr-right" @click="align('align-hor-right')">
         <img src="@/assets/align-hor-right.png" alt="">
       </div>
 
-      <div class="pr-left">
+      <div class="pr-left" @click="align('align-ver-bottom')">
         <img src="@/assets/align-ver-bottom.png" alt="">
       </div>
       <div class="pr-middle" @click="align('align-ver-center')">
         <img src="@/assets/align-ver-middle.png" alt="">
       </div>
-      <div class="pr-right">
+      <div class="pr-right" @click="align('align-ver-top')">
         <img src="@/assets/align-ver-top.png" alt="">
       </div>
       

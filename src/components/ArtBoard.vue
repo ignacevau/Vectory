@@ -52,8 +52,8 @@ export default {
 
     const view = paper.view;
 
-    let border_w = screen.width/1.5;
-    let border_h = screen.height/1.5;
+    let border_w = Data.DOCUMENT_WIDTH;
+    let border_h = Data.DOCUMENT_HEIGHT;
     const SCREEN_BORDER = Path.Rectangle({
       point: [
         Data.CENTER_HOR - border_w/2, 

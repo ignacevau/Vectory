@@ -10,5 +10,8 @@ export default Object.freeze({
     SIDEBAR_LEFT_MAX_WIDTH: SIDEBAR_LEFT_MAX_WIDTH,
 
     CENTER_HOR: (screen.width-SIDEBAR_RIGHT_MAX_WIDTH-SIDEBAR_LEFT_MIN_WIDTH)/2 + SIDEBAR_LEFT_MIN_WIDTH,
-    CENTER_VER: screen.height/2 - 30
+    CENTER_VER: screen.height/2 - 30,
+
+    DOCUMENT_WIDTH: screen.width / 1.5,
+    DOCUMENT_HEIGHT: screen.height / 1.5
 });
