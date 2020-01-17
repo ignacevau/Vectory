@@ -10,8 +10,10 @@ import { mapState, mapMutations } from "vuex";
 import { bus } from "@/main.js";
 import { get } from "http";
 import Data from '@/Data.js'
+import { GuideLines } from '@/mixins/GuideLines.js';
 
 export default {
+  mixins: [GuideLines],
   name: "ArtBoard",
   computed: {
     ...mapState([
@@ -272,6 +274,10 @@ export default {
 
         // Let other components know (ToolSelect -> transform box must disappear)
         bus.$emit("delete_selection");
+
+        this.updateGuidePoints();
+        this.drawGuideLines();
+
       } else if (!keys.shift && e.code == "ShiftLeft") {
         keys.shift = true;
         bus.$emit("shift");

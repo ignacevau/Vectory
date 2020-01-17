@@ -19,7 +19,7 @@ export default Object.freeze({
             callback(content);
         }
     },
-    getUngrouped: (items) => {
+    getUngrouped: function(items) {
         if(items.length == 0) {
           return [];
         }
@@ -33,7 +33,7 @@ export default Object.freeze({
             result.push(item)
           else if(item.type == "group") {
             for(let j=0; j<item.children.length; j++) {
-              result.push(...getUngrouped([item.children[j]]));
+              result.push(...this.getUngrouped([item.children[j]]));
             }
           }
   

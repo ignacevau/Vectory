@@ -16,8 +16,10 @@ export const GuideLines = {
         ...mapMutations([
             'SET_GUIDE_X_VALUES',
             'SET_GUIDE_Y_VALUES',
-            'CLEAR_GUIDE_LINES',
-            'ADD_GUIDE_LINES'
+            'CLEAR_GUIDE_LINES_X',
+            'CLEAR_GUIDE_LINES_Y',
+            'ADD_GUIDE_LINES_X',
+            'ADD_GUIDE_LINES_Y'
         ]),
         updateGuidePoints: function() {
             let objects = Utils.getUngrouped(this.OBJECTS);
@@ -39,33 +41,48 @@ export const GuideLines = {
             this.SET_GUIDE_X_VALUES(x_values);
             this.SET_GUIDE_Y_VALUES(y_values);
         },
-        drawGuideLines: function() {
-            this.CLEAR_GUIDE_LINES();
-            let x_values = this.GUIDE_X_VALUES;
-            let y_values = this.GUIDE_Y_VALUES;
-
-            for(let i=0; i<y_values.length; i++) {
-                // Horizontal line
-                let hor_p1 = new Point(this.SCREEN_BORDER.bounds.leftCenter.x, y_values[i]);
-                let hor_p2 = new Point(this.SCREEN_BORDER.bounds.rightCenter.x, y_values[i]);
-
-                let horGL = new Path.Line(hor_p1, hor_p2);
-                horGL.strokeColor = 'red';
-                horGL.strokeWidth = 0.5;
-
-                this.ADD_GUIDE_LINES([horGL]);
+        clearGuideLinesX: function() {
+            this.CLEAR_GUIDE_LINES_X();
+        },
+        clearGuideLinesY: function() {
+            this.CLEAR_GUIDE_LINES_Y();
+        },
+        drawGuideLines: function(x_values=null, y_values=null) {
+            if(x_values == null && y_values == null) {
+                x_values = this.GUIDE_X_VALUES;
+                y_values = this.GUIDE_Y_VALUES;
             }
 
-            for(let i=0; i<x_values.length; i++) {
-                // Vertical line
-                let ver_p1 = new Point(x_values[i], this.SCREEN_BORDER.bounds.bottomCenter.y);
-                let ver_p2 = new Point(x_values[i], this.SCREEN_BORDER.bounds.topCenter.y);
+            if(x_values != null) {
+                this.CLEAR_GUIDE_LINES_X();
 
-                let verGL = new Path.Line(ver_p1, ver_p2);
-                verGL.strokeColor = 'red';
-                verGL.strokeWidth = 0.5;
+                for(let i=0; i<x_values.length; i++) {
+                    // Vertical line
+                    let ver_p1 = new Point(x_values[i], this.SCREEN_BORDER.bounds.bottomCenter.y);
+                    let ver_p2 = new Point(x_values[i], this.SCREEN_BORDER.bounds.topCenter.y);
 
-                this.ADD_GUIDE_LINES([verGL]);
+                    let verGL = new Path.Line(ver_p1, ver_p2);
+                    verGL.strokeColor = 'red';
+                    verGL.strokeWidth = 0.5;
+
+                    this.ADD_GUIDE_LINES_X([verGL]);
+                }
+            }
+
+            if(y_values != null) {
+                this.CLEAR_GUIDE_LINES_Y();
+
+                for(let i=0; i<y_values.length; i++) {
+                    // Horizontal line
+                    let hor_p1 = new Point(this.SCREEN_BORDER.bounds.leftCenter.x, y_values[i]);
+                    let hor_p2 = new Point(this.SCREEN_BORDER.bounds.rightCenter.x, y_values[i]);
+
+                    let horGL = new Path.Line(hor_p1, hor_p2);
+                    horGL.strokeColor = 'red';
+                    horGL.strokeWidth = 0.5;
+
+                    this.ADD_GUIDE_LINES_Y([horGL]);
+                }
             }
         },
         getGuidedPosition: function(pos) {

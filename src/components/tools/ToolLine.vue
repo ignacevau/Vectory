@@ -67,6 +67,7 @@ export default {
 
       newPath.strokeColor = this.LINE_STROKECOLOR
       newPath.strokeWidth = this.LINE_WIDTH
+      newPath.fillColor = 'transparent';
       newPath.opacity = this.LINE_OPACITY
     }
 

@@ -16,6 +16,12 @@ import { GuideLines } from '@/mixins/GuideLines.js';
 export default {
   mixins: [GuideLines],
   name: "ToolSelect",
+  data: function() {
+    return {
+      snappedY: false,
+      snappedX: false
+    }
+  },
   computed: {
     ...mapState([
       "ACTIVE_TOOL", 
@@ -867,7 +873,6 @@ export default {
 
         // Update the guide-points
         this.updateGuidePoints();
-        this.drawGuideLines();
       }
 
       if (state.isDragging) {
@@ -884,8 +889,12 @@ export default {
 
         // Update the guide-points
         this.updateGuidePoints();
-        this.drawGuideLines();
       }
+
+      if(this.snappedX)
+        this.clearGuideLinesX();
+      if(this.snappedY)
+        this.clearGuideLinesY();
 
       // Update transform box with new rectangle
       hideTransformBox();
@@ -901,30 +910,72 @@ export default {
     let mouseDrag = (e) => {
       mouseDelta = e.point.subtract(_lastMousePos);
       if(Data.SNAP_MOVE && (state.isDragging || state.isScaling)) {
-        let snappedY = false;
-        let snappedX = false;
+        let snapY = null;
+        let snapX = null;
 
         // Snapping y-axis
         if(mouseDelta.y != 0) {
+          let snappedY = false;
+
           // Check for top snap
-          let [guided, _, _snapY] = this.getGuidedPosition(e.point.add(state.snapVecTopY))
+          let guided, _;
+          [guided, _, snappedY] = this.getGuidedPosition(e.point.add(state.snapVecTopY))
           mouseDelta.y = guided.subtract(transformRect.bounds.topCenter).y;
 
+          if(snappedY) {
+            snapY = guided.y;
+          }
           //If top hasn't snapped, check for bottom snap
-          if(!_snapY) {
-            mouseDelta.y = this.getGuidedPosition(e.point.add(state.snapVecBottomY))[0].subtract(transformRect.bounds.bottomCenter).y;
+          else {
+            [guided, _, snappedY] = this.getGuidedPosition(e.point.add(state.snapVecBottomY));
+            mouseDelta.y = guided.subtract(transformRect.bounds.bottomCenter).y;
+
+            if(snappedY) {
+              snapY = guided.y;
+            }
+          }
+
+          // If snapped to a y-line, display the line
+          if (snapY != null) {
+            this.drawGuideLines(null, [snapY]);
+            this.snappedY = true;
+          }
+          else if(this.snappedY) {
+            this.snappedY = false;
+            this.clearGuideLinesY();
           }
         }
 
-        //Snapping x-axis
+        // Snapping x-axis
         if(mouseDelta.x != 0) {
+          let snappedX = false;
+
           // Check for left snap
-          let [guided, _snapX, _] = this.getGuidedPosition(e.point.add(state.snapVecLeftX))
+          let guided, _;
+          [guided, snappedX, _] = this.getGuidedPosition(e.point.add(state.snapVecLeftX));
           mouseDelta.x = guided.subtract(transformRect.bounds.leftCenter).x;
 
+          if(snappedX) {
+            snapX = guided.x;
+          }
           // If left hasn't snapped, check for right snap
-          if(!_snapX) {
-            mouseDelta.x = this.getGuidedPosition(e.point.add(state.snapVecRightX))[0].subtract(transformRect.bounds.rightCenter).x;
+          else {
+            [guided, snappedX, _] = this.getGuidedPosition(e.point.add(state.snapVecRightX));
+            mouseDelta.x = guided.subtract(transformRect.bounds.rightCenter).x;
+
+            if(snappedX) {
+              snapX = guided.x;
+            }
+          }
+
+          // If snapped to a x-line, display the line
+          if (snapX != null) {
+            this.drawGuideLines([snapX], null);
+            this.snappedX = true;
+          }
+          else if(this.snappedX) {
+            this.snappedX = false;
+            this.clearGuideLinesX();
           }
         }
       }
@@ -1057,7 +1108,6 @@ export default {
 
         updateTransformBox(getBounds(getSelection()));
         this.updateGuidePoints();
-        this.drawGuideLines();
       }
     });
 
@@ -1185,7 +1235,6 @@ export default {
 
         // There could've been drawn a new shape
         this.updateGuidePoints();
-        this.drawGuideLines();
 
         drawTransformBox(getBounds(getSelection()));
       }

@@ -58,7 +58,8 @@ export default new Vuex.Store({
     // Guide Shapes
     GUIDE_X_VALUES: [],
     GUIDE_Y_VALUES: [],
-    GUIDE_LINES: []
+    GUIDE_LINES_Y: [],
+    GUIDE_LINES_X: []
   },
   mutations: {
     // File settings
@@ -375,15 +376,25 @@ export default new Vuex.Store({
     SET_GUIDE_Y_VALUES(state, values) {
       state.GUIDE_Y_VALUES = values;
     },
-    ADD_GUIDE_LINES(state, lines) {
-      state.GUIDE_LINES.push(...lines);
+    ADD_GUIDE_LINES_X(state, lines_x) {
+      state.GUIDE_LINES_X.push(...lines_x);
     },
-    CLEAR_GUIDE_LINES(state) {
-      for(let i=0; i<state.GUIDE_LINES.length; i++) {
-        state.GUIDE_LINES[i].remove();
+    ADD_GUIDE_LINES_Y(state, lines_y) {
+      state.GUIDE_LINES_Y.push(...lines_y);
+    },
+    CLEAR_GUIDE_LINES_Y(state) {
+      for(let i=0; i<state.GUIDE_LINES_Y.length; i++) {
+        state.GUIDE_LINES_Y[i].remove();
       }
 
-      state.GUIDE_LINES = [];
+      state.GUIDE_LINES_Y = [];
+    },
+    CLEAR_GUIDE_LINES_X(state) {
+      for(let i=0; i<state.GUIDE_LINES_X.length; i++) {
+        state.GUIDE_LINES_X[i].remove();
+      }
+
+      state.GUIDE_LINES_X = [];
     }
   },
   getters: {
