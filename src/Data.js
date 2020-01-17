@@ -13,5 +13,9 @@ export default Object.freeze({
     CENTER_VER: screen.height/2 - 30,
 
     DOCUMENT_WIDTH: screen.width / 1.5,
-    DOCUMENT_HEIGHT: screen.height / 1.5
+    DOCUMENT_HEIGHT: screen.height / 1.5,
+
+    SNAP_THRESHOLD: 5,
+    SNAP_MOVE: true,
+    SNAP_SCALE: true
 });

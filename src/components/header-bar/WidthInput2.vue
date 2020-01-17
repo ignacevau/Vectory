@@ -12,16 +12,21 @@
 export default {
   name: 'WidthInput2',
   props: [
-    'parentWidth'
+    'parentWidth',
+    'startValue'
   ],
   data: function() {
     return {
-      input: ''    }
+      input: ''
+    }
   },
   watch: {
     input: function(_new, _old) {
       if(this.checkNumber(_new)) {
         this.$emit('value-change', _new);
+      }
+      else if(_new != '' && _new != '?') {
+        this.input = _old;
       }
     },
     parentWidth: function(_new, _old) {
@@ -38,7 +43,7 @@ export default {
   },
   methods: {
     checkNumber: function(n) {
-      return Number(n)
+      return !isNaN(parseInt(n)) && Number(n);
     },
     increment: function() {
       if(this.checkNumber(this.input)) {
@@ -46,13 +51,19 @@ export default {
       }
     },
     decrement: function() {
-      if(this.checkNumber(this.input)) {
+      if(this.checkNumber(this.input) && this.input != 1) {
         this.input--;
       }
     }
   },
   mounted: function() {
-    var input = this.$refs["input"]
+    // Set the input value to a starting value if specified
+    if (this.checkNumber(this.startValue)) {
+      this.input = this.startValue;
+    }
+
+    // Remove focus when clicked outside
+    const input = this.$refs["input"]
 
     document.addEventListener('click', (e) => {
       if(!input.contains(e.target)) {

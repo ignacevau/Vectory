@@ -1,6 +1,6 @@
 <template>
   <div class="container" v-bind:style="{ display: show }">
-    <div>
+    <div @click="saveSVG">
       <div>SAVE</div>
     </div>
 
@@ -8,19 +8,21 @@
       <div>OPEN</div>
     </div>
 
-    <div>
+    <div @click="importSVG">
       <div>IMPORT</div>
     </div>
 
-    <div>
-      <div>EXPORT</div>
+    <div @click="exportPNG">
+      <div>
+        EXPORT
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import { bus } from '@/main.js'
-import { mapState } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 
 export default {
   name: 'FileDropdown',
@@ -31,6 +33,21 @@ export default {
     show: function() {
       return this.FILEDROPDOWN_ACTIVE ? '' : 'none';
     }
+  },
+  methods: {
+    ...mapMutations([
+      'EXPORT_SVG',
+      'IMPORT_SVG'
+    ]),
+    saveSVG: function() {
+      this.EXPORT_SVG();
+    },
+    importSVG: function() {
+      this.IMPORT_SVG();
+    },
+    exportPNG: function() {
+      
+    },
   }
 }
 </script>

@@ -11,8 +11,10 @@ import Tool from "../Tool.vue";
 import { mapMutations, mapState } from "vuex";
 import { bus, Action } from "@/main.js";
 import Data from '@/Data.js';
+import { GuideLines } from '@/mixins/GuideLines.js';
 
 export default {
+  mixins: [GuideLines],
   name: "ToolSelect",
   computed: {
     ...mapState([
@@ -62,6 +64,9 @@ export default {
     var hoverSelection = new Path();
     hoverSelection.selectable = false;
 
+    // Shadow paths while transforming path
+    let shadowPaths = [];
+
     // Transform rectangle cache
     var lastTransformRect;
 
@@ -98,7 +103,12 @@ export default {
       isHovering: false,
       isScaling: false,
       isDragging: false,
-      isSelecting: false
+      isSelecting: false,
+      
+      snapVecLeftX: null,
+      snapVecRightX: null,
+      snapVecTopY: null,
+      snapVecBottomY: null
     }
 
     // The relative distances used in scaling
@@ -194,6 +204,31 @@ export default {
         strokeColor: "#33b5ff",
         strokeWidth: 2 / paper.view.zoom
       });
+    }
+
+    function DrawShadowPaths(paths) {
+      if(shadowPaths.length != 0) {
+        RemoveShadowPaths();
+      }
+
+      shadowPaths = [];
+      for(let i=0; i<paths.length; i++) {
+        let _path = paths[i].clone();
+        _path.selectable = false;
+        _path.selected = false;
+        _path.dashArray = [5, 5];
+        _path.opacity = 0.2;
+        shadowPaths.push(_path);
+      }
+    }
+
+    function RemoveShadowPaths() {
+      if(shadowPaths.length != 0) {
+        for(let i=0; i<shadowPaths.length; i++) {
+          shadowPaths[i].remove();
+        }
+        shadowPaths = [];
+      }
     }
 
     function HandleMouseHoverPath(item) {
@@ -341,6 +376,19 @@ export default {
       } else {
         drawTransformBox();
       }
+    }
+
+    // Hide the transform points, but keep the box (e.g. while moving selection)
+    function HideTransformPoints() {
+      Object.keys(transformPoints).forEach(function(point, index) {
+        transformPoints[point].visible = false;
+      });
+    }
+
+    function ShowTransformPoints() {
+      Object.keys(transformPoints).forEach(function(point, index) {
+        transformPoints[point].visible = true;
+      });
     }
 
     function CreateSelectionRectanglePath({rect, strokeWidth, strokeColor, dashArray}) {
@@ -531,14 +579,28 @@ export default {
       mouseDown = true;
       _lastMousePos = e.point;
 
-      if (state.isDragging) {
-        action.move = new Action("move", {
-          paths: getUngrouped(getSelection()),
-          startPos: e.point,
-          endPos: null
-        });
+      if (this.SELECTED.length != 0) {
+        if (e.point.isInside(transformRect.bounds) && !state.isScaling) {
+          document.body.style.cursor = "move";
+          state.isDragging = true;
 
-        return;
+          // Hide scaling points when moving the selection
+          HideTransformPoints();
+          DrawShadowPaths(getUngrouped(getSelection()));
+
+          state.snapVecLeftX = getBounds(getSelection()).leftCenter.subtract(e.point);
+          state.snapVecRightX = getBounds(getSelection()).rightCenter.subtract(e.point);
+          state.snapVecTopY = getBounds(getSelection()).topCenter.subtract(e.point);
+          state.snapVecBottomY = getBounds(getSelection()).bottomCenter.subtract(e.point);
+
+          action.move = new Action("move", {
+            paths: getUngrouped(getSelection()),
+            startPos: e.point,
+            endPos: null
+          });
+
+          return;
+        }
       }
 
       hideTransformBox();
@@ -546,6 +608,10 @@ export default {
         let bounds = getBounds(getSelection());
 
         state.isScaling = true;
+
+        // Hide scaling points when scaling the selection
+        HideTransformPoints();
+        DrawShadowPaths(getUngrouped(getSelection()));
 
         drawTransformBox();
 
@@ -672,16 +738,12 @@ export default {
     this.TOOLSELECT.onMouseMove = (e) => {
       mouseEvent = e;
 
-      if (mouseDown) {
-        mouseDrag(e);
-      }
-
       // Reset cursor style
       document.body.style.cursor = "default";
       ResetHover();
 
       // Mouse is hovering over an item
-      if (e.item && !state.isSelecting) {
+      if (e.item && !state.isSelecting && !state.isDragging) {
 
         if (e.item.selectable) {
           hoverItem = e.item;
@@ -711,13 +773,13 @@ export default {
 
         let objects = this.OBJECTS;
         for (let i = 0; i < objects.length; i++) {
+          /* First, check for intersections between the shapes and the selection rectangle,
+            if none, check whether the shapes are inside the rectangle */
+            
           let obj = objects[i];
 
           // Group
           if (obj.type == "group" && obj.selectable) {
-            /* First, check for intersections between the shapes and the selection rectangle,
-            if none, check whether the shapes are inside the rectangle */
-
             let _isIntersect = CheckGroupIntersection(obj, selectRectPath);
 
             if(_isIntersect.success)
@@ -752,13 +814,15 @@ export default {
 
         }
       }
-      state.isDragging = false;
-
       if (this.SELECTED.length != 0) {
-        if (e.point.isInside(transformRect.bounds) && !state.isHovering && !state.isScaling) {
+        if (e.point.isInside(transformRect.bounds) && !state.isScaling) {
           document.body.style.cursor = "move";
-          state.isDragging = true;
         }
+      }
+
+      // Call mouseDrag AFTER mouseMove
+      if (mouseDown) {
+        mouseDrag(e);
       }
     };
 //
@@ -794,7 +858,16 @@ export default {
         this.ADD_ACTION(action.scale);
 
         state.isScaling = false;
+
+        // Scaling points where hidden while moving selection
+        ShowTransformPoints();
+        RemoveShadowPaths();
+
         _return = true;
+
+        // Update the guide-points
+        this.updateGuidePoints();
+        this.drawGuideLines();
       }
 
       if (state.isDragging) {
@@ -803,7 +876,15 @@ export default {
 
         state.isDragging = false;
 
+        // Scaling points where hidden while moving selection
+        ShowTransformPoints();
+        RemoveShadowPaths();
+
         _return = true;
+
+        // Update the guide-points
+        this.updateGuidePoints();
+        this.drawGuideLines();
       }
 
       // Update transform box with new rectangle
@@ -819,6 +900,35 @@ export default {
 //#region Mouse drag
     let mouseDrag = (e) => {
       mouseDelta = e.point.subtract(_lastMousePos);
+      if(Data.SNAP_MOVE && (state.isDragging || state.isScaling)) {
+        let snappedY = false;
+        let snappedX = false;
+
+        // Snapping y-axis
+        if(mouseDelta.y != 0) {
+          // Check for top snap
+          let [guided, _, _snapY] = this.getGuidedPosition(e.point.add(state.snapVecTopY))
+          mouseDelta.y = guided.subtract(transformRect.bounds.topCenter).y;
+
+          //If top hasn't snapped, check for bottom snap
+          if(!_snapY) {
+            mouseDelta.y = this.getGuidedPosition(e.point.add(state.snapVecBottomY))[0].subtract(transformRect.bounds.bottomCenter).y;
+          }
+        }
+
+        //Snapping x-axis
+        if(mouseDelta.x != 0) {
+          // Check for left snap
+          let [guided, _snapX, _] = this.getGuidedPosition(e.point.add(state.snapVecLeftX))
+          mouseDelta.x = guided.subtract(transformRect.bounds.leftCenter).x;
+
+          // If left hasn't snapped, check for right snap
+          if(!_snapX) {
+            mouseDelta.x = this.getGuidedPosition(e.point.add(state.snapVecRightX))[0].subtract(transformRect.bounds.rightCenter).x;
+          }
+        }
+      }
+
       _lastMousePos = e.point;
 
       var path = transformRect;
@@ -841,6 +951,13 @@ export default {
 
       // User is scaling the selection
       if (state.isScaling) {
+        // Add snapping if enabled
+        if(Data.SNAP_SCALE) {
+          if(Math.abs(transform.scale_facH) > 0.1 && Math.abs(transform.scale_facW) > 0.1) {
+            e.point = this.getGuidedPosition(e.point)[0];
+          }
+        }
+        
         let bounds = transformRect.bounds;
 
         if (!lockScaleY) {
@@ -935,10 +1052,12 @@ export default {
 
         let selection = getUngrouped(getSelection());
         for (var i = 0; i < selection.length; i++) {
-          SelectShape(selection[i]);
+          selection[i].selected = true;
         }
 
         updateTransformBox(getBounds(getSelection()));
+        this.updateGuidePoints();
+        this.drawGuideLines();
       }
     });
 
@@ -1063,6 +1182,10 @@ export default {
         for (var i = 0; i < getSelection().length; i++) {
           SelectShape(getSelection()[i]);
         }
+
+        // There could've been drawn a new shape
+        this.updateGuidePoints();
+        this.drawGuideLines();
 
         drawTransformBox(getBounds(getSelection()));
       }

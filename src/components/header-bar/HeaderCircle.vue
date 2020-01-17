@@ -27,7 +27,7 @@
       <div>
         WIDTH
       </div>
-      <width-input2 v-bind:parentWidth="width" @value-change="widthChange" />
+      <width-input2 start-value="1" v-bind:parentWidth="width" @value-change="widthChange" />
     </div>
 
     <div class="opacity">

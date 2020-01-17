@@ -27,7 +27,7 @@
       <div>
         WIDTH
       </div>
-      <width-input2 v-bind:parentWidth="width" @value-change="widthChange" />
+      <width-input2 start-value="1" v-bind:parentWidth="width" @value-change="widthChange" />
     </div>
 
     <div class="opacity">
@@ -193,7 +193,7 @@ export default {
   justify-content: space-evenly;
   align-items: center;
   width: 14%;
-  height: 100%;
+  height: 60%;
   border-right: 1px solid rgb(133, 133, 133);
 }
 .width > div {

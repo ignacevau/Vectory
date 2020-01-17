@@ -27,7 +27,7 @@
       <div class="border"></div>
 
       <div class="pr-left"></div>
-      <div v-if="showText" class="pr-middle">Type</div>
+      <div v-if="showText" class="pr-middle">Cap</div>
       <div class="pr-right">
         <cap-style v-bind:parentCap="capStyle" @value-change="capChange" />
       </div>

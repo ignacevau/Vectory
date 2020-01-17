@@ -1,7 +1,8 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import { bus, Layer, ShapeGroup } from '@/main.js'
+import Vue from 'vue';
+import Vuex from 'vuex';
+import { bus, Layer, ShapeGroup } from '@/main.js';
 import { project } from 'paper';
+import Utils from '@/Utils.js';
 
 Vue.use(Vuex)
 
@@ -10,6 +11,7 @@ export default new Vuex.Store({
     ACTIVE_TOOL: 'select',
 
     LAYER_WINDOW_ACTIVE: false,
+    SCREEN_BORDER: null,
 
     TOOLSELECT: null,
     TOOLPOINTER: null,
@@ -51,12 +53,73 @@ export default new Vuex.Store({
 
     // General
     LAYERS: [],
-    SELECTED_LAYER_INDEX: 1
+    SELECTED_LAYER_INDEX: 1,
+
+    // Guide Shapes
+    GUIDE_X_VALUES: [],
+    GUIDE_Y_VALUES: [],
+    GUIDE_LINES: []
   },
   mutations: {
+    // File settings
+    SET_SCREEN_BORDER: function(state, path) {
+      state.SCREEN_BORDER = path;
+    },
+    EXPORT_SVG: function(state) {
+      let data = [];
+      let objects = Utils.getUngrouped(state.OBJECTS);
+      for(let i=0; i<objects.length; i++) {
+        let item = objects[i];
+
+        let itemData = {
+          svg: item.exportSVG({asString: true}),
+          selectable: item.selectable,
+          type: item.type
+        };
+
+        data.push(itemData);
+      }
+
+      Utils.download('project', data);
+    },
+    IMPORT_SVG: function(state) {
+      let _file_input = document.createElement('input');
+      _file_input.type = 'file';
+
+      _file_input.addEventListener('change', (e) => {
+          let _file = e.target.files[0];
+
+          project.clear();
+          state.OBJECTS = [];
+          state.SELECTED = [];
+
+          let fs = new FileReader();
+          fs.onload = () => {
+            let data = JSON.parse(fs.result);
+
+            // Add every shape from the file
+            Object.keys(data).forEach(function(key, index) {
+              if(data[key].type != "group") {
+                project.importSVG(data[key].svg, {onLoad: (item) => {
+                  item.selectable = data[key].selectable;
+                  item.type = data[key].type;
+
+                  state.OBJECTS.push(item);
+                }})
+              }
+            });
+          }
+          fs.readAsText(_file);
+
+          _file_input = null;
+      });
+
+      _file_input.click();
+    },
+
     // --- Tools ---
     SET_ACTIVE: function(state, type) {
-      var old = state.ACTIVE_TOOL
+      let old = state.ACTIVE_TOOL
       state.ACTIVE_TOOL = type;
 
       if(old == "select" && type != "select") {
@@ -303,13 +366,31 @@ export default new Vuex.Store({
     },
     SET_SELECTED_LAYER_INDEX(state, value) {
       state.SELECTED_LAYER_INDEX = value;
+    },
+
+    // -- Guidelines --
+    SET_GUIDE_X_VALUES(state, values) {
+      state.GUIDE_X_VALUES = values;
+    },
+    SET_GUIDE_Y_VALUES(state, values) {
+      state.GUIDE_Y_VALUES = values;
+    },
+    ADD_GUIDE_LINES(state, lines) {
+      state.GUIDE_LINES.push(...lines);
+    },
+    CLEAR_GUIDE_LINES(state) {
+      for(let i=0; i<state.GUIDE_LINES.length; i++) {
+        state.GUIDE_LINES[i].remove();
+      }
+
+      state.GUIDE_LINES = [];
     }
   },
   getters: {
     clamp: () => (value, min, max) => {
       if(value < min){
         return min;
-      } else if(value > max){
+      } else if(value > max) {
         return max;
       }
       return value;

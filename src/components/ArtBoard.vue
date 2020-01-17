@@ -16,7 +16,8 @@ export default {
   computed: {
     ...mapState([
       "SELECTED_LAYER_INDEX",
-      "LAYERS"
+      "LAYERS",
+      'SCREEN_BORDER'
       ])
   },
   methods: {
@@ -32,7 +33,8 @@ export default {
       "INSERT_LAYER",
       "SET_SELECTED_LAYER_INDEX",
       "SWAP_LAYERS",
-      "REFRESH_LAYER_ARRAY"
+      "REFRESH_LAYER_ARRAY",
+      "SET_SCREEN_BORDER"
     ])
   },
   mounted: function() {
@@ -54,16 +56,20 @@ export default {
 
     let border_w = Data.DOCUMENT_WIDTH;
     let border_h = Data.DOCUMENT_HEIGHT;
-    const SCREEN_BORDER = Path.Rectangle({
+
+    // Set the screen border
+    this.SET_SCREEN_BORDER(new Path.Rectangle({
       point: [
         Data.CENTER_HOR - border_w/2, 
         Data.CENTER_VER - border_h/2
       ],
       size: [border_w, border_h],
       strokeColor: '#969696'
-    });
+    }));
+
+    // Create UI layer and add screen border
     const UI_LAYER = project.addLayer(new Layer({
-      children: [SCREEN_BORDER]
+      children: [this.SCREEN_BORDER]
     }));
 
     const toolSelect = new Tool();
