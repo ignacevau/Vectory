@@ -909,7 +909,7 @@ export default {
 //#region Mouse drag
     let mouseDrag = (e) => {
       mouseDelta = e.point.subtract(_lastMousePos);
-      if(Data.SNAP_MOVE && (state.isDragging || state.isScaling)) {
+      if(Data.SNAP_MOVE && state.isDragging) {
         let snapY = null;
         let snapX = null;
 
@@ -1005,7 +1005,25 @@ export default {
         // Add snapping if enabled
         if(Data.SNAP_SCALE) {
           if(Math.abs(transform.scale_facH) > 0.1 && Math.abs(transform.scale_facW) > 0.1) {
-            e.point = this.getGuidedPosition(e.point)[0];
+            let [guided, xsnapped, ysnapped] = this.getGuidedPosition(e.point);
+            if (xsnapped) {
+              this.drawGuideLines([guided.x], null);
+              this.snappedX = true;
+            }
+            else if(this.snappedX) {
+              this.snappedX = false;
+              this.clearGuideLinesX();
+            }
+            if (ysnapped) {
+              this.drawGuideLines(null, [guided.y]);
+              this.snappedY = true;
+            }
+            else if(this.snappedY) {
+              this.snappedY = false;
+              this.clearGuideLinesY();
+            }
+
+            e.point = guided;
           }
         }
         
