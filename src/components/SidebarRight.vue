@@ -14,14 +14,12 @@
       <div class="tab">
         <div class="title"><span>PROPERTIES</span></div>
 
-          <div class="large-grid">
-            <div class="gr-left"></div>
+          <div v-bind:class="{ 'large-grid': textActive, 'small-grid': !textActive, 'grid-container': true }">
+            <div class="pr-left"></div>
 
-            <div class="gr-middle">
-              <div v-if="textActive">Opacity</div>
-            </div>
+            <div class="pr-middle" v-if="textActive">Opacity</div>
             
-            <div class="gr-right">
+            <div class="pr-right">
               <click-slider v-bind:parentValue="opacity" @value-change="sliderChange" />
             </div>
             
@@ -248,33 +246,69 @@ export default {
   margin-top: 8px;
   font-family: Arial, Helvetica, sans-serif;
 }
+// .large-grid {
+//   margin-top: 5px;
+//   margin-bottom: 15px;
+//   height: 4vh;
+//   display: grid;
+//   grid-template-columns: 0.1fr 1fr 1fr;
+//   grid-template-rows: 1fr;
+//   grid-template-areas: ". . .";
+//   border-bottom: 1px solid rgb(116, 116, 116);
+
+//   .gr-left {
+//     width: 30px;
+//   }
+//   .gr-middle {
+//     display: flex;
+//     justify-content: flex-end;
+//     align-items: center;
+
+//     >div {
+//       font-size: 0.9em;
+//       font-family: Montserrat;
+//     }
+//   }
+//   .gr-right {
+//     display: flex;
+//     justify-content: center;
+//     align-items: center;
+//   }
+// }
 .large-grid {
-  margin-top: 5px;
-  margin-bottom: 15px;
+  margin-top: 10px;
   height: 4vh;
   display: grid;
   grid-template-columns: 0.1fr 1fr 1fr;
-  grid-template-rows: 1fr;
-  grid-template-areas: ". . .";
-  border-bottom: 1px solid rgb(116, 116, 116);
-
-  .gr-left {
-    width: 30px;
-  }
-  .gr-middle {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-
-    >div {
-      font-size: 0.9em;
-      font-family: Montserrat;
-    }
-  }
-  .gr-right {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+  grid-template-rows: 0.5fr 1fr 1fr 1fr;
+  grid-template-areas: ". . ." ". . ." ". . .";
+}
+.small-grid {
+  margin-top: 10px;
+  height: 4vh;
+  display: grid;
+  grid-template-columns: 0.1fr 1fr;
+  grid-template-rows: 0.5fr 1fr 1fr 1fr;
+  grid-template-areas: ". ." ". ." ". .";
+}
+.img-stroke {
+  max-height: 0.8em;
+}
+.grid-container > div {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.grid-container .pr-left {
+  width: 30px;
+}
+.grid-container .pr-middle {
+  justify-content: flex-end;
+  font-size: 0.9em;
+  font-family: Montserrat;
+}
+.grid-container div:first-child {
+  height: 20px;
 }
 </style>
