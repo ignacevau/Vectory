@@ -184,6 +184,7 @@ export default {
       }
 
       if(first_index != -1 && second_index != -1) {
+        this.LAYERS[second_index].insertAbove(this.LAYERS[first_index]);
         this.SWAP_LAYERS({first_index, second_index});
       }
     });
@@ -208,6 +209,7 @@ export default {
       }
 
       if(first_index != -1 && second_index != -1) {
+        this.LAYERS[first_index].insertAbove(this.LAYERS[second_index]);
         this.SWAP_LAYERS({first_index, second_index});
       }
     });
@@ -276,7 +278,6 @@ export default {
         bus.$emit("delete_selection");
 
         this.updateGuidePoints();
-        this.drawGuideLines();
 
       } else if (!keys.shift && e.code == "ShiftLeft") {
         keys.shift = true;

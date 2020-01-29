@@ -2,16 +2,18 @@
   <div class="header-select">
     <div class="section">
 
-      <div>
-        FLIP
-      </div>
-
-      <div class="button-holder">
-        <div class="flip left">
-         <img @click="flipHor" src="@/assets/flip-hor.png" />
+      <div class="flip-container">
+        <div>
+          FLIP
         </div>
-        <div class="flip right">
-          <img @click="flipVer" src="@/assets/flip-ver.png" />
+
+        <div class="button-holder">
+          <div class="flip left">
+          <img @click="flipHor" src="@/assets/flip-hor.png" />
+          </div>
+          <div class="flip right">
+            <img @click="flipVer" src="@/assets/flip-ver.png" />
+          </div>
         </div>
       </div>
 
@@ -55,43 +57,51 @@ export default {
 
 .section {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: center;
   align-items: center;
   width: 14%;
   height: 60%;
   border-right: 1px solid rgb(133, 133, 133);
   font-size: 0.75em;
 
-  .button-holder {
+  .flip-container {
     display: flex;
-  }
-
-  .flip {
-    width: 2.5em;
-    height: 1.5em;
-    background-color: $LightGray_Btn;
-    display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
+    height: 100%;
+    width: 80%;
 
-    img {
-      max-height: 100%;
+    .button-holder {
+      display: flex;
     }
 
-    &:hover {
-      background-color: $ThemeBlue;
+    .flip {
+      width: 2.5em;
+      height: 1.5em;
+      background-color: $LightGray_Btn;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      img {
+        max-height: 100%;
+      }
+
+      &:hover {
+        background-color: $ThemeBlue;
+      }
     }
-  }
 
-  .left {
-    border-top-left-radius: 3px;
-    border-bottom-left-radius: 3px;
-  }
+    .left {
+      border-top-left-radius: 3px;
+      border-bottom-left-radius: 3px;
+    }
 
-  .right {
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
-    border-left: 1px solid rgb(126, 126, 126);
+    .right {
+      border-top-right-radius: 3px;
+      border-bottom-right-radius: 3px;
+      border-left: 1px solid rgb(126, 126, 126);
+    }
   }
 }
 </style>

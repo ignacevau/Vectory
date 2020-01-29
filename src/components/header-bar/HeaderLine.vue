@@ -1,33 +1,40 @@
 <template>
   <div class="header-line">
-    <div class="color">
-      <div class="color-selector">
-        <div>
-          <span>
-            <img src="@/assets/stroke.png" />
-          </span>
+
+    <div class="color-container">
+      <div class="color">
+        <div class="color-selector">
+          <div>
+            <span>
+              <img src="@/assets/stroke.png" />
+            </span>
+          </div>
         </div>
-      </div>
 
-      <div class="color-text">
-         {{ colorType }}
-      </div>
+        <div class="color-text">
+          {{ colorType }}
+        </div>
 
-      <color-trigger v-bind:parentColor="color" @value-change="colorChange" />
+        <color-trigger v-bind:parentColor="color" @value-change="colorChange" />
+      </div>
     </div>
 
-    <div class="width">
-      <div>
-        WIDTH
+    <div class="width-container">
+      <div class="width">
+        <div>
+          WIDTH
+        </div>
+        <width-input2 start-value="1" v-bind:parentWidth="width" @value-change="widthChange" />
       </div>
-      <width-input2 start-value="1" v-bind:parentWidth="width" @value-change="widthChange" />
     </div>
 
-    <div class="opacity">
-      <div>
-        OPACITY
+    <div class="opacity-container">
+      <div class="opacity">
+        <div>
+          OPACITY
+        </div>
+        <click-slider v-bind:parentOpacity="opacity" @value-change="sliderChange" />
       </div>
-      <click-slider v-bind:parentOpacity="opacity" @value-change="sliderChange" />
     </div>
     
   </div>
@@ -107,16 +114,68 @@ export default {
   width: 55em;
   display: flex;
   align-items: center;
+
+    .color-container {
+    width: 14%;
+    height: 60%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-right: 1px solid rgb(133, 133, 133);
+
+    .color {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 85%;
+      height: 100%;
+    }
+  }
+
+  .width-container {
+    width: 14%;
+    height: 60%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-right: 1px solid rgb(133, 133, 133);
+
+
+    .width {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 85%;
+      height: 100%;
+    }
+    .width > div {
+      font-size: 0.7em;
+      margin-top: 2px;
+    }
+  }
+
+  .opacity-container {
+    width: 14%;
+    height: 60%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-right: 1px solid rgb(133, 133, 133);
+
+    .opacity {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 90%;
+      height: 100%;
+    }
+    .opacity > div {
+      font-size: 0.7em;
+      margin-top: 2px;
+    }
+  }
 }
 
-.color {
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  width: 14%;
-  height: 60%;
-  border-right: 1px solid rgb(133, 133, 133);
-}
 .color-text {
   margin-left: -8px;
   width: 40%;
@@ -161,31 +220,5 @@ export default {
 
 .color-selector input:checked ~ span {
   display: none;
-}
-
-.width {
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  width: 14%;
-  height: 60%;
-  border-right: 1px solid rgb(133, 133, 133);
-}
-.width > div {
-  font-size: 0.7em;
-  margin-top: 2px;
-}
-
-.opacity {
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  width: 14%;
-  height: 60%;
-  border-right: 1px solid rgb(133, 133, 133);
-}
-.opacity > div {
-  font-size: 0.7em;
-  margin-top: 2px;
 }
 </style>

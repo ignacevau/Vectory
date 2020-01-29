@@ -1,35 +1,27 @@
 <template>
   <div id="color-picker" class="color-picker" v-bind:style="{ display: show }">
 
-    <div class="picker-handle" v-bind:style="{ marginTop: ph_top + 'px', marginLeft: ph_left + 'px' }"></div>
+    <div id="picker-handle" class="picker-handle" v-bind:style="{ marginTop: ph_top + 'px', marginLeft: ph_left + 'px', backgroundColor: color }"></div>
     <div class="slider-handle" v-bind:style="{ marginTop: sh_top + 'px', marginLeft: sh_left + 'px' }"></div>
 
     <div id="behindScreen" style="width: 100%; height: 100%;" @click="hide()"></div>
-    <div id="container" class="container">
-      <div id="panel">
-        <canvas id="picker"></canvas>
+    <div class="container">
+      <div class="top">
+
       </div>
 
-      <canvas id="slider"></canvas>
+      <div class="middle">
+        <canvas id="picker"></canvas>
+        <canvas id="slider"></canvas>
+      </div>
 
-      <div class="right">
-        <div class="values">
-          <div class="rgb-holder"><span style="width: 2%;">r: </span> <input type="text" style="width: 50%; font-family: Comfortaa;"></div>
-          <div class="rgb-holder"><span style="width: 2%;">g: </span> <input type="text" style="width: 50%; font-family: Comfortaa;"></div>
-          <div class="rgb-holder"><span style="width: 2%;">b: </span> <input type="text" style="width: 50%; font-family: Comfortaa;"></div>
-          <div class="rgb-holder" style="margin-top: 15px;"><span style="width: 2%;">a: </span><input type="text" style="width: 50%; font-family: Comfortaa;"></div>
-        </div>
-
-        <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
-          <div style="font-family: Comfortaa; color: white;">hex:</div>
-          <input type="text" style="width: 80%; font-family: Comfortaa;">
-        </div>
-
-        <div class="buttons">
+      <div class="bottom">
+        <div class="button-container">
           <span class="button" @click="setColor()">ok</span>
           <span class="button" style="margin-left: 5px;" @click="hide()">cancel</span>
         </div>
       </div>
+
     </div>
   </div>
 </template>
@@ -46,7 +38,9 @@ export default {
       ph_left: 0,
 
       sh_top: 0,
-      sh_left: 0
+      sh_left: 0,
+
+      color: "transparent"
     }
   },
   methods: {
@@ -77,8 +71,9 @@ export default {
     var self = this;
 
     this.ph_top = 3;
-    var picker = document.getElementById("picker")
-    var slider = document.getElementById("slider")
+    var picker = document.getElementById("picker");
+    const pickerHandle = document.getElementById("picker-handle");
+    var slider = document.getElementById("slider");
 
     var ctx_slider = slider.getContext('2d')
     var ctx_picker = picker.getContext('2d')
@@ -93,6 +88,9 @@ export default {
   
     drawSliderGrad();
     drawPickerGrad(rgbToHex(...picker_color));
+
+    // Initially hide the picker handle
+    pickerHandle.style.display = "none";
 
     // The position of the picker's handle when adjusting the slider
     var pickerOffPos = {
@@ -111,7 +109,7 @@ export default {
 
     function setSliderHeight() {
       // Manually reset canvas' size to prevent scaling
-      slider.width = window.innerHeight * 0.023;
+      slider.width = window.innerHeight * 0.03;
       slider.height = window.innerHeight * 0.3*0.87 - 4;
     }
 
@@ -199,9 +197,11 @@ export default {
       handlePickerChange(null, pickerOffPos.x, pickerOffPos.y)
     }
 
-    function handlePickerChange(e, _x, _y) {
+    let handlePickerChange = (e, _x, _y) => {
       var x;
       var y;
+
+      pickerHandle.style.display = "";
 
       if(!_x || !_y) {
         x = getMousePos(picker, e).x;
@@ -224,7 +224,8 @@ export default {
         hex: rgbToHex(data[0], data[1], data[2])
       }
 
-      bus.$emit('color_change', color)
+      this.color = color.hex;
+      bus.$emit('color_change', color);
     }
 
 
@@ -291,7 +292,7 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="scss">
 .color-picker {
   position: absolute;
   width: 100vw;
@@ -300,95 +301,92 @@ export default {
   z-index: 10;
 }
 .container {
-  top: 30vh; 
+  top: 30vh;
   left: 35vw;
   position: absolute;
   display: flex;
-  justify-content: flex-start;
+  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  text-align: center;
-  width: 50vh;
-  height: 30vh;
+  width: 32vh;
+  height: 37vh;
   background-color: rgb(100, 100, 100);
-  border-radius: 10px;
-  border: 4px solid rgb(106, 162, 247);
+  border-radius: 5px;
   box-shadow: 0px 0px 40px 5px rgba(0, 0, 0, 0.473);
   cursor: default !important;
-}
-#panel {
-  margin-left: 3%;
-  width: 55%;
-  height: 90%;
-  flex: 0 0 auto;
-  border: 2px solid white;
-}
-#slider {
-  margin-left: 1%;
-}
-.right {
-  width: 34%;
-  height: 90%;
-  margin-left: 2%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: space-between;
-  border-left: 3px solid rgb(106, 162, 247);
-}
-.values {
-  font-family: Comfortaa;
-  color: white;
-}
-.rgb-holder {
-  display: flex; 
-  justify-content: space-around; 
-  margin-top: 3px;
-  margin-left: 10px;
-}
-.buttons {
-  margin-left: 2vw;
-  width: 110%;
-  height: 15%;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-.button {
-  width: 40%;
-  height: 80%;
-  background-color: rgb(202, 202, 202);
-  font-family: Comfortaa;
-  font-size: 0.8em;
-  color: black;
-  text-align: center;
-  line-height: 25px;
-  border-radius: 2px;
-  margin-right: 2px;
-}
-.button:hover {
-  background-color: rgb(112, 153, 214);
-}
-.button:active {
-  background-color: rgb(145, 184, 243);
+
+  canvas {
+    border-radius: 2px;
+  }
+
+  .top {
+    height: 13%;
+    width: 100%;
+    background-color:rgb(49, 49, 49);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+  }
+
+  .middle {
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+    width: 95%;
+    height: 70%;
+  }
+
+  .bottom {
+    width: 80%;
+    height: 13%;
+    border-top: 1px solid rgb(106, 162, 247);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+
+    .button-container {
+      width: 70%;
+      display: flex;
+      justify-content: space-between;
+
+      .button {
+        width: 45%;
+        height: 80%;
+        background-color: rgb(202, 202, 202);
+        font-family: Comfortaa;
+        font-size: 0.8em;
+        color: black;
+        text-align: center;
+        line-height: 25px;
+        border-radius: 2px;
+        margin-right: 2px;
+      }
+      .button:hover {
+        background-color: rgb(112, 153, 214);
+      }
+      .button:active {
+        background-color: rgb(145, 184, 243);
+      }
+    }
+  }
 }
 
 .picker-handle {
   position: absolute;
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  background-color: white;
-  border: 1px solid black;
+  width: 15px;
+  height: 15px;
+  border-radius: 10px;
+  border: 2px solid white;
   z-index: 10;
   pointer-events: none;
 }
 .slider-handle {
   position: absolute;
-  width: 25px;
+  width: 30px;
   height: 4px;
-  border-radius: 5px;
+  border-radius: 1px;
   background-color: white;
-  border: 1px solid rgb(24, 24, 24);
+  // border: 2px solid white;
   z-index: 10;
   pointer-events: none;
 }
