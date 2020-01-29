@@ -12,7 +12,7 @@
         </div>
         
         <div class="selectall">
-          <img v-bind:src="imgUrlSelect()" v-on:click="triggerSelect" />
+          <img v-bind:src="imgUrlSelect()" v-on:mousedown="selectDown" v-on:mouseup="selectUp" v-on:mouseleave="mouseLeaveSelect" />
         </div>
       </div>
     </label>
@@ -47,7 +47,8 @@ export default {
   },
   methods: {
     ...mapMutations([
-      'SELECT_LAYER'
+      'SELECT_LAYER',
+      'LAYER_SELECT_ALL'
     ]),
     imgUrlEye: function() {
       return images('./eye-' + this.eyeState + '.png')
@@ -61,8 +62,17 @@ export default {
     triggerEye: function() {
       this.eyeState = this.eyeState == 'visible' ? 'invisible' : 'visible'
     },
-    triggerSelect: function() {
-      this.selectState = this.selectState == 'fill' ? 'stroke' : 'fill'
+    selectDown: function() {
+      this.selectState = 'fill';
+    },
+    selectUp: function() {
+      this.selectState = 'stroke';
+      this.LAYER_SELECT_ALL(this.number);
+    },
+    mouseLeaveSelect: function() {
+      if (this.selectState = 'fill') {
+        this.selectState = 'stroke';
+      }
     }
   }
 }

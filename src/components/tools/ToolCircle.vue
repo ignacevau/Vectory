@@ -31,7 +31,7 @@ export default {
       'SET_ACTIVE',
       'ADD_SHAPE',
       'ADD_SELECT',
-      'CLEAR_SELECT'
+      'DESELECT'
     ]),
     setActive: function() {
       this.SET_ACTIVE("circle")
@@ -43,7 +43,7 @@ export default {
     let newPath, oldPath, startPoint;
 
     this.TOOLCIRCLE.onMouseDown = (e) => {
-      this.CLEAR_SELECT();
+      this.DESELECT();
 
       newPath = new Path();
 

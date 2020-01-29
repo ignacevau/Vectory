@@ -1,7 +1,7 @@
 <template>
   <div id="color-picker" class="color-picker" v-bind:style="{ display: show }">
 
-    <div id="picker-handle" class="picker-handle" v-bind:style="{ marginTop: ph_top + 'px', marginLeft: ph_left + 'px', backgroundColor: color }"></div>
+    <div id="pickerHandle" class="picker-handle" v-bind:style="{ marginTop: ph_top + 'px', marginLeft: ph_left + 'px', backgroundColor: color }"></div>
     <div class="slider-handle" v-bind:style="{ marginTop: sh_top + 'px', marginLeft: sh_left + 'px' }"></div>
 
     <div id="behindScreen" style="width: 100%; height: 100%;" @click="hide()"></div>
@@ -10,15 +10,27 @@
 
       </div>
 
-      <div class="middle">
+      <div class="middle-top">
+        <div class="hex-container">
+          <div class="color-preview" v-bind:style="{backgroundColor: color}"></div>
+
+          <div class="hex-input">
+            <div class="hashtag">#</div>
+            <input v-model="hexColor" type="text" />
+          </div>
+        </div>
+        <hr />
+      </div>
+
+      <div class="middle-canvas">
         <canvas id="picker"></canvas>
         <canvas id="slider"></canvas>
       </div>
 
       <div class="bottom">
         <div class="button-container">
-          <span class="button" @click="setColor()">ok</span>
-          <span class="button" style="margin-left: 5px;" @click="hide()">cancel</span>
+          <span class="button" @click="setColor()">OK</span>
+          <span class="button" style="margin-left: 5px;" @click="hide()">CANCEL</span>
         </div>
       </div>
 
@@ -40,20 +52,53 @@ export default {
       sh_top: 0,
       sh_left: 0,
 
-      color: "transparent"
+      color: "transparent",
+      hexColor: ""
+    }
+  },
+  watch: {
+    hexColor: function(_new, _old) {
+      let hex = _new.startsWith("#") ? _new.substring(1) : _new;
+
+      this.color = "#" + hex;
+      console.log(hex)
+      let color = {hex: this.color, rgb: this.hexToRgb(this.color)}
+      bus.$emit('color_change', color);
+      if(_new.startsWith("#"))
+        this.hidePickerHandle();
     }
   },
   methods: {
     ...mapMutations([
       'HIDE_COLORPICKER'
     ]),
+    updateHexColor: function(hex) {
+      this.hexColor = hex.substring(1);
+    },
     hide: function() {
       bus.$emit('hide_colorpicker')
       this.HIDE_COLORPICKER();
     },
+    hidePickerHandle: function() {
+      document.getElementById("pickerHandle").style.display = "none";
+    },
     setColor: function() {
       bus.$emit('set_color');
       this.hide();
+    },
+    hexToRgb: function(hex) {
+      // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+      let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+      hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+      });
+
+      let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        0: parseInt(result[1], 16),
+        1: parseInt(result[2], 16),
+        2: parseInt(result[3], 16)
+      } : null;
     }
   },
   computed: {
@@ -72,7 +117,7 @@ export default {
 
     this.ph_top = 3;
     var picker = document.getElementById("picker");
-    const pickerHandle = document.getElementById("picker-handle");
+    const pickerHandle = document.getElementById("pickerHandle");
     var slider = document.getElementById("slider");
 
     var ctx_slider = slider.getContext('2d')
@@ -105,12 +150,18 @@ export default {
       // Manually reset canvas' size to prevent scaling
       picker.width = window.innerHeight * 0.3*0.9 - 4;
       picker.height = window.innerHeight * 0.3*0.87 - 4;
+
+      picker.style.width = picker.width + 'px';
+      picker.style.height = picker.height + 'px';
     }
 
     function setSliderHeight() {
       // Manually reset canvas' size to prevent scaling
       slider.width = window.innerHeight * 0.03;
       slider.height = window.innerHeight * 0.3*0.87 - 4;
+
+      slider.style.width = slider.width + 'px';
+      slider.style.height = slider.height + 'px';
     }
 
     let setSliderHandle = () => {
@@ -224,8 +275,7 @@ export default {
         hex: rgbToHex(data[0], data[1], data[2])
       }
 
-      this.color = color.hex;
-      bus.$emit('color_change', color);
+      this.updateHexColor(color.hex);
     }
 
 
@@ -309,7 +359,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   width: 32vh;
-  height: 37vh;
+  height: 45vh;
   background-color: rgb(100, 100, 100);
   border-radius: 5px;
   box-shadow: 0px 0px 40px 5px rgba(0, 0, 0, 0.473);
@@ -320,46 +370,115 @@ export default {
   }
 
   .top {
-    height: 13%;
+    height: 10%;
     width: 100%;
     background-color:rgb(49, 49, 49);
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
   }
 
-  .middle {
+  .middle-top {
+    width: 100%;
+    height: 14%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 7px;
+
+    hr {
+      width: 100%;
+      border: 1px solid rgb(131, 131, 131);
+      border-top: 0px;
+      margin: 0;
+    }
+
+    .hex-container {
+      width: 90%;
+      height: 90%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .color-preview {
+        width: 4vh;
+        height: 4vh;
+        background-color: red;
+        border-radius: 3px;
+      }
+
+      .hex-input {
+        height: 60%;
+        width: 60%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-right: 2.5vw;
+
+        .hashtag {
+          font-size: 1.3em;
+          width: 10%;
+          color: rgb(202, 202, 202);
+          font-family: Comfortaa;
+        }
+
+        input {
+          width: 85%;
+          height: 100%;
+          border-radius: 3px;
+          border: 0px;
+          background-color:rgb(128, 128, 128);
+          color:rgb(202, 202, 202);
+          font-size: 1em;
+          font-family: Comfortaa;
+          padding-left: 15px;
+          letter-spacing: 1px;
+          user-select: all;
+          text-transform: uppercase;
+        }
+
+        input:focus {
+          color: white;
+        }
+      }
+    }
+  }
+
+  .middle-canvas {
     display: flex;
     justify-content: space-between;
     align-content: center;
-    width: 95%;
-    height: 70%;
+    width: 94%;
+    height: 59%;
   }
 
   .bottom {
-    width: 80%;
-    height: 13%;
-    border-top: 1px solid rgb(106, 162, 247);
+    width: 100%;
+    height: 12%;
     display: flex;
     justify-content: center;
     align-items: center;
-
+    background-color: #424242;
+    border-top: 1px solid rgb(112, 153, 214);
+    border-radius: 2px;
 
     .button-container {
       width: 70%;
+      height: 100%;
       display: flex;
       justify-content: space-between;
+      align-items: center;
 
       .button {
-        width: 45%;
-        height: 80%;
+        width: 48%;
+        height: 55%;
         background-color: rgb(202, 202, 202);
         font-family: Comfortaa;
-        font-size: 0.8em;
-        color: black;
+        font-size: 0.7em;
+        color: rgb(27, 27, 27);
         text-align: center;
-        line-height: 25px;
+        line-height: 2.1em;
         border-radius: 2px;
-        margin-right: 2px;
       }
       .button:hover {
         background-color: rgb(112, 153, 214);
@@ -386,7 +505,6 @@ export default {
   height: 4px;
   border-radius: 1px;
   background-color: white;
-  // border: 2px solid white;
   z-index: 10;
   pointer-events: none;
 }

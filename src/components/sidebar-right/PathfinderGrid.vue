@@ -1,11 +1,13 @@
 <template>
   <div class="pathfinder">
-    <div v-bind:class="{ grouping:true, row: showText, column:!showText }">
-      <div class="button" @click="createGroup">
-        GROUP
-      </div>
-      <div class="button" @click="removeGroup">
-        UNGROUP
+    <div class="row-container">
+      <div v-bind:class="{ grouping:true, row: showText, column:!showText }">
+        <div class="button" @click="createGroup">
+          GROUP
+        </div>
+        <div class="button" @click="removeGroup">
+          UNGROUP
+        </div>
       </div>
     </div>
 
@@ -95,9 +97,17 @@ export default {
   width: 100%;
   height: 100%;
 
-  .row {
-    flex-direction: row;
-    justify-content: space-evenly;
+  .row-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+
+    .row {
+      width: 85%;
+      flex-direction: row;
+      justify-content: space-between;
+    }
   }
 
   .column {

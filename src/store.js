@@ -164,36 +164,60 @@ export default new Vuex.Store({
 
     // --- Selection ---
     ADD_SELECT: (state, shape) => {
-      state.SELECTED.push(shape);
+      if(!state.SELECTED.includes(shape))
+        state.SELECTED.push(shape);
     },
-    CLEAR_SELECT: (state) => {
-        state.SELECTED = [];
+    DESELECT: (state, shapes=null) => {
+      if(shapes == null)
+        shapes = [...state.SELECTED]
+
+      for(var i=shapes.length-1; i>=0; i--) {
+        shapes[i].selected = false;
+
+        // Find the shape in the selected array
+        let index_sel = state.SELECTED.findIndex(x => x === shapes[i]);
+
+        // Remove it from selection array
+        if(index_sel >= 0)
+          state.SELECTED.splice(index_sel, 1);
+      }
     },
-    DELETE_SHAPES: (state, shapes=state.SELECTED) => {
-      // Count from end to begin to allow pop()
+    DELETE_SHAPES: (state, shapes=null) => {
+      if(shapes == null)
+        shapes = [...state.SELECTED];
+
       for(var i=shapes.length-1; i>=0; i--) {
         // Destroy the shape (it's still in the objects and the selection array)
         shapes[i].remove();
 
         // Find the shape in the objects array
-        var index = state.OBJECTS.findIndex(x => x === shapes[i]);
-        // Remove it
-        state.OBJECTS.splice(index, 1);
+        let index_obj = state.OBJECTS.findIndex(x => x === shapes[i]);
+        // Find the shape in the selected array
+        let index_sel = state.SELECTED.findIndex(x => x === shapes[i]);
 
-        // Remove the shape from the selection array
-        shapes.pop();
+        // Remove it from the objects array
+        state.OBJECTS.splice(index_obj, 1);
+        // Remove it from selection array
+        if(index_sel >= 0)
+          state.SELECTED.splice(index_sel, 1);
       }
     },
-    DISCARD_SHAPES(state, shapes=[...state.SELECTED]) {
-      // Count from end to begin to allow pop()
+    // Remove shapes from the objects and selection array WITHOUT DESTROYING THEM
+    DISCARD_SHAPES(state, shapes=null) {
+      if(shapes == null)
+        shapes = [...state.SELECTED];
+
       for(var i=shapes.length-1; i>=0; i--) {
         // Find the shape in the objects array
-        var index = state.OBJECTS.findIndex(x => x === shapes[i]);
-        // Remove it
-        state.OBJECTS.splice(index, 1);
-
-        // Remove the shape from the selection array
-        shapes.pop();
+        let index_obj = state.OBJECTS.findIndex(x => x === shapes[i]);
+        // Find the shape in the selected array
+        let index_sel = state.SELECTED.findIndex(x => x === shapes[i]);
+        
+        // Remove it from objects array
+        state.OBJECTS.splice(index_obj, 1);
+        // Remove it from selection array
+        if(index_sel >= 0)
+          state.SELECTED.splice(index_sel, 1);
       }
     },
 
@@ -338,6 +362,9 @@ export default new Vuex.Store({
     },
     SELECT_LAYER(state, number) {
       bus.$emit('update-active-layer', number);
+    },
+    LAYER_SELECT_ALL(state, number) {
+      bus.$emit('layer-select-all', number);
     },
     REMOVE_LAYER(state) {
       if(state.SELECTED_LAYER_INDEX != 0) {

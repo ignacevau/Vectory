@@ -31,7 +31,7 @@ export default {
       'SET_ACTIVE',
       'ADD_SHAPE',
       'ADD_SELECT',
-      'CLEAR_SELECT'
+      'DESELECT'
     ]),
     setActive: function() {
       this.SET_ACTIVE("pen")
@@ -44,7 +44,7 @@ export default {
     var delta = 0;
 
     this.TOOLPEN.onMouseDown = (e) => {
-      this.CLEAR_SELECT();
+      this.DESELECT();
 
       newPath = new Path();
       newPath.strokeColor = this.PEN_STROKECOLOR

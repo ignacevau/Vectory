@@ -30,7 +30,7 @@ export default {
       'SET_ACTIVE',
       'ADD_SHAPE',
       'ADD_SELECT',
-      'CLEAR_SELECT'
+      'DESELECT'
     ]),
     setActive: function() {
       this.SET_ACTIVE("line")
@@ -47,7 +47,7 @@ export default {
     var delta;
 
     this.TOOLLINE.onMouseDown = (e) => {
-      this.CLEAR_SELECT();
+      this.DESELECT();
 
       newPath = new Path();
 

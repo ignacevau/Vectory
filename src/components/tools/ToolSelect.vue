@@ -38,7 +38,7 @@ export default {
     ...mapMutations([
       "SET_ACTIVE",
       "ADD_SELECT",
-      "CLEAR_SELECT",
+      "DESELECT",
       "ADD_ACTION",
       "UNDO"
     ]),
@@ -704,7 +704,7 @@ export default {
 
       // Mouse is not over a shape
       if (!state.isHovering) {
-        this.CLEAR_SELECT();
+        this.DESELECT();
       }
 
       // Mouse is over a shape
@@ -722,7 +722,7 @@ export default {
           else {
             project.deselectAll();
 
-            this.CLEAR_SELECT();
+            this.DESELECT();
 
             SelectShape(hoverItem);
           }
@@ -733,7 +733,7 @@ export default {
 
       if (!e.item) {
         project.deselectAll();
-        this.CLEAR_SELECT();
+        this.DESELECT();
         selectRectAnchor = e.point;
         state.isSelecting = true;
       }
@@ -1131,7 +1131,7 @@ export default {
 
     // - delete key pressed -
     bus.$on("delete_selection", () => {
-      this.CLEAR_SELECT();
+      this.DESELECT();
       hideTransformBox();
     });
 
@@ -1239,7 +1239,7 @@ export default {
       }
 
       if (this.ACTIVE_TOOL != "pointer") {
-        this.CLEAR_SELECT();
+        this.DESELECT();
       }
 
       hideTransformBox();

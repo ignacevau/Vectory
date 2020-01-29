@@ -19,7 +19,9 @@ export default {
     ...mapState([
       "SELECTED_LAYER_INDEX",
       "LAYERS",
-      'SCREEN_BORDER'
+      'SCREEN_BORDER',
+      'OBJECTS',
+      'ACTIVE_TOOL'
       ])
   },
   methods: {
@@ -36,7 +38,8 @@ export default {
       "SET_SELECTED_LAYER_INDEX",
       "SWAP_LAYERS",
       "REFRESH_LAYER_ARRAY",
-      "SET_SCREEN_BORDER"
+      "SET_SCREEN_BORDER",
+      "ADD_SELECT"
     ])
   },
   mounted: function() {
@@ -141,6 +144,21 @@ export default {
       this.SET_SELECTED_LAYER_INDEX(number);
     };
 
+    let LayerSelectAll = (number) => {
+      let _children = layerLayout[number].children;
+      for(let i=0; i<this.OBJECTS.length; i++) {
+        if(_children.includes(this.OBJECTS[i])) {
+          this.ADD_SELECT(this.OBJECTS[i]);
+          this.OBJECTS[i].selected = true;
+        }
+      }
+
+      if(this.ACTIVE_TOOL == 'select') {
+        bus.$emit('hide-transformbox');
+        bus.$emit('activate-select');
+      }
+    }
+
     let getLayersFiltered = () => {
       return this.LAYERS.filter(function(el) {
         return !el.data.deleted;
@@ -165,6 +183,9 @@ export default {
     });
     bus.$on("update-active-layer", (number) => {
       UpdateActiveLayer(number);
+    });
+    bus.$on("layer-select-all", (number) => {
+      LayerSelectAll(number);
     });
     bus.$on('move-layer-up', (number) => {
       let first_index = -1;
