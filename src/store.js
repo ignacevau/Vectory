@@ -304,13 +304,16 @@ export default new Vuex.Store({
             action.data.paths[i].translate(delta);
           }
 
-          state.SELECTED = action.data.paths;
+          state.SELECTED = [...action.data.paths];
           break;
 
         case 'scale':
           var pivot = action.data.pivot;
           var init = action.data.handle_init;
           var end = action.data.handle_end;
+
+          console.log("store: pivot = " + pivot);
+          console.log("end: " + end);
 
           var relH = 1;
           var relW = 1;
@@ -331,11 +334,13 @@ export default new Vuex.Store({
             }
           }
 
+          console.log("relw: " + relW + ", relH: " + relH);
+
           for(var i=0; i<action.data.paths.length; i++) {
             action.data.paths[i].scale(relW, relH, pivot);
           }
 
-          state.SELECTED = action.data.paths;
+          state.SELECTED = [...action.data.paths];
           break;
       }
     },

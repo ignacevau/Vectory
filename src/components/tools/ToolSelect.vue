@@ -574,6 +574,7 @@ export default {
       point = new Point(initTransfData.center.x, initTransfData.center.y);
 
       action.scale.data.pivot = point;
+      console.log("ctrl: pivot =" + point);
 
       mouseDrag(mouseEvent);
     }
@@ -861,6 +862,9 @@ export default {
         if (e.modifiers.shift) {
           action.scale.data.shift = true;
         }
+        if(e.modifiers.control) {
+          action.scale.data.handle_end = transformRect.bounds[transform.dir];
+        }
         this.ADD_ACTION(action.scale);
 
         state.isScaling = false;
@@ -1145,12 +1149,7 @@ export default {
 
         // Scale the selection to its initial size
         let selection = getUngrouped(getSelection());
-        for (var i = 0; i < selection.length; i++) {
-          selection[i].scale(facW_init, facH_init, point);
-        }
 
-        // Resize the transform rect as well
-        transformRect.scale(facW_init, facH_init, point);
         var rel;
 
         if (lockScaleX) {
@@ -1163,13 +1162,16 @@ export default {
 
         var fac = rel / Math.min(initTransfData.width, initTransfData.height);
 
+        transform.scale_facW = facW_init * fac;
+        transform.scale_facH = facH_init * fac;
+
         // Resize the selection to the current size without deformation
         for (var i = 0; i < selection.length; i++) {
-          selection[i].scale(fac, fac, point);
+          selection[i].scale(transform.scale_facW, transform.scale_facH, point);
         }
 
         // Resize transform rect as well
-        transformRect.scale(fac, fac, point);
+        transformRect.scale(transform.scale_facW, transform.scale_facH, point);
 
         mouseDrag(mouseEvent);
       }
