@@ -18,6 +18,7 @@ export default {
   computed: {
     ...mapState([
       "SELECTED_LAYER_INDEX",
+      "SELECTED",
       "LAYERS",
       'SCREEN_BORDER',
       'OBJECTS',
@@ -39,7 +40,9 @@ export default {
       "SWAP_LAYERS",
       "REFRESH_LAYER_ARRAY",
       "SET_SCREEN_BORDER",
-      "ADD_SELECT"
+      "ADD_SELECT",
+      "ADD_ACTION",
+      "SET_UI_LAYER"
     ])
   },
   mounted: function() {
@@ -76,6 +79,8 @@ export default {
     const UI_LAYER = project.addLayer(new Layer({
       children: [this.SCREEN_BORDER]
     }));
+
+    this.SET_UI_LAYER(UI_LAYER);
 
     const toolSelect = new Tool();
     const toolPointer = new Tool();
@@ -293,7 +298,9 @@ export default {
     let keyHandler = e => {
       if (!keys.del && e.code == "Delete" && !keys.control && !keys.shift) {
         keys.del = true;
-        this.DELETE_SHAPES();
+        if(this.SELECTED.length > 0) {
+          this.DELETE_SHAPES({undo: true});
+        }
 
         // Let other components know (ToolSelect -> transform box must disappear)
         bus.$emit("delete_selection");
@@ -308,10 +315,16 @@ export default {
         bus.$emit("control");
       } else if (!keys.z && e.key == "z") {
         keys.z = true;
-      }
 
-      if (keys.z && keys.control) {
-        bus.$emit("undo");
+        if(keys.control) {
+          bus.$emit("undo");
+        }
+      } else if (!keys.z && e.key == "Z") {
+        keys.z = true;
+
+        if(keys.shift && keys.control) {
+          bus.$emit("redo");
+        }
       }
     };
 
@@ -322,8 +335,15 @@ export default {
       if (e.code == "ControlLeft") {
         bus.$emit("control_up");
       }
-
+      if (e.code == "ShiftLeft") {
+        keys.shift = false;
+        return;
+      }
       if (e.key == "z") {
+        keys.z = false;
+        return;
+      }
+      if (e.key == "Z") {
         keys.z = false;
         return;
       }

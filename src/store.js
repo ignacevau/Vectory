@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { bus, Layer, ShapeGroup } from '@/main.js';
+import { bus, Layer, ShapeGroup, Action } from '@/main.js';
 import { project } from 'paper';
 import Utils from '@/Utils.js';
 
@@ -24,7 +24,9 @@ export default new Vuex.Store({
     OBJECTS: [],
     SELECTED: [],
 
+    // Undo and redo
     ACTIONS: [],
+    REDO_ACTIONS: [],
 
     // Window toggles
     COLORPICKER_ACTIVE: false,
@@ -51,9 +53,10 @@ export default new Vuex.Store({
     LINE_OPACITY: 1,
     LINE_STROKECOLOR: 'black',
 
-    // General
+    // Layers
     LAYERS: [],
     SELECTED_LAYER_INDEX: 1,
+    UI_LAYER: null,
 
     // Guide Shapes
     GUIDE_X_VALUES: [],
@@ -182,13 +185,30 @@ export default new Vuex.Store({
           state.SELECTED.splice(index_sel, 1);
       }
     },
-    DELETE_SHAPES: (state, shapes=null) => {
+    DELETE_SHAPES: (state, options={shapes, undo:false}) => {
+      let shapes = options.shapes;
       if(shapes == null)
         shapes = [...state.SELECTED];
 
-      for(var i=shapes.length-1; i>=0; i--) {
-        // Destroy the shape (it's still in the objects and the selection array)
-        shapes[i].remove();
+      let action = null;
+      if(options.undo) {
+        action = new Action("delete", {
+          shapes: shapes,
+          layers: []
+        })
+      }
+
+      for(let i=0; i<shapes.length; i++) {
+        if(options.undo) {
+          action.data.layers.push(shapes[i].layer);
+          shapes[i].visible = false;
+          shapes[i].selectable = false;
+          shapes[i].selected = false;
+        }
+        else {
+          // Destroy the shape (it's still in the objects and the selection array)
+          shapes[i].remove();
+        }
 
         // Find the shape in the objects array
         let index_obj = state.OBJECTS.findIndex(x => x === shapes[i]);
@@ -200,6 +220,11 @@ export default new Vuex.Store({
         // Remove it from selection array
         if(index_sel >= 0)
           state.SELECTED.splice(index_sel, 1);
+      }
+
+      if(options.undo) {
+        state.ACTIONS.push(action);
+        state.REDO_ACTIONS = []
       }
     },
     // Remove shapes from the objects and selection array WITHOUT DESTROYING THEM
@@ -287,18 +312,24 @@ export default new Vuex.Store({
     },
 
     // Add an action to the undo list
-    ADD_ACTION(state, action) {
+    ADD_ACTION(state, action, clear_redo=true) {
       state.ACTIONS.push(action);
+      if(clear_redo)
+        state.REDO_ACTIONS = []
     },
-    UNDO(state) {
-      if(state.ACTIONS.length <= 0) {
+    CLEAR_REDO(state) {
+      state.REDO_ACTIONS = [];
+    },
+    REDO(state) {
+      if(state.REDO_ACTIONS.length <= 0) {
         return;
       }
-      var action = state.ACTIONS.pop();
-      
+
+      let action = state.REDO_ACTIONS.pop();
+
       switch(action.type) {
-        case 'move':
-          var delta = action.data.startPos.subtract(action.data.endPos);
+        case "move":
+          var delta = action.data.endPos.subtract(action.data.startPos);
 
           for(var i=0; i<action.data.paths.length; i++) {
             action.data.paths[i].translate(delta);
@@ -309,11 +340,8 @@ export default new Vuex.Store({
 
         case 'scale':
           var pivot = action.data.pivot;
-          var init = action.data.handle_init;
-          var end = action.data.handle_end;
-
-          console.log("store: pivot = " + pivot);
-          console.log("end: " + end);
+          var end = action.data.handle_init;
+          var init = action.data.handle_end;
 
           var relH = 1;
           var relW = 1;
@@ -334,7 +362,109 @@ export default new Vuex.Store({
             }
           }
 
-          console.log("relw: " + relW + ", relH: " + relH);
+          for(var i=0; i<action.data.paths.length; i++) {
+            action.data.paths[i].scale(relW, relH, pivot);
+          }
+
+          state.SELECTED = [...action.data.paths];
+          break;
+
+        case 'delete':
+          let shapes = action.data.shapes;
+          bus.$emit("redo-delete", (shapes));
+
+          for(let i=0; i<shapes.length; i++) {
+            action.data.layers.push(shapes[i].layer);
+            shapes[i].visible = false;
+            shapes[i].selectable = false;
+            shapes[i].selected = false;
+
+            // Find the shape in the objects array
+            let index_obj = state.OBJECTS.findIndex(x => x === shapes[i]);
+            // Find the shape in the selected array
+            let index_sel = state.SELECTED.findIndex(x => x === shapes[i]);
+
+            // Remove it from the objects array
+            state.OBJECTS.splice(index_obj, 1);
+            // Remove it from selection array
+            if(index_sel >= 0)
+              state.SELECTED.splice(index_sel, 1);
+          }
+
+          // Let other components know (ToolSelect -> transform box must disappear)
+          bus.$emit("delete_selection");
+
+          break;
+      }
+
+      state.ACTIONS.push(action);
+    },
+    UNDO(state) {
+      if(state.ACTIONS.length <= 0) {
+        return;
+      }
+      let action = state.ACTIONS.pop();
+      
+      switch(action.type) {
+        case 'delete':
+          let shapes = [...state.SELECTED];
+          for(var i=shapes.length-1; i>=0; i--) {
+            shapes[i].selected = false;
+    
+            // Find the shape in the selected array
+            let index_sel = state.SELECTED.findIndex(x => x === shapes[i]);
+    
+            // Remove it from selection array
+            if(index_sel >= 0)
+              state.SELECTED.splice(index_sel, 1);
+          }
+
+          for(let i=0; i<action.data.shapes.length; i++) {
+            let shape = action.data.shapes[i];
+            action.data.layers[i].addChild(shape);
+
+            // Add the shape
+            state.OBJECTS.push(shape);
+            state.SELECTED.push(shape);
+            shape.selected = true;
+            shape.selectable = true;
+            shape.visible = true;
+          }
+
+          break;
+        case 'move':
+          var delta = action.data.startPos.subtract(action.data.endPos);
+
+          for(var i=0; i<action.data.paths.length; i++) {
+            action.data.paths[i].translate(delta);
+          }
+
+          state.SELECTED = [...action.data.paths];
+          break;
+
+        case 'scale':
+          var pivot = action.data.pivot;
+          var init = action.data.handle_init;
+          var end = action.data.handle_end;
+
+          var relH = 1;
+          var relW = 1;
+
+          if(!action.data.lockY) {
+            relH = init.subtract(pivot).y / end.subtract(pivot).y;
+          }
+          if (!action.data.lockX) {
+            relW = init.subtract(pivot).x / end.subtract(pivot).x;
+          }
+
+          if(action.data.shift) {
+            if(action.data.lockY) {
+              relH = relW;
+            }
+            else if(action.data.lockX) {
+              relW = relH;
+            }
+          }
 
           for(var i=0; i<action.data.paths.length; i++) {
             action.data.paths[i].scale(relW, relH, pivot);
@@ -343,6 +473,8 @@ export default new Vuex.Store({
           state.SELECTED = [...action.data.paths];
           break;
       }
+
+      state.REDO_ACTIONS.push(action);
     },
 
 
@@ -385,6 +517,9 @@ export default new Vuex.Store({
     },
     MOVE_LAYER_DOWN(state, number) {
       bus.$emit('move-layer-down', state.SELECTED_LAYER_INDEX);
+    },
+    SET_UI_LAYER(state, layer) {
+      state.UI_LAYER = layer;
     },
     REFRESH_LAYER_ARRAY(state) {
       state.LAYERS = [...state.LAYERS];

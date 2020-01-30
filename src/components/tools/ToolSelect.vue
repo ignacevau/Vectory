@@ -24,11 +24,13 @@ export default {
   },
   computed: {
     ...mapState([
-      "ACTIVE_TOOL", 
-      "TOOLSELECT", 
-      "OBJECTS", 
-      "SELECTED", 
-      "ACTIONS"
+      "ACTIVE_TOOL",
+      "TOOLSELECT",
+      "OBJECTS",
+      "SELECTED",
+      "ACTIONS",
+      "REDO_ACTIONS",
+      "UI_LAYER"
       ])
   },
   components: {
@@ -40,7 +42,8 @@ export default {
       "ADD_SELECT",
       "DESELECT",
       "ADD_ACTION",
-      "UNDO"
+      "UNDO",
+      "REDO"
     ]),
     setActive: function() {
       this.SET_ACTIVE("select");
@@ -260,12 +263,18 @@ export default {
     }
 
     // Draw selection box with transform points
-    function drawTransformBox(rect) {
+    let drawTransformBox = (rect) => {
+      const currentLayer = project.activeLayer;
+      this.UI_LAYER.activate();
+
       if (rect) {
         lastTransformRect = rect;
       }
 
-      if (!lastTransformRect) return;
+      if (!lastTransformRect) {
+        currentLayer.activate();
+        return;
+      }
 
       // Draw rect
       transformRect = Path.Rectangle(lastTransformRect);
@@ -371,6 +380,8 @@ export default {
           transformPoints[point].strokeWidth = transformBoxWidth;
         }
       });
+
+      currentLayer.activate();
     }
 
     // Redraw the selection box with transform points
@@ -574,7 +585,6 @@ export default {
       point = new Point(initTransfData.center.x, initTransfData.center.y);
 
       action.scale.data.pivot = point;
-      console.log("ctrl: pivot =" + point);
 
       mouseDrag(mouseEvent);
     }
@@ -864,6 +874,7 @@ export default {
         }
         if(e.modifiers.control) {
           action.scale.data.handle_end = transformRect.bounds[transform.dir];
+          action.scale.data.pivot = new Point(initTransfData.center.x, initTransfData.center.y);
         }
         this.ADD_ACTION(action.scale);
 
@@ -1128,7 +1139,26 @@ export default {
           selection[i].selected = true;
         }
 
-        updateTransformBox(getBounds(getSelection()));
+        this.updateGuidePoints();
+
+        if(this.ACTIVE_TOOL == 'select') {
+          updateTransformBox(getBounds(getSelection()));
+        }
+      }
+    });
+
+    // - Ctrl + Shift + Z -
+    bus.$on("redo", () => {
+      if (this.REDO_ACTIONS.length > 0) {
+        this.REDO();
+
+        project.deselectAll();
+
+        let selection = getUngrouped(getSelection());
+        for (var i = 0; i < selection.length; i++) {
+          selection[i].selected = true;
+        }
+
         this.updateGuidePoints();
       }
     });
@@ -1317,13 +1347,6 @@ export default {
         }
       }
     });
-
-    document.addEventListener("mousedown", e => {
-      var temp = [];
-      for (var i = 0; i < this.ACTIONS.length; i++) {
-        temp.push(this.ACTIONS[i].data.paths.length);
-      }
-    });
 //
 
 //#region Aligning
@@ -1340,6 +1363,15 @@ export default {
     }
 
     updateTransformBox(getBounds(getSelection()));
+
+    // Make undo-abel
+    action.move = new Action("move", {
+      paths: ungrouped,
+      startPos: bounds.center,
+      endPos: bounds.center.add(new Point(dist_x, 0))
+    });
+
+    this.ADD_ACTION(action.move);
   });
 
   bus.$on('align-hor-left', () => {
@@ -1354,6 +1386,15 @@ export default {
     }
 
     updateTransformBox(getBounds(getSelection()));
+
+    // Make undo-abel
+    action.move = new Action("move", {
+      paths: ungrouped,
+      startPos: bounds.center,
+      endPos: bounds.center.add(new Point(dist_x, 0))
+    });
+
+    this.ADD_ACTION(action.move);
   });
 
   bus.$on('align-hor-right', () => {
@@ -1368,6 +1409,15 @@ export default {
     }
 
     updateTransformBox(getBounds(getSelection()));
+
+    // Make undo-abel
+    action.move = new Action("move", {
+      paths: ungrouped,
+      startPos: bounds.center,
+      endPos: bounds.center.add(new Point(dist_x, 0))
+    });
+
+    this.ADD_ACTION(action.move);
   });
 
 
@@ -1383,6 +1433,15 @@ export default {
     }
 
     updateTransformBox(getBounds(getSelection()));
+
+    // Make undo-abel
+    action.move = new Action("move", {
+      paths: ungrouped,
+      startPos: bounds.center,
+      endPos: bounds.center.add(new Point(0, dist_y))
+    });
+
+    this.ADD_ACTION(action.move);
   });
 
   bus.$on('align-ver-top', () => {
@@ -1397,6 +1456,15 @@ export default {
     }
 
     updateTransformBox(getBounds(getSelection()));
+
+        // Make undo-abel
+    action.move = new Action("move", {
+      paths: ungrouped,
+      startPos: bounds.center,
+      endPos: bounds.center.add(new Point(0, dist_y))
+    });
+
+    this.ADD_ACTION(action.move);
   });
 
   bus.$on('align-ver-bottom', () => {
@@ -1411,6 +1479,15 @@ export default {
     }
 
     updateTransformBox(getBounds(getSelection()));
+
+        // Make undo-abel
+    action.move = new Action("move", {
+      paths: ungrouped,
+      startPos: bounds.center,
+      endPos: bounds.center.add(new Point(0, dist_y))
+    });
+
+    this.ADD_ACTION(action.move);
   });
 //
   }

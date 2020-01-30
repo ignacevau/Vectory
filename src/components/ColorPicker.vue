@@ -61,7 +61,6 @@ export default {
       let hex = _new.startsWith("#") ? _new.substring(1) : _new;
 
       this.color = "#" + hex;
-      console.log(hex)
       let color = {hex: this.color, rgb: this.hexToRgb(this.color)}
       bus.$emit('color_change', color);
       if(_new.startsWith("#"))
