@@ -26,6 +26,7 @@ export class ShapeGroup {
     this.children = children;
     this.selectable = true;
     this.type = 'group';
+    this.selected = false;
   }
 }
 

@@ -25,7 +25,7 @@ export default {
     ...mapMutations([
       'SET_ACTIVE',
       'ADD_SELECT',
-      'CLEAR_SELECT'
+      'DESELECT'
     ]),
     setActive: function() {
       this.SET_ACTIVE("shapebuilder")

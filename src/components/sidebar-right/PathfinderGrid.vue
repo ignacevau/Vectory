@@ -14,7 +14,7 @@
     <div class="grid-container">
       <div v-bind:class="{ grid: true, full: showText, collapsed: !showText }">
         <div class="desc" v-if="showText">UNITE</div>
-        <div class="icon">
+        <div class="icon" @click="unite">
           <img src="@/assets/unite.png" alt="">
         </div>
 
@@ -22,7 +22,7 @@
         <div v-if="showText"></div>
 
         <div class="desc" v-if="showText">EXCLUDE</div>
-        <div class="icon">
+        <div class="icon" @click="exclude">
           <img src="@/assets/exclude.png" alt="">
         </div>
 
@@ -30,7 +30,7 @@
         <div v-if="showText"></div>
 
         <div class="desc" v-if="showText">INTERSECT</div>
-        <div class="icon">
+        <div class="icon" @click="intersect">
           <img src="@/assets/intersect.png" alt="">
         </div>
 
@@ -38,7 +38,7 @@
         <div v-if="showText"></div>
 
         <div class="desc" v-if="showText">SUBTRACT</div>
-        <div class="icon">
+        <div class="icon" @click="subtract">
           <img src="@/assets/subtract.png" alt="">
         </div>
       </div>
@@ -49,8 +49,12 @@
 <script>
 import { mapState, mapMutations } from 'vuex';
 import { ShapeGroup } from '@/main.js'
+import { BooleanOperations } from '@/mixins/BooleanOperations.js';
 
 export default {
+  mixins: [
+    BooleanOperations
+  ],
   name: 'PathfinderGrid',
   props: [
     'showText'
@@ -65,10 +69,10 @@ export default {
     ...mapMutations([
       'ADD_SHAPE',
       'DISCARD_SHAPES',
-      'CLEAR_SELECT'
+      'DESELECT'
     ]),
     createGroup: function() {
-      let _newGroup = new ShapeGroup(this.SELECTED);
+      let _newGroup = new ShapeGroup([...this.SELECTED]);
       _newGroup.selected = false;
       this.DISCARD_SHAPES();
       this.ADD_SHAPE(_newGroup);
@@ -77,13 +81,25 @@ export default {
       for(let i=0; i<this.SELECTED.length; i++) {
         let item = this.SELECTED[i];
         if(item.type == "group") {
-          this.CLEAR_SELECT();
+          this.DESELECT();
           this.DISCARD_SHAPES([item]);
           for(let j=0; j<item.children.length; j++) {
             this.ADD_SHAPE(item.children[j]);
           }
         }
       }
+    },
+    unite: function() {
+      this.UNITE();
+    },
+    exclude: function() {
+
+    },
+    intersect: function() {
+
+    },
+    subtract: function() {
+
     }
   }
 }

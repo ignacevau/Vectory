@@ -385,13 +385,15 @@ export default {
     }
 
     // Redraw the selection box with transform points
-    function updateTransformBox(bounds) {
+    let updateTransformBox = (bounds) => {
       hideTransformBox();
 
-      if (bounds) {
-        drawTransformBox(bounds);
-      } else {
-        drawTransformBox();
+      if(this.SELECTED.length > 0) {
+        if (bounds) {
+          drawTransformBox(bounds);
+        } else {
+          drawTransformBox();
+        }
       }
     }
 
@@ -1160,6 +1162,10 @@ export default {
         }
 
         this.updateGuidePoints();
+
+        if(this.ACTIVE_TOOL == 'select') {
+          updateTransformBox(getBounds(getSelection()));
+        }
       }
     });
 

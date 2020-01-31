@@ -1,25 +1,36 @@
 <template>
   <header class="header-bar">
-    <div class="file" @click="triggerFileDropdown">
-      <div class="left">
-        <img src="@/assets/file.png" />
+    <div class="left">
+      <div class="file" @click="triggerFileDropdown">
+        <div class="left">
+          <img src="@/assets/file.png" />
+        </div>
+
+        <div class="collapse">
+          <div>{{ fileDropDownSign }}</div>
+          <div>{{ fileActiveSign }}</div>
+        </div>
       </div>
 
-      <div class="collapse">
-        <div>{{ fileDropDownSign }}</div>
-        <div>{{ fileActiveSign }}</div>
+      <div class="tool">
+        <div>TOOL :</div>
+        <img v-bind:src="imgUrl()" />
+      </div>
+
+      <header-pen v-if="ACTIVE_TOOL == 'pen'" />
+      <header-circle v-if="ACTIVE_TOOL == 'circle'" />
+      <header-line v-if="ACTIVE_TOOL == 'line'" />
+      <header-select v-if="ACTIVE_TOOL == 'select'" />
+    </div>
+
+    <div class="undo-section">
+      <div @click="undo" class="undo-button left" title="Undo: Ctrl+Z">
+        <img src="@/assets/undo.png" />
+      </div>
+      <div @click="redo" class="undo-button right" title="Redo: Ctrl+Shift+Z">
+        <img src="@/assets/redo.png" />
       </div>
     </div>
-
-    <div class="tool">
-      <div>TOOL :</div>
-      <img v-bind:src="imgUrl()" />
-    </div>
-
-    <header-pen v-if="ACTIVE_TOOL == 'pen'" />
-    <header-circle v-if="ACTIVE_TOOL == 'circle'" />
-    <header-line v-if="ACTIVE_TOOL == 'line'" />
-    <header-select v-if="ACTIVE_TOOL == 'select'" />
 
   </header>
 </template>
@@ -56,13 +67,21 @@ export default {
   },
   methods: {
     ...mapMutations([
-      'TRIGGER_FILEDROPDOWN'
+      'TRIGGER_FILEDROPDOWN',
+      'UNDO',
+      'REDO'
     ]),
     imgUrl: function() {
       return images('./tool-' + this.ACTIVE_TOOL + '.png')
     },
     triggerFileDropdown: function() {
       this.TRIGGER_FILEDROPDOWN();
+    },
+    undo: function() {
+      bus.$emit("undo");
+    },
+    redo: function() {
+      bus.$emit("redo");
     }
   }
 }
@@ -83,6 +102,48 @@ export default {
   background-color: $DefaultGray;
   z-index: 1;
   display: flex;
+  justify-content: space-between;
+
+  .left {
+    display: flex;
+    height: 100%;
+  }
+
+  .undo-section {
+    height: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-right: 8px;
+
+    .undo-button {
+      width: 2.3em;
+      height: 1.3em;
+      background-color: $LightGray_Btn;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      img {
+        max-height: 60%;
+      }
+
+      &:hover {
+        background-color: $ThemeBlue;
+      }
+    }
+
+    .left {
+      border-top-left-radius: 3px;
+      border-bottom-left-radius: 3px;
+    }
+
+    .right {
+      border-top-right-radius: 3px;
+      border-bottom-right-radius: 3px;
+      border-left: 1px solid rgb(126, 126, 126);
+    }
+  }
 }
 .file {
   height: 100%;

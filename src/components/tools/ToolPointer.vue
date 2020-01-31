@@ -31,7 +31,7 @@ export default {
   methods: {
     ...mapMutations([
       'SET_ACTIVE',
-      'CLEAR_SELECT'
+      'DESELECT'
     ]),
     setActive: function() {
       this.SET_ACTIVE("pointer")
@@ -40,7 +40,7 @@ export default {
       if(this.SELECTED.length > 0) {
         this.selected = this.SELECTED[this.SELECTED.length-1]
 
-        this.CLEAR_SELECT()
+        this.DESELECT()
         this.selected.selected = true
       }
     }

@@ -94,8 +94,13 @@ export default new Vuex.Store({
           let _file = e.target.files[0];
 
           project.clear();
+          state.ACTIONS = [];
+          state.REDO_ACTIONS = [];
           state.OBJECTS = [];
           state.SELECTED = [];
+          state.LAYERS = [];
+          state.SELECTED_LAYER_INDEX = 1;
+          bus.$emit("setup-canvas-border");
 
           let fs = new FileReader();
           fs.onload = () => {
@@ -105,6 +110,7 @@ export default new Vuex.Store({
             Object.keys(data).forEach(function(key, index) {
               if(data[key].type != "group") {
                 project.importSVG(data[key].svg, {onLoad: (item) => {
+                  project.activeLayer.addChild(item);
                   item.selectable = data[key].selectable;
                   item.type = data[key].type;
 
@@ -162,7 +168,8 @@ export default new Vuex.Store({
 
     // --- Shapes ---
     ADD_SHAPE: (state, shape) => {
-      state.OBJECTS.push(shape);
+      if(!state.OBJECTS.includes(shape))
+        state.OBJECTS.push(shape);
     },
 
     // --- Selection ---
@@ -492,37 +499,52 @@ export default new Vuex.Store({
     //Layers
     ADD_LAYER(state) {
       bus.$emit('add-layer');
+      state.UI_LAYER.bringToFront();
     },
     INSERT_LAYER(state, layer) {
       state.LAYERS.push(layer);
       state.SELECTED_LAYER_INDEX = layer.number;
+      state.UI_LAYER.bringToFront();
     },
     SELECT_LAYER(state, number) {
       bus.$emit('update-active-layer', number);
+      state.UI_LAYER.bringToFront();
     },
     LAYER_SELECT_ALL(state, number) {
       bus.$emit('layer-select-all', number);
+      state.UI_LAYER.bringToFront();
+    },
+    LAYER_HIDE_SHAPES(state, number) {
+      bus.$emit('layer-hide-shapes', number);
+    },
+    LAYER_UNHIDE_SHAPES(state, number) {
+      bus.$emit('layer-unhide-shapes', number);
     },
     REMOVE_LAYER(state) {
       if(state.SELECTED_LAYER_INDEX != 0) {
         bus.$emit('hide-transformbox');
         bus.$emit('remove-layer');
+        state.UI_LAYER.bringToFront();
       }
     },
     MERGE_LAYERS(state) {
       bus.$emit('merge-layers');
+      state.UI_LAYER.bringToFront();
     },
     MOVE_LAYER_UP(state) {
       bus.$emit('move-layer-up', state.SELECTED_LAYER_INDEX);
+      state.UI_LAYER.bringToFront();
     },
     MOVE_LAYER_DOWN(state, number) {
       bus.$emit('move-layer-down', state.SELECTED_LAYER_INDEX);
+      state.UI_LAYER.bringToFront();
     },
     SET_UI_LAYER(state, layer) {
       state.UI_LAYER = layer;
     },
     REFRESH_LAYER_ARRAY(state) {
       state.LAYERS = [...state.LAYERS];
+      state.UI_LAYER.bringToFront();
     },
     SWAP_LAYERS(state, indexes) {
       let temp = state.LAYERS[indexes.first_index];
@@ -531,9 +553,12 @@ export default new Vuex.Store({
 
       // Changing key for change detection
       state.LAYERS = [...state.LAYERS];
+
+      state.UI_LAYER.bringToFront();
     },
     SET_SELECTED_LAYER_INDEX(state, value) {
       state.SELECTED_LAYER_INDEX = value;
+      state.UI_LAYER.bringToFront();
     },
 
     // -- Guidelines --

@@ -42,7 +42,8 @@ export default {
       "SET_SCREEN_BORDER",
       "ADD_SELECT",
       "ADD_ACTION",
-      "SET_UI_LAYER"
+      "SET_UI_LAYER",
+      "DESELECT"
     ])
   },
   mounted: function() {
@@ -65,23 +66,6 @@ export default {
     let border_w = Data.DOCUMENT_WIDTH;
     let border_h = Data.DOCUMENT_HEIGHT;
 
-    // Set the screen border
-    this.SET_SCREEN_BORDER(new Path.Rectangle({
-      point: [
-        Data.CENTER_HOR - border_w/2, 
-        Data.CENTER_VER - border_h/2
-      ],
-      size: [border_w, border_h],
-      strokeColor: '#969696'
-    }));
-
-    // Create UI layer and add screen border
-    const UI_LAYER = project.addLayer(new Layer({
-      children: [this.SCREEN_BORDER]
-    }));
-
-    this.SET_UI_LAYER(UI_LAYER);
-
     const toolSelect = new Tool();
     const toolPointer = new Tool();
     const toolPen = new Tool();
@@ -101,20 +85,42 @@ export default {
     //
 
   //#region Layers
-
-    // Create default layer
-    let defaultLayer = project.addLayer(new Layer());
-    defaultLayer.number = 0;
-    defaultLayer.name = "Default";
-    defaultLayer.activate();
-
-    this.INSERT_LAYER(defaultLayer);
-
     const layerLayout = {
-      0: defaultLayer
+      0: project.addLayer(new Layer())
     };
 
     let layerCount = 1;
+
+    let setupCanvas = () => {
+      // Set the screen border
+      this.SET_SCREEN_BORDER(new Path.Rectangle({
+        point: [
+          Data.CENTER_HOR - border_w/2, 
+          Data.CENTER_VER - border_h/2
+        ],
+        size: [border_w, border_h],
+        strokeColor: '#969696'
+      }));
+
+      // Create UI layer and add screen border
+      const UI_LAYER = project.addLayer(new Layer({
+        children: [this.SCREEN_BORDER]
+      }));
+
+      this.SET_UI_LAYER(UI_LAYER);
+
+      // Create default layer
+      let defaultLayer = project.addLayer(new Layer());
+      defaultLayer.number = 0;
+      defaultLayer.name = "Default";
+      defaultLayer.activate();
+
+      layerLayout[0] = defaultLayer;
+
+      this.INSERT_LAYER(defaultLayer);
+    }
+
+    setupCanvas();
 
     let AddLayer = () => {
       let _newLayer = project.addLayer(new Layer());
@@ -164,12 +170,43 @@ export default {
       }
     }
 
+    let LayerHideShapes = (number) => {
+      this.DESELECT();
+
+      let _children = layerLayout[number].children;
+      for(let i=0; i<this.OBJECTS.length; i++) {
+        if(_children.includes(this.OBJECTS[i])) {
+          this.OBJECTS[i].selected = false;
+          this.OBJECTS[i].visible = false;
+          this.OBJECTS[i].selectable = false;
+        }
+      }
+
+      bus.$emit("hide-transformbox")
+    }
+
+    let LayerUnhideShapes = (number) => {
+      this.DESELECT();
+
+      let _children = layerLayout[number].children;
+      for(let i=0; i<this.OBJECTS.length; i++) {
+        if(_children.includes(this.OBJECTS[i])) {
+          this.OBJECTS[i].selected = false;
+          this.OBJECTS[i].visible = true;
+          this.OBJECTS[i].selectable = true;
+        }
+      }
+    }
+
     let getLayersFiltered = () => {
       return this.LAYERS.filter(function(el) {
         return !el.data.deleted;
       });
     }
 
+    bus.$on("setup-canvas-border", () => {
+      setupCanvas();
+    });
     bus.$on("add-layer", () => {
       AddLayer();
     });
@@ -191,6 +228,12 @@ export default {
     });
     bus.$on("layer-select-all", (number) => {
       LayerSelectAll(number);
+    });
+    bus.$on("layer-hide-shapes", (number) => {
+      LayerHideShapes(number);
+    });
+    bus.$on("layer-unhide-shapes", (number) => {
+      LayerUnhideShapes(number);
     });
     bus.$on('move-layer-up', (number) => {
       let first_index = -1;

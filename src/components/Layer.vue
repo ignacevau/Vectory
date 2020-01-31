@@ -48,7 +48,9 @@ export default {
   methods: {
     ...mapMutations([
       'SELECT_LAYER',
-      'LAYER_SELECT_ALL'
+      'LAYER_SELECT_ALL',
+      'LAYER_HIDE_SHAPES',
+      'LAYER_UNHIDE_SHAPES'
     ]),
     imgUrlEye: function() {
       return images('./eye-' + this.eyeState + '.png')
@@ -61,6 +63,10 @@ export default {
     },
     triggerEye: function() {
       this.eyeState = this.eyeState == 'visible' ? 'invisible' : 'visible'
+      if(this.eyeState == 'invisible') 
+        this.LAYER_HIDE_SHAPES(this.number);
+      else
+        this.LAYER_UNHIDE_SHAPES(this.number);
     },
     selectDown: function() {
       this.selectState = 'fill';
